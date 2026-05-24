@@ -8,7 +8,7 @@ dependencies = [
     "husk-shared",
     "fastapi>=0.115",
     "uvicorn[standard]>=0.32",
-    "sqlalchemy>=2.0",
+    "sqlalchemy[asyncio]>=2.0",
     "aiosqlite>=0.20",
     "websockets>=13",
     "pydantic>=2.9",
