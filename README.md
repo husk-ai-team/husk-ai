@@ -12,7 +12,7 @@
 <p align="center">
   <a href="LICENSE"><img src="https://img.shields.io/badge/license-BUSL--1.1-FF6B35.svg" alt="License: BUSL 1.1" /></a>
   <img src="https://img.shields.io/badge/python-3.11+-blue.svg" alt="Python 3.11+" />
-  <a href="https://github.com/EdoardoBambini/husk-ai/actions/workflows/ci.yml"><img src="https://github.com/EdoardoBambini/husk-ai/actions/workflows/ci.yml/badge.svg" alt="CI" /></a>
+  <a href="https://github.com/husk-ai-team/husk-ai/actions/workflows/ci.yml"><img src="https://github.com/husk-ai-team/husk-ai/actions/workflows/ci.yml/badge.svg" alt="CI" /></a>
   <img src="https://img.shields.io/badge/local--first-no%20telemetry-0F1117.svg" alt="local-first · no telemetry" />
 </p>
 
@@ -48,7 +48,7 @@ For the impatient. Prerequisites: [git](https://git-scm.com/) and
 [uv](https://docs.astral.sh/uv/) (uv installs the pinned Python 3.11 for you).
 
 ```bash
-git clone https://github.com/EdoardoBambini/husk-ai.git && cd husk-ai
+git clone https://github.com/husk-ai-team/husk-ai.git && cd husk-ai
 uv sync --all-packages
 uv run husk-ai start
 ```
@@ -236,7 +236,7 @@ Should print `uv 0.4.x` or higher. If not, see [Troubleshooting](#troubleshootin
 Copy-paste these three commands one at a time (press Enter after each):
 
 ```bash
-git clone https://github.com/EdoardoBambini/husk-ai.git
+git clone https://github.com/husk-ai-team/husk-ai.git
 ```
 
 ```bash
@@ -664,7 +664,7 @@ break.
 - **Checkpointer** — A LangGraph concept: a state-snapshot store. Husk reads it to enable time-travel and replay.
 - **Studio** — The React UI served by the backend at `/`. Where you view traces, click into runs, allow/deny interventions, and time-travel.
 
-> Stuck on something not covered? Open an issue on [GitHub](https://github.com/EdoardoBambini/husk-ai/issues).
+> Stuck on something not covered? Open an issue on [GitHub](https://github.com/husk-ai-team/husk-ai/issues).
 
 ---
 

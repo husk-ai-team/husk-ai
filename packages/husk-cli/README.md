@@ -6,7 +6,7 @@ statements.
 ## Install from source (MVP today)
 
 ```bash
-git clone https://github.com/EdoardoBambini/husk-ai.git
+git clone https://github.com/husk-ai-team/husk-ai.git
 cd husk-ai
 uv sync --all-packages
 uv run husk-ai start
@@ -27,12 +27,12 @@ husk-ai doctor   Diagnostics (versions, paths, integration health).
 husk-ai clean    Wipe ~/.husk/.
 ```
 
-See the [project README](https://github.com/EdoardoBambini/husk-ai) for full
+See the [project README](https://github.com/husk-ai-team/husk-ai) for full
 docs, IDE integrations (Cursor, VS Code, Antigravity), and OTel instrumentation
 patterns Husk understands.
 
 ## License
 
 Source-available under the Business Source License 1.1 (BUSL 1.1). See the
-[`LICENSE`](https://github.com/EdoardoBambini/husk-ai/blob/main/LICENSE) at the
+[`LICENSE`](https://github.com/husk-ai-team/husk-ai/blob/main/LICENSE) at the
 repository root.

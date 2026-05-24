@@ -22,7 +22,7 @@ Then start Husk:
 
 ```bash
 # Install from source (PyPI release is on the roadmap)
-git clone https://github.com/EdoardoBambini/husk-ai.git && cd husk-ai
+git clone https://github.com/husk-ai-team/husk-ai.git && cd husk-ai
 uv sync --all-packages
 uv run husk-ai start
 ```

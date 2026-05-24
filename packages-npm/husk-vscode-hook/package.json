@@ -7,7 +7,7 @@
   "publisher": "husk",
   "repository": {
     "type": "git",
-    "url": "https://github.com/EdoardoBambini/husk-ai.git",
+    "url": "https://github.com/husk-ai-team/husk-ai.git",
     "directory": "packages-npm/husk-vscode-hook"
   },
   "homepage": "https://husk.dev",

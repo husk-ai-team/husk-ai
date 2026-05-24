@@ -17,7 +17,7 @@ pull request.
 ## Setup
 
 ```bash
-git clone https://github.com/EdoardoBambini/husk-ai.git
+git clone https://github.com/husk-ai-team/husk-ai.git
 cd husk-ai
 uv sync --all-packages --group examples   # Python workspace + example deps
 corepack pnpm install                      # only if working on the Studio UI
@@ -67,7 +67,7 @@ to contribute it.
 
 ## Questions
 
-Open a [GitHub issue](https://github.com/EdoardoBambini/husk-ai/issues) for bugs
+Open a [GitHub issue](https://github.com/husk-ai-team/husk-ai/issues) for bugs
 and feature requests, or email [info@huskai.dev](mailto:info@huskai.dev). For
 security issues, follow [SECURITY.md](SECURITY.md) instead of filing a public
 issue.
