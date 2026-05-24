@@ -1,0 +1,228 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+
+@custom-variant dark (&:is(.dark *));
+
+/* Modern tech-forward fonts */
+@import url('https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Geist+Mono:wght@400;500&display=swap');
+
+@theme inline {
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-ring: var(--sidebar-ring);
+}
+
+:root {
+  /* Modern Tech-Forward: Dark + Orange Accent */
+  --primary: #FF6B35;
+  --primary-foreground: #FFFFFF;
+  --sidebar-primary: #FF6B35;
+  --sidebar-primary-foreground: #FFFFFF;
+  --chart-1: #FF6B35;
+  --chart-2: #FF8C42;
+  --chart-3: #FF6B35;
+  --chart-4: #FF8C42;
+  --chart-5: #FF6B35;
+  --radius: 0.75rem;
+  --background: #0F1117;
+  --foreground: #E6E6E6;
+  --card: #161B22;
+  --card-foreground: #E6E6E6;
+  --popover: #161B22;
+  --popover-foreground: #E6E6E6;
+  --secondary: #21262D;
+  --secondary-foreground: #E6E6E6;
+  --muted: #30363D;
+  --muted-foreground: #8B949E;
+  --accent: #FF6B35;
+  --accent-foreground: #FFFFFF;
+  --destructive: #F85149;
+  --destructive-foreground: #FFFFFF;
+  --border: #30363D;
+  --input: #0D1117;
+  --ring: #FF6B35;
+  --sidebar: #0F1117;
+  --sidebar-foreground: #E6E6E6;
+  --sidebar-accent: #FF6B35;
+  --sidebar-accent-foreground: #FFFFFF;
+  --sidebar-border: #30363D;
+  --sidebar-ring: #FF6B35;
+}
+
+.dark {
+  /* Same as :root - dark theme is default */
+  --primary: #FF6B35;
+  --primary-foreground: #FFFFFF;
+  --sidebar-primary: #FF6B35;
+  --sidebar-primary-foreground: #FFFFFF;
+  --background: #0F1117;
+  --foreground: #E6E6E6;
+  --card: #161B22;
+  --card-foreground: #E6E6E6;
+  --popover: #161B22;
+  --popover-foreground: #E6E6E6;
+  --secondary: #21262D;
+  --secondary-foreground: #E6E6E6;
+  --muted: #30363D;
+  --muted-foreground: #8B949E;
+  --accent: #FF6B35;
+  --accent-foreground: #FFFFFF;
+  --destructive: #F85149;
+  --destructive-foreground: #FFFFFF;
+  --border: #30363D;
+  --input: #0D1117;
+  --ring: #FF6B35;
+  --chart-1: #FF6B35;
+  --chart-2: #FF8C42;
+  --chart-3: #FF6B35;
+  --chart-4: #FF8C42;
+  --chart-5: #FF6B35;
+  --sidebar: #0F1117;
+  --sidebar-foreground: #E6E6E6;
+  --sidebar-accent: #FF6B35;
+  --sidebar-accent-foreground: #FFFFFF;
+  --sidebar-border: #30363D;
+  --sidebar-ring: #FF6B35;
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  body {
+    @apply bg-background text-foreground;
+    font-family: 'Geist', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  }
+  h1, h2, h3, h4, h5, h6 {
+    font-family: 'Geist', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+  }
+  code, pre {
+    font-family: 'Geist Mono', 'Courier New', monospace;
+  }
+  button:not(:disabled),
+  [role="button"]:not([aria-disabled="true"]),
+  [type="button"]:not(:disabled),
+  [type="submit"]:not(:disabled),
+  [type="reset"]:not(:disabled),
+  a[href],
+  select:not(:disabled),
+  input[type="checkbox"]:not(:disabled),
+  input[type="radio"]:not(:disabled) {
+    @apply cursor-pointer;
+  }
+}
+
+@layer components {
+  /**
+   * HUSK AI - Modern Tech-Forward Design System
+   * 
+   * Color Palette:
+   * - Background: #0F1117 (dark, GitHub-inspired)
+   * - Accent: #FF6B35 (vibrant orange)
+   * - Secondary: #21262D (subtle grey)
+   * - Text: #E6E6E6 (light grey)
+   * 
+   * Typography: Geist (modern, clean)
+   * Borders: Subtle, rounded corners
+   * Animations: Smooth, 300ms ease
+   * Layout: Clean, minimal, developer-focused
+   * 
+   * Custom container utility that centers content and adds responsive padding.
+   *
+   * This overrides Tailwind's default container behavior to:
+   * - Auto-center content (mx-auto)
+   * - Add responsive horizontal padding
+   * - Set max-width for large screens
+   *
+   * Usage: <div className="container">...</div>
+   *
+   * For custom widths, use max-w-* utilities directly:
+   * <div className="max-w-6xl mx-auto px-4">...</div>
+   */
+  .container {
+    width: 100%;
+    margin-left: auto;
+    margin-right: auto;
+    padding-left: 1rem; /* 16px - mobile padding */
+    padding-right: 1rem;
+  }
+
+  .flex {
+    min-height: 0;
+    min-width: 0;
+  }
+
+  /* Geometric Brutalism: Thick borders and sharp edges */
+  .brutal-border {
+    border: 3px solid #FF7A3D;
+  }
+
+  .brutal-border-dark {
+    border: 3px solid #2A2E38;
+  }
+
+  /* Diagonal cuts using clip-path */
+  .clip-diagonal-top {
+    clip-path: polygon(0 8%, 100% 0, 100% 100%, 0 100%);
+  }
+
+  .clip-diagonal-bottom {
+    clip-path: polygon(0 0, 100% 8%, 100% 100%, 0 92%);
+  }
+
+  /* Brutalist transitions */
+  .brutal-transition {
+    transition: all 200ms ease-in-out;
+  }
+
+  @media (min-width: 640px) {
+    .container {
+      padding-left: 1.5rem; /* 24px - tablet padding */
+      padding-right: 1.5rem;
+    }
+  }
+
+  @media (min-width: 1024px) {
+    .container {
+      padding-left: 2rem; /* 32px - desktop padding */
+      padding-right: 2rem;
+      max-width: 1280px; /* Standard content width */
+    }
+  }
+}

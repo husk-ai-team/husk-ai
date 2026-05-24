@@ -1,0 +1,26 @@
+{
+  "name": "husk-monorepo",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Husk monorepo — visual interactive debugger for AI agents",
+  "license": "BUSL-1.1",
+  "packageManager": "pnpm@9.12.0",
+  "scripts": {
+    "dev": "turbo run dev",
+    "build": "turbo run build",
+    "lint": "turbo run lint",
+    "test": "turbo run test",
+    "typecheck": "turbo run typecheck",
+    "dev:studio": "pnpm --filter studio dev",
+    "dev:backend": "cd packages/husk-studio-backend && uv run uvicorn husk_studio_backend.main:app --reload --port 7654",
+    "format": "prettier --write \"**/*.{ts,tsx,js,jsx,json,md,yaml,yml}\""
+  },
+  "devDependencies": {
+    "turbo": "^2.3.0",
+    "prettier": "^3.4.2"
+  },
+  "engines": {
+    "node": ">=20",
+    "pnpm": ">=9"
+  }
+}

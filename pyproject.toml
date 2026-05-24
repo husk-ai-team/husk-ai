@@ -1,0 +1,69 @@
+[project]
+name = "husk-workspace"
+version = "0.1.0"
+description = "Husk monorepo workspace root — visual interactive debugger for AI agents"
+requires-python = ">=3.11"
+license = { text = "BUSL-1.1" }
+
+[tool.uv.workspace]
+members = [
+    "packages/husk-cli",
+    "packages/husk-sandbox",
+    "packages/husk-studio-backend",
+    "packages/husk-shared",
+]
+
+[tool.uv]
+# Prefer uv's own managed Python interpreter over whatever happens to be on
+# the system PATH. Combined with the `.python-version` pin at the repo root,
+# this guarantees every contributor and tester gets the same Python 3.11.x —
+# uv downloads it on first sync if missing. A system CPython 3.11 (e.g. from
+# Homebrew/apt) is still allowed as a fallback; "only-managed" would force a
+# redundant download in that case.
+python-preference = "managed"
+
+[tool.uv.sources]
+husk = { workspace = true }
+husk-sandbox = { workspace = true }
+husk-studio-backend = { workspace = true }
+husk-shared = { workspace = true }
+
+[dependency-groups]
+dev = [
+    "pytest>=8.3",
+    "pytest-asyncio>=0.24",
+    "pytest-cov>=5.0",
+    "ruff>=0.7",
+    "mypy>=1.13",
+    "pre-commit>=4.0",
+]
+examples = [
+    "opentelemetry-sdk>=1.27",
+    "opentelemetry-exporter-otlp-proto-http>=1.27",
+    "langgraph>=0.2",
+    "langgraph-checkpoint-sqlite>=2.0",
+]
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+src = [
+    "packages/husk-cli/src",
+    "packages/husk-sandbox/src",
+    "packages/husk-studio-backend/src",
+    "packages/husk-shared/src",
+]
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "B", "UP", "ASYNC", "T20"]
+ignore = ["E501"]
+
+[tool.pytest.ini_options]
+asyncio_mode = "auto"
+testpaths = ["packages/*/tests"]
+addopts = "--import-mode=importlib"
+
+[tool.mypy]
+python_version = "3.11"
+strict = true
+ignore_missing_imports = true

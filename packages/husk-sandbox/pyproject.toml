@@ -1,0 +1,32 @@
+[project]
+name = "husk-sandbox"
+version = "0.1.0"
+description = "Husk sandbox engine — tracer hooks, HTTP virtualization, state capture"
+requires-python = ">=3.11"
+license = { text = "BUSL-1.1" }
+dependencies = [
+    "husk-shared",
+    "pydantic>=2.9",
+    "httpx>=0.27",
+    "python-ulid>=3.0",
+]
+
+[project.optional-dependencies]
+langchain = ["langchain>=0.3,<0.4", "langchain-core>=0.3,<0.4"]
+langgraph = ["langgraph>=0.2,<0.3"]
+openai = ["openai>=1.50"]
+anthropic = ["anthropic>=0.40"]
+all = [
+    "langchain>=0.3,<0.4",
+    "langchain-core>=0.3,<0.4",
+    "langgraph>=0.2,<0.3",
+    "openai>=1.50",
+    "anthropic>=0.40",
+]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/husk_sandbox"]

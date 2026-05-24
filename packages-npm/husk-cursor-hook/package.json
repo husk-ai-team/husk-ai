@@ -1,0 +1,27 @@
+{
+  "name": "husk-cursor-hook",
+  "version": "0.1.0",
+  "description": "Cursor SDK Hooks bridge for Husk — the visual debugger for AI agents.",
+  "license": "BUSL-1.1",
+  "bin": {
+    "husk-cursor-hook": "./dist/cli.js"
+  },
+  "files": [
+    "dist",
+    "src/templates",
+    "README.md"
+  ],
+  "scripts": {
+    "build": "node ./scripts/build.mjs",
+    "dev": "node ./scripts/build.mjs --watch",
+    "check": "tsc --noEmit"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "devDependencies": {
+    "@types/node": "^24.7.0",
+    "esbuild": "^0.25.0",
+    "typescript": "5.6.3"
+  }
+}

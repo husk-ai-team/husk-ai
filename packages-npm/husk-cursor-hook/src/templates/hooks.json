@@ -1,0 +1,44 @@
+{
+  "version": 1,
+  "hooks": {
+    "beforeSubmitPrompt": [
+      {
+        "command": "husk-cursor-hook hook --event=beforeSubmitPrompt",
+        "timeout": 30
+      }
+    ],
+    "beforeShellExecution": [
+      {
+        "command": "husk-cursor-hook hook --event=beforeShellExecution",
+        "timeout": 30,
+        "failClosed": false
+      }
+    ],
+    "beforeMCPExecution": [
+      {
+        "command": "husk-cursor-hook hook --event=beforeMCPExecution",
+        "timeout": 30,
+        "failClosed": false
+      }
+    ],
+    "beforeReadFile": [
+      {
+        "command": "husk-cursor-hook hook --event=beforeReadFile",
+        "timeout": 10,
+        "failClosed": false
+      }
+    ],
+    "afterFileEdit": [
+      {
+        "command": "husk-cursor-hook hook --event=afterFileEdit",
+        "timeout": 5
+      }
+    ],
+    "stop": [
+      {
+        "command": "husk-cursor-hook hook --event=stop",
+        "timeout": 5
+      }
+    ]
+  }
+}

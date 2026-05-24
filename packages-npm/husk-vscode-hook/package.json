@@ -1,0 +1,84 @@
+{
+  "name": "husk-vscode-hook",
+  "displayName": "Husk for VS Code",
+  "version": "0.1.0",
+  "description": "Stream every terminal command your AI agent runs into the Husk Studio. Works with VS Code, Cursor's Continue/Cline/Roo, and Google's Antigravity (which is a VS Code fork).",
+  "license": "BUSL-1.1",
+  "publisher": "husk",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/EdoardoBambini/husk-ai.git",
+    "directory": "packages-npm/husk-vscode-hook"
+  },
+  "homepage": "https://husk.dev",
+  "engines": {
+    "vscode": "^1.85.0",
+    "node": ">=18"
+  },
+  "categories": [
+    "Other",
+    "AI"
+  ],
+  "keywords": [
+    "husk",
+    "agent",
+    "observability",
+    "cline",
+    "continue",
+    "antigravity",
+    "ai"
+  ],
+  "activationEvents": [
+    "onStartupFinished"
+  ],
+  "main": "./dist/extension.js",
+  "contributes": {
+    "commands": [
+      {
+        "command": "husk.openStudio",
+        "title": "Husk: Open Studio"
+      },
+      {
+        "command": "husk.reconnect",
+        "title": "Husk: Reconnect"
+      },
+      {
+        "command": "husk.toggle",
+        "title": "Husk: Toggle Terminal Capture"
+      }
+    ],
+    "configuration": {
+      "type": "object",
+      "title": "Husk",
+      "properties": {
+        "husk.url": {
+          "type": "string",
+          "default": "http://localhost:7654",
+          "description": "URL of your local Husk backend. Override only if you ran `husk start --port <other>`."
+        },
+        "husk.captureTerminal": {
+          "type": "boolean",
+          "default": true,
+          "description": "Stream terminal commands the agent runs into the Husk Studio for replay and auditability."
+        }
+      }
+    }
+  },
+  "scripts": {
+    "build": "node ./scripts/build.mjs",
+    "dev": "node ./scripts/build.mjs --watch",
+    "check": "tsc --noEmit",
+    "package": "node ./scripts/build.mjs && vsce package --no-dependencies --out husk-vscode-hook-0.1.0.vsix"
+  },
+  "files": [
+    "dist",
+    "README.md"
+  ],
+  "devDependencies": {
+    "@types/node": "^24.7.0",
+    "@types/vscode": "^1.85.0",
+    "@vscode/vsce": "^3.9.1",
+    "esbuild": "^0.25.0",
+    "typescript": "5.6.3"
+  }
+}
