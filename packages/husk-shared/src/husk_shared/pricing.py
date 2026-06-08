@@ -28,6 +28,19 @@ _PRICING_PER_1K: dict[str, tuple[float, float]] = {
     "claude-sonnet-4": (0.003, 0.015),
     "claude-haiku-4-5": (0.001, 0.005),
     "claude-opus-4-7": (0.015, 0.075),
+    # Groq (USD per 1K tokens, list price as of late 2025; free-tier inference
+    # available under rate limits — these prices reflect what Groq charges
+    # paid customers and are the right rate to attribute to bypassed token
+    # work, matching what an organisation would have actually paid).
+    "llama-3.1-8b-instant": (0.00005, 0.00008),
+    "llama-3.3-70b-versatile": (0.00059, 0.00079),
+    "llama-3.1-70b-versatile": (0.00059, 0.00079),
+    "llama3-70b-8192": (0.00059, 0.00079),
+    "llama3-8b-8192": (0.00005, 0.00008),
+    "mixtral-8x7b-32768": (0.00024, 0.00024),
+    "gemma2-9b-it": (0.0002, 0.0002),
+    "openai/gpt-oss-20b": (0.0001, 0.0001),
+    "openai/gpt-oss-120b": (0.00015, 0.00015),
 }
 
 

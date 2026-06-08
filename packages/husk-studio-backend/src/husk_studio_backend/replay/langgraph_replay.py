@@ -24,6 +24,12 @@ log = logging.getLogger(__name__)
 _import_lock = threading.Lock()
 _module_cache: dict[str, Any] = {}
 
+# Serialises checkpoint-resume replays. The cached graph module shares a single
+# compiled graph + SqliteSaver connection, so concurrent resumes on the same
+# thread (possible via the HTTP endpoint's asyncio.to_thread) could interleave
+# update_state/put and corrupt the resume. The benchmark CLI is sequential.
+_replay_lock = threading.Lock()
+
 
 def _load_module(path: str) -> Any:
     """Import a Python file by absolute path; cache by mtime."""
@@ -59,12 +65,20 @@ def replay_graph(
     graph_module: str,
     state_override: dict[str, Any],
     new_thread_id: str | None = None,
+    parent_thread_id: str | None = None,
+    fork_node: str | None = None,
 ) -> dict[str, Any]:
     """Invoke a LangGraph defined in `graph_module` with `state_override`.
 
     `graph_module` is "<abs_path_to_file>:<symbol>" — typically ":graph" or
     ":invoke". If the symbol is callable, it's called with state_override.
     If it's a compiled graph, we call `.invoke(state_override, config={...})`.
+
+    TRUE checkpoint resume: when both `parent_thread_id` and `fork_node` are
+    given and the module exposes `replay_from`, we resume that thread from its
+    checkpoint and re-run only `fork_node` onward (the upstream nodes are
+    bypassed). Otherwise we fall back to a full re-run with a fresh thread, which
+    is the original behaviour and keeps the endpoint backward compatible.
     """
     # Split on the LAST colon so Windows drive letters (C:\...) survive.
     path, _, symbol = graph_module.rpartition(":")
@@ -73,6 +87,17 @@ def replay_graph(
         path, symbol = graph_module, "graph"
     symbol = symbol or "graph"
     module = _load_module(path)
+
+    # Preferred path: a true checkpoint resume that skips the upstream nodes.
+    if parent_thread_id and fork_node:
+        replay_from = getattr(module, "replay_from", None)
+        if callable(replay_from):
+            with _replay_lock:
+                return replay_from(
+                    state_override=state_override,
+                    parent_thread_id=parent_thread_id,
+                    fork_node=fork_node,
+                )
 
     target = getattr(module, symbol, None)
     if target is None:
