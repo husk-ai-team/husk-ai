@@ -1,7 +1,7 @@
 {
   "name": "husk-cursor-hook",
   "version": "0.1.0",
-  "description": "Cursor SDK Hooks bridge for Husk — the visual debugger for AI agents.",
+  "description": "Cursor observability bridge for Husk — streams file edits and stop signals into the local Studio.",
   "license": "BUSL-1.1",
   "bin": {
     "husk-cursor-hook": "./dist/cli.js"

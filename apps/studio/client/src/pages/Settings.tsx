@@ -68,12 +68,11 @@ const TABLES = [
   },
   {
     name: "cursor_events",
-    purpose: "Pending and resolved Cursor SDK Hooks interventions.",
+    purpose: "IDE observability events from the Cursor / VS Code bridges.",
     cols: [
       { name: "id, hook, project", type: "string" },
-      { name: "payload", type: "json", note: "raw Cursor stdin payload" },
-      { name: "permission", type: "string", note: "pending | allow | deny | ask" },
-      { name: "user_message, agent_message", type: "text?" },
+      { name: "payload", type: "json", note: "raw IDE hook payload (file edits, terminal commands, stop)" },
+      { name: "created_at", type: "bigint(ms)" },
     ],
   },
   {
@@ -174,8 +173,8 @@ export default function Settings() {
             s={status?.otel}
           />
           <IntegrationCard
-            name="Cursor SDK Hooks"
-            hint="Active intervention"
+            name="Cursor"
+            hint="IDE observability — file edits, stop signals"
             s={status?.cursor}
           />
           <IntegrationCard

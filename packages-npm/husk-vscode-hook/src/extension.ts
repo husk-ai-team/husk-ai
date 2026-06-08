@@ -7,15 +7,12 @@
 // took, with arguments and cwd, in the Studio's activity feed.
 //
 // Honest scope of v0.1:
-//  - Observability only. We don't block agent actions because the IDE
-//    terminal API fires events DURING execution, not before.
-//  - Cursor's `husk-cursor-hook` package is the one that does blocking
-//    Allow/Deny — Cursor exposes a real pre-tool-execution hook.
+//  - Observability only. Events flow into Husk fire-and-forget; the IDE
+//    is never blocked and never prompted for a decision.
 //
 // Future:
-//  - When Continue.dev / Cline / Antigravity expose pre-tool hooks, we
-//    add per-agent bridges that ride on top of this same /api/cursor/events
-//    pipeline.
+//  - Group captured commands by run / agent thread so the Studio can show
+//    them as nested spans alongside LangGraph and OTel traces.
 
 import * as vscode from "vscode";
 

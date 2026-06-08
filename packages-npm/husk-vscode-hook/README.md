@@ -31,17 +31,11 @@ LangGraph runs and OTel spans.
 |---|---|
 | Stream every terminal command into Husk Studio | ✅ |
 | Tag events by IDE (vscode / cursor / antigravity) | ✅ |
-| Pause an agent before a destructive command (Allow / Deny banner) | ❌ — see below |
 | Group commands by run / agent thread | ⏳ roadmap |
 
-The "Allow / Deny" banner ships only on **Cursor** today, because Cursor
-exposes a pre-tool-execution
-hook ([packages-npm/husk-cursor-hook](../husk-cursor-hook)). VS Code and
-Antigravity don't expose that hook yet. The moment they do (or the
-moment Continue / Cline / Roo expose theirs), we'll publish a new
-version that plugs in.
-
-If you want active intervention right now, use Cursor + Husk.
+This bridge is **observability-only** — Husk records what your IDE agent
+does so you can see it on the Studio timeline. It never blocks the IDE or
+prompts you for a decision.
 
 ## Settings
 

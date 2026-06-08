@@ -1,6 +1,13 @@
 # husk-cursor-hook
 
-Cursor SDK Hooks bridge for [Husk](https://husk.dev) — the visual debugger for AI agents.
+Cursor observability bridge for [Husk](https://husk.dev) — the visual debugger for AI agents.
+
+Streams Cursor's `afterFileEdit` and `stop` events to your local Husk backend
+so the Studio timeline shows every file your agent touched, alongside the LLM
+and tool calls captured via OpenTelemetry.
+
+This bridge is **observability-only**. It never blocks the Cursor agent and
+never returns a decision.
 
 ## Install
 
@@ -16,7 +23,8 @@ In your Cursor project, run:
 husk-cursor-hook install
 ```
 
-This writes `.cursor/hooks.json` so Husk can intercept Cursor's hook events.
+This writes `.cursor/hooks.json` registering the observability events with
+Cursor.
 
 Then start Husk:
 
@@ -31,11 +39,13 @@ Open `http://localhost:7654` to see the Studio.
 
 ## How it works
 
-Each hook event runs `husk-cursor-hook hook --event=<name>`. The script POSTs
-the payload to `http://localhost:7654/api/cursor/events`, then long-polls for
-a decision (Allow / Deny / Ask), which you click in the Husk Studio UI.
+Each registered Cursor hook event runs `husk-cursor-hook hook --event=<name>`.
+The script POSTs the payload to `http://localhost:7654/api/cursor/events` as
+fire-and-forget, then writes an empty JSON response to stdout so Cursor
+proceeds immediately.
 
-If Husk isn't running, hooks fail open — your Cursor session is never blocked.
+If Husk isn't running, the bridge logs to stderr and exits cleanly — your
+Cursor session is never affected.
 
 ## Environment
 

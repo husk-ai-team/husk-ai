@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link } from "wouter";
 
-import { CursorBanner } from "@/components/CursorBanner";
 import { FrameworkDot, StatusPill } from "@/components/StatusPill";
 import { StatNumber, Tile } from "@/components/Tile";
 import {
@@ -51,7 +50,6 @@ export default function Dashboard() {
 
   return (
     <>
-      <CursorBanner />
       <section className="px-6 md:px-12 pt-12 md:pt-16 pb-20 max-w-6xl mx-auto">
         {/* Hero */}
         <div className="mb-10 md:mb-14">
@@ -62,8 +60,8 @@ export default function Dashboard() {
             Hi, <span className="text-accent">{firstName}</span>.
           </h1>
           <p className="mt-3 text-sm md:text-base text-muted-foreground max-w-2xl">
-            Your local Husk. Real-time view of every run, every intervention,
-            every cost.
+            Your local Husk. Real-time view of every run, every span, every
+            cost.
           </p>
         </div>
 
@@ -129,7 +127,6 @@ export default function Dashboard() {
             connected={status?.cursor.connected}
             last={status?.cursor.last_event_at}
             ever={status?.cursor.ever_connected}
-            badge={data?.pending_cursor ? `${data.pending_cursor} pending` : undefined}
           />
           <IntegrationTile
             name="LangGraph"
@@ -242,13 +239,11 @@ function IntegrationTile({
   connected,
   last,
   ever,
-  badge,
 }: {
   name: string;
   connected?: boolean;
   last?: number | null;
   ever?: boolean;
-  badge?: string;
 }) {
   const live = !!connected;
   return (
@@ -271,11 +266,6 @@ function IntegrationTile({
       {last && (
         <div className="mt-1 text-[11px] text-muted-foreground">
           {fmtAgo(last)}
-        </div>
-      )}
-      {badge && (
-        <div className="mt-3 inline-block rounded-full bg-destructive/15 px-2 py-0.5 text-[10px] font-semibold text-destructive">
-          {badge}
         </div>
       )}
     </Tile>

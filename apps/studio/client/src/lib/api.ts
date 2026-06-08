@@ -151,7 +151,6 @@ export interface DashboardSummary {
     total_cost_usd: number;
     script_path: string;
   }[];
-  pending_cursor: number;
   sparkline: number[];
 }
 
@@ -178,7 +177,7 @@ export function fmtAgo(ms: number | null | undefined): string {
   return `${Math.floor(diff / 86_400_000)}d ago`;
 }
 
-// --- Cursor SDK Hooks types ---
+// --- IDE observability events (Cursor / VS Code bridges) ---
 
 export interface CursorEvent {
   id: string;
@@ -186,43 +185,20 @@ export interface CursorEvent {
   project: string | null;
   payload: Record<string, unknown>;
   created_at: number;
-  decided_at: number | null;
-  permission: string; // pending | allow | deny | ask | expired
-  user_message: string | null;
-  agent_message: string | null;
 }
 
-export type CursorPermission = "allow" | "deny" | "ask";
-
-export const listCursorEvents = (status: "pending" | "all" = "pending") =>
-  fetcher<CursorEvent[]>(`/api/cursor/events?status=${status}`);
-
-export async function decideCursorEvent(
-  id: string,
-  permission: CursorPermission,
-  userMessage?: string,
-): Promise<void> {
-  const r = await fetch(`/api/cursor/events/${encodeURIComponent(id)}/decision`, {
-    method: "POST",
-    headers: { "content-type": "application/json" },
-    body: JSON.stringify({ permission, user_message: userMessage }),
-  });
-  if (!r.ok) throw new Error(`decision: ${r.status} ${r.statusText}`);
-}
+export const listCursorEvents = (limit = 50) =>
+  fetcher<CursorEvent[]>(`/api/cursor/events?limit=${limit}`);
 
 export function summarizeCursorEvent(e: CursorEvent): string {
   const p = e.payload as Record<string, unknown>;
   switch (e.hook) {
-    case "beforeShellExecution":
-      return (p.command as string) || "(shell command)";
-    case "beforeMCPExecution":
-      return `${p.tool_name ?? "tool"}${p.url ? ` (${p.url})` : ""}`;
-    case "beforeReadFile":
-      return (p.file_path as string) || "(file)";
-    case "beforeSubmitPrompt": {
-      const prompt = (p.prompt as string) || "";
-      return prompt.length > 120 ? prompt.slice(0, 117) + "…" : prompt;
-    }
+    case "afterFileEdit":
+      return (p.file_path as string) || "(file edit)";
+    case "stop":
+      return "agent stop";
+    case "terminal.command":
+      return (p.command as string) || "(terminal command)";
     default:
       return e.hook;
   }

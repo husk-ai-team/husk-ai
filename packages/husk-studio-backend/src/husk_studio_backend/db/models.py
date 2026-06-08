@@ -133,6 +133,13 @@ class HttpCassetteRow(Base):
 
 
 class CursorEventRow(Base):
+    """Observability events captured from IDE bridges (Cursor, VS Code).
+
+    Stores fire-and-forget events such as `afterFileEdit`, `stop`, and
+    `terminal.command` so the Studio can render IDE activity alongside agent
+    spans. Husk does not block the IDE or return permission decisions.
+    """
+
     __tablename__ = "cursor_events"
 
     id: Mapped[str] = mapped_column(String(26), primary_key=True)
@@ -140,10 +147,5 @@ class CursorEventRow(Base):
     project: Mapped[str | None] = mapped_column(Text, nullable=True)
     payload: Mapped[dict] = mapped_column(JSON, default=dict)
     created_at: Mapped[int] = mapped_column(BigInteger, index=True)
-    decided_at: Mapped[int | None] = mapped_column(BigInteger, nullable=True)
-    # "pending" | "allow" | "deny" | "ask" | "expired"
-    permission: Mapped[str] = mapped_column(String(16), default="pending", index=True)
-    user_message: Mapped[str | None] = mapped_column(Text, nullable=True)
-    agent_message: Mapped[str | None] = mapped_column(Text, nullable=True)
 
-    __table_args__ = (Index("idx_cursor_status_created", "permission", "created_at"),)
+    __table_args__ = (Index("idx_cursor_hook_created", "hook", "created_at"),)

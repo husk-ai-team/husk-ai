@@ -11,11 +11,15 @@ import { ping } from "./ping";
 
 function help(): void {
   process.stderr.write(
-    `husk-cursor-hook — Cursor SDK Hooks bridge for Husk.
+    `husk-cursor-hook — Cursor observability bridge for Husk.
+
+Streams Cursor's file edit and stop events to the local Husk backend so the
+Studio can render IDE activity on the timeline. Observability-only — never
+blocks the agent.
 
 Commands:
   install [path]            Write .cursor/hooks.json into [path] (default: cwd).
-  hook --event=<name>       Handle a Cursor hook event (called by Cursor; reads stdin, writes stdout).
+  hook --event=<name>       Forward a Cursor hook event (called by Cursor; reads stdin, writes stdout).
   ping [--url=URL]          Probe the Husk backend (default: http://localhost:7654).
 
 Env:

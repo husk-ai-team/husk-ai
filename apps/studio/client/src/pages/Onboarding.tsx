@@ -36,7 +36,7 @@ const STEPS: Record<
     title: "Cursor",
     icon: <Terminal className="size-5" />,
     blurb:
-      "Approve or deny Cursor's actions in real time — shell commands, MCP tool calls, prompts, file reads.",
+      "Stream Cursor's file edits and stop signals into Husk so the Studio timeline shows every move your IDE agent makes.",
     snippets: [
       { label: "1. Install the bridge", cmd: "npm install -g husk-cursor-hook" },
       { label: "2. Generate hooks.json in your Cursor project", cmd: "husk-cursor-hook install" },

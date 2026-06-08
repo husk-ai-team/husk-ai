@@ -4,21 +4,11 @@ import { existsSync, mkdirSync, writeFileSync } from "node:fs";
 import { join, resolve } from "node:path";
 
 // Inlined template (single source of truth, also written to src/templates/hooks.json for editors).
+// Observability-only: we register Cursor's fire-and-forget events so Husk can
+// render file edits and stop signals on the timeline. No blocking hooks.
 const TEMPLATE = `{
   "version": 1,
   "hooks": {
-    "beforeSubmitPrompt": [
-      { "command": "husk-cursor-hook hook --event=beforeSubmitPrompt", "timeout": 30 }
-    ],
-    "beforeShellExecution": [
-      { "command": "husk-cursor-hook hook --event=beforeShellExecution", "timeout": 30, "failClosed": false }
-    ],
-    "beforeMCPExecution": [
-      { "command": "husk-cursor-hook hook --event=beforeMCPExecution", "timeout": 30, "failClosed": false }
-    ],
-    "beforeReadFile": [
-      { "command": "husk-cursor-hook hook --event=beforeReadFile", "timeout": 10, "failClosed": false }
-    ],
     "afterFileEdit": [
       { "command": "husk-cursor-hook hook --event=afterFileEdit", "timeout": 5 }
     ],
@@ -45,6 +35,6 @@ export async function install(targetDir?: string): Promise<void> {
 
   writeFileSync(out, TEMPLATE, "utf8");
   process.stdout.write(
-    `Wrote ${out}\n\nNext:\n  1. Start Husk (in another terminal):  uv run husk-ai start\n  2. Open the Studio:  http://localhost:7654\n  3. Verify the bridge:  husk-cursor-hook ping\n  4. Open this project in Cursor — hooks fire automatically (no restart needed).\n`,
+    `Wrote ${out}\n\nNext:\n  1. Start Husk (in another terminal):  uv run husk-ai start\n  2. Open the Studio:  http://localhost:7654\n  3. Verify the bridge:  husk-cursor-hook ping\n  4. Open this project in Cursor — file edits and stop signals will stream into the Studio timeline.\n`,
   );
 }

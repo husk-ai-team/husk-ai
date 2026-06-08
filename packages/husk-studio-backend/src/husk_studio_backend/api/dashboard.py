@@ -9,13 +9,24 @@ from fastapi import APIRouter
 from sqlalchemy import case, desc, func, select
 
 from husk_studio_backend.db.engine import async_session
-from husk_studio_backend.db.models import CursorEventRow, RunRow, SpanRow
+from husk_studio_backend.db.models import RunRow, SpanRow
 
 router = APIRouter(prefix="/api/dashboard", tags=["dashboard"])
 
 
 @router.get("/summary")
 async def summary() -> dict[str, Any]:
+    """HTTP route — thin wrapper over the reusable aggregation below."""
+    return await compute_dashboard_summary()
+
+
+async def compute_dashboard_summary() -> dict[str, Any]:
+    """Aggregate landing-page stats from the runs/spans tables.
+
+    Extracted from the `/summary` route so other entry points (the `husk-ai mcp`
+    server's `dashboard_summary` tool) can reuse the exact same computation
+    instead of duplicating the queries.
+    """
     now_ms = int(time.time() * 1000)
     last_24h = now_ms - 24 * 60 * 60_000
 
@@ -77,15 +88,6 @@ async def summary() -> dict[str, Any]:
         )
         recent = [_run_summary(r) for r in recent_rows]
 
-        # Cursor pending events
-        pending_cursor = (
-            await s.execute(
-                select(func.count(CursorEventRow.id)).where(
-                    CursorEventRow.permission == "pending"
-                )
-            )
-        ).scalar() or 0
-
         # 12 buckets across the last 24h for the sparkline (count of runs per ~2h)
         bucket_ms = (24 * 60 * 60_000) // 12
         sparkline: list[int] = []
@@ -119,7 +121,6 @@ async def summary() -> dict[str, Any]:
         },
         "by_framework": by_framework,
         "recent_runs": recent,
-        "pending_cursor": int(pending_cursor),
         "sparkline": sparkline,
     }
 
