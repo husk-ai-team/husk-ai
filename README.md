@@ -6,7 +6,7 @@
 
 <p align="center">
   <strong>Finally, see what your AI is thinking.</strong><br />
-  The Chrome DevTools of AI agents — capture every step, rewind any decision, and pause destructive commands before they run.
+  The Chrome DevTools of AI agents — capture every step, rewind any decision, and replay from any checkpoint with a different state.
 </p>
 
 <p align="center">
@@ -32,15 +32,20 @@ your agent data never leaves it.
 
 ## Features
 
-- **One timeline for every step.** LLM calls, tool calls, and terminal commands
-  from any framework land in a single activity feed with prompts, completions,
+- **One timeline for every step.** LLM calls, tool calls, and IDE events from
+  any framework land in a single activity feed with prompts, completions,
   token counts, and cost — instead of a wall of logs.
 - **Time-travel / modify-and-replay.** For LangGraph runs, jump into any
   checkpoint, edit the state, and branch a new run from there to see how the
   agent reacts. Stop guessing why it did that — replay it.
-- **Pause destructive Cursor commands.** Husk plugs into Cursor's
-  pre-tool-execution hooks, so it can stop an agent *before* it runs something
-  like `rm -rf` and wait for your Allow / Deny.
+- **IDE activity capture.** File edits and stop signals from Cursor and
+  VS Code stream into your timeline alongside agent spans so you see
+  everything your agent did, end-to-end. Observability-only — Husk never
+  blocks your IDE.
+- **Connect your AI coding tools (MCP).** Husk speaks the Model Context
+  Protocol, so Claude Code, Cursor, Windsurf, and Lovable can query your runs,
+  read traces, analyze cost, and replay checkpoints from inside the assistant.
+  See [Connect to AI coding tools](#connect-to-ai-coding-tools-mcp).
 
 ## Quick install
 
@@ -60,6 +65,68 @@ first? Run `uv run husk-ai demo` in another terminal while the server is up.
 
 Never opened a terminal? The full **Getting started** guide below walks through
 everything step by step.
+
+---
+
+## Connect to AI coding tools (MCP)
+
+Husk ships an [MCP](https://modelcontextprotocol.io) server, so coding agents —
+**Claude Code, Cursor, Claude Desktop, Windsurf, Lovable** — can read your runs,
+inspect traces, analyze cost, and (opt-in) replay LangGraph runs without leaving
+the assistant. Ask *"which of my last runs failed, and why?"* and the agent reads
+the answer straight from Husk.
+
+The server runs locally over stdio and reads `~/.husk/traces.db` directly, so the
+read tools work **even when `husk-ai start` isn't running**.
+
+**Quickest path — let Husk write the client config** (it also resolves the right
+absolute path to the binary for you, which matters for a source install):
+
+```bash
+husk-ai mcp install --client claude-code      # or: cursor · claude-desktop · windsurf
+```
+
+**Or wire it by hand.** The launch command is `husk-ai mcp`. Most clients (Cursor,
+Claude Desktop, Windsurf) read an MCP config file — add Husk under `mcpServers`:
+
+```json
+{
+  "mcpServers": {
+    "husk": { "command": "husk-ai", "args": ["mcp"] }
+  }
+}
+```
+
+Claude Code takes it as one command:
+
+```bash
+claude mcp add husk -- husk-ai mcp
+```
+
+For **Lovable** and other remote/cloud clients, run the HTTP transport, expose it
+through a tunnel, then point the client at `https://<tunnel>/mcp`:
+
+```bash
+husk-ai mcp --transport http             # binds 127.0.0.1:7655, endpoint /mcp
+husk-ai mcp install --client lovable     # prints the full tunnel walkthrough
+```
+
+**Tools exposed:** `list_runs`, `get_run`, `get_trace`, `get_span`, `list_errors`,
+`cost_breakdown`, `dashboard_summary`, `list_cursor_events`.
+
+> **Replay is off by default.** `replay_run` re-invokes your LangGraph and runs
+> your agent code, so it is gated behind an explicit flag and intended for local
+> use only:
+>
+> ```bash
+> husk-ai mcp --enable-replay            # or: HUSK_MCP_ENABLE_REPLAY=1
+> ```
+>
+> Keep replay **disabled** on any HTTP/tunnelled server.
+
+> Working from a source clone (no `pip install husk-ai` yet)? Prefix with `uv run`
+> (e.g. `uv run husk-ai mcp install --client cursor`). The install command writes
+> the absolute path to the venv binary, so the client can still launch it.
 
 ---
 
@@ -106,7 +173,7 @@ cloud, no signup, no telemetry. Your agent data never leaves your laptop.
 By the end of this guide you'll have:
 
 - ✓ The Husk backend running on `http://localhost:7654` with the Studio loaded in your browser.
-- ✓ (Optional) Cursor wired so its agent pauses before destructive shell commands — you Allow / Deny in the Studio.
+- ✓ (Optional) Cursor wired so file edits and stop signals from its agent stream into your Studio timeline.
 - ✓ Your own agent (or one of the bundled examples) streaming OpenTelemetry traces into Husk in real time.
 - ✓ A LangGraph run you can *Modify & replay* — change a value mid-trace, branch the agent from that point.
 
@@ -129,7 +196,7 @@ commands, or is brought along by `uv`. You don't install Python yourself.
 
 **Optional · for real-LLM agents & Cursor**
 
-- **Cursor** — the AI code editor. Only needed if you want the Allow / Deny pre-tool intervention bridge. Free download at [cursor.com](https://cursor.com).
+- **Cursor** — the AI code editor. Only needed if you want IDE activity (file edits, stop signals) to flow into your Husk timeline. Free download at [cursor.com](https://cursor.com).
 - **An LLM API key** — set as an env var (`OPENAI_API_KEY`, `ANTHROPIC_API_KEY`) only if you want your agent to make real LLM calls. Husk itself never makes LLM calls. The bundled examples (Path A) work without a key.
 
 **Supported operating systems**
@@ -262,12 +329,14 @@ your first trace.
 >
 > To stop on purpose: press `Ctrl + C` in the terminal. To start again later: `cd` back into the folder and run `uv run husk-ai start` again. The first boot also auto-builds the Studio bundle (~10–30s) if it isn't built yet.
 
-### Connect Cursor (optional but recommended)
+### Connect Cursor (optional)
 
-[Cursor](https://cursor.com) is an AI code editor with a built-in agent. It can
-read files, run terminal commands, edit code. Husk plugs into Cursor's pre-tool
-hooks so that *before* the agent runs a shell command, it pauses and asks you in
-Husk Studio: **Allow** or **Deny**.
+[Cursor](https://cursor.com) is an AI code editor with a built-in agent. The
+Husk bridge subscribes to Cursor's fire-and-forget hook events
+(`afterFileEdit`, `stop`) and forwards them to your local Studio so you can see
+every file your agent touched, on the same timeline as the LLM and tool spans.
+
+The bridge is **observability-only** — it never blocks the Cursor agent.
 
 #### 1a. Install Node.js
 
@@ -347,24 +416,21 @@ Now `cd` into the **project folder Cursor will open** (the one you want to debug
 husk-cursor-hook install
 ```
 
-This writes `.cursor/hooks.json` in the current directory. The file maps six
-Cursor hook events to the bridge so the agent pauses at the right moments:
+This writes `.cursor/hooks.json` in the current directory. The file registers
+the fire-and-forget observability events with Cursor:
 
-- `beforeShellExecution` — pause before any terminal command (the Allow / Deny banner).
-- `beforeMCPExecution` — pause before any MCP tool call.
-- `beforeReadFile` — pause before the agent reads sensitive files.
-- `beforeSubmitPrompt` — fires before each user prompt is sent.
-- `afterFileEdit` / `stop` — non-blocking telemetry to render the timeline.
+- `afterFileEdit` — captures every file Cursor's agent writes.
+- `stop` — fires when the agent finishes a turn.
 
 > **Already have a hooks.json?** The install refuses to overwrite — you'll see `refusing to overwrite` on stderr (exit 1). Either delete it first (`rm .cursor/hooks.json`) and re-run, or merge the Husk hooks into your existing file by hand (the template lives at `packages-npm/husk-cursor-hook/src/templates/hooks.json` in the repo).
 
 #### 1e. Test it
 
 Open the project in Cursor (no restart needed — `.cursor/hooks.json` is
-auto-reloaded on save). In Cursor's chat, ask: *"Run `ls` and show me what's
-here."* When Cursor decides to run the shell command, the Husk Studio in your
-browser shows a banner: `Cursor needs you · beforeShellExecution · ls`. Click
-**Allow**. Cursor proceeds. ✓
+auto-reloaded on save). In Cursor's chat, ask the agent to edit any file. When
+Cursor saves the file, an event flows through the bridge into Husk; the Studio
+Dashboard's **Cursor** integration tile flips to *live* and the event appears
+under recent activity. ✓
 
 ### Get an agent to debug
 
@@ -601,7 +667,7 @@ agent** (your agent or Cursor bridge is misbehaving).
 | --- | --- |
 | `husk-cursor-hook: command not found` (or PowerShell: not recognized) | npm's global bin directory isn't on PATH. Find it with `npm config get prefix`, then add `<prefix>/bin` (mac/Linux) or `<prefix>` (Windows) to PATH and reopen the terminal. Also confirm you ran **both** `corepack pnpm --filter husk-cursor-hook build` *and* `npm install -g ./packages-npm/husk-cursor-hook`. |
 | `husk-cursor-hook ping: Cannot reach Husk at http://localhost:7654` | Backend isn't running on the default port. Either start it (`uv run husk-ai start`) or point the bridge at it: `export HUSK_URL=http://localhost:7656` (mac/Linux) or `$env:HUSK_URL = "http://localhost:7656"` (PowerShell). The same var must be set in any terminal where Cursor was launched. |
-| Cursor doesn't trigger the banner when asked to run a shell command | `.cursor/hooks.json` wasn't installed in your project folder. From your project directory: `husk-cursor-hook install`. Restart Cursor. |
+| Cursor edits a file but no event shows up in Husk | `.cursor/hooks.json` wasn't installed in your project folder. From your project directory: `husk-cursor-hook install`. Restart Cursor. |
 | `AuthenticationError: Incorrect API key` (your agent) | OpenAI / Anthropic key not in your terminal session. Set it: `$env:OPENAI_API_KEY = "sk-..."` (PowerShell) / `export OPENAI_API_KEY=sk-...` (bash). Never commit. |
 | `ModuleNotFoundError: No module named 'opentelemetry'` (your agent) | `pip install opentelemetry-sdk opentelemetry-exporter-otlp-proto-http` |
 | Run appears in /runs but the timeline is empty | Agent didn't open a root span. Wrap your top-level loop: `with tracer.start_as_current_span("agent.run"):` |
@@ -635,10 +701,12 @@ Every command you can run via `uv run husk-ai` in the cloned repo.
 | Command | What it does |
 | --- | --- |
 | `husk-ai start` | Boot the server (default port 7654) and open the Studio in your browser. Auto-builds the Studio bundle on first run if missing. Override port with `--port 7656`; skip the browser open with `--no-open-browser`. |
-| `husk-ai demo` | Seed a pending Cursor intervention + one LangGraph run with GenAI v1.36 attrs. Useful for verifying the Studio renders intervention banners and traces correctly before connecting your own agent. |
+| `husk-ai demo` | Seed one IDE observability event + a 3-span OTel trace with GenAI v1.36 attrs. Useful for verifying the Studio renders integration tiles and traces correctly before connecting your own agent. |
 | `husk-ai list` | List recent runs in the terminal (run id, framework, span count, cost). |
 | `husk-ai doctor` | Diagnostics: prints the installed version, your `~/.husk/` home, DB path, and a health check. Run this first when something feels off. |
 | `husk-ai clean` | Wipe the local database at `~/.husk/`. Removes all runs, traces, and auth state. Does not delete the cloned repo or your `.venv`. |
+| `husk-ai mcp` | Run the MCP server so AI coding tools (Claude Code, Cursor, Windsurf, Lovable) can read your runs/traces, analyze cost, and replay. stdio by default; `--transport http` for remote clients; `--enable-replay` to expose the (local-only) replay tool. |
+| `husk-ai mcp install --client <name>` | Write or print the MCP config to connect a client — one of `claude-code`, `cursor`, `claude-desktop`, `windsurf`, `lovable`. |
 
 The legacy `husk` alias still works inside this workspace so older scripts don't
 break.
@@ -658,11 +726,11 @@ break.
 - **OpenTelemetry (OTel)** — Industry-standard observability protocol. Any framework that "speaks OTel" streams its internal events as spans.
 - **GenAI v1.36** — OTel's spec for AI/LLM apps: standard names for prompts, completions, token counts, etc.
 - **OTLP** — OpenTelemetry Protocol — the wire format spans are sent in. Husk accepts OTLP/HTTP on port 7654.
-- **Cursor** — AI code editor (a VS Code fork) with a built-in agent. Husk plugs into its pre-tool hooks for Allow/Deny intervention.
+- **Cursor** — AI code editor (a VS Code fork) with a built-in agent. Husk subscribes to its observability hooks so file edits and stop signals appear on the timeline.
 - **Span** — One unit of work in OTel — e.g. a single LLM call, a single tool call, a single agent decision.
-- **Hook** — A function that fires at a specific moment in another program. Cursor's pre-tool hooks let Husk pause the agent before destructive actions.
+- **Hook** — A function that fires at a specific moment in another program. Cursor's fire-and-forget hooks let Husk capture file edits and stop signals as the agent works.
 - **Checkpointer** — A LangGraph concept: a state-snapshot store. Husk reads it to enable time-travel and replay.
-- **Studio** — The React UI served by the backend at `/`. Where you view traces, click into runs, allow/deny interventions, and time-travel.
+- **Studio** — The React UI served by the backend at `/`. Where you view traces, click into runs, inspect spans, and time-travel through LangGraph checkpoints.
 
 > Stuck on something not covered? Open an issue on [GitHub](https://github.com/husk-ai-team/husk-ai/issues).
 
@@ -675,7 +743,7 @@ husk/
 ├── apps/
 │   └── studio/                 the product UI (built and served by the backend at /)
 ├── packages/
-│   ├── husk-cli/               the `husk-ai` CLI: start · demo · list · doctor · clean
+│   ├── husk-cli/               the `husk-ai` CLI: start · demo · list · doctor · mcp · clean
 │   ├── husk-shared/            shared Pydantic schemas + model cost table
 │   ├── husk-studio-backend/    FastAPI backend on :7654 — OTel ingest, replay engine, serves the Studio
 │   └── husk-sandbox/           sandbox engine — tracer hooks, HTTP virtualization, state capture

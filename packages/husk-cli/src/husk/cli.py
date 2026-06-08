@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import logging
+import os
 import sys
 
 import click
@@ -80,6 +81,8 @@ def list_runs(limit: int) -> None:
 @main.command()
 def doctor() -> None:
     """Diagnostics: versions, paths, integration health."""
+    import importlib.util
+
     home = husk_home()
     db = db_path()
     console.print(f"husk: [cyan]{__version__}[/cyan]")
@@ -89,14 +92,32 @@ def doctor() -> None:
     else:
         console.print(f"db:   {db}  [yellow]missing (created on first `husk start`)[/yellow]")
 
+    # MCP server status — is the SDK present, and is replay gated?
+    if importlib.util.find_spec("mcp") is not None:
+        console.print("mcp:  [green]ready[/green]  connect with: [cyan]husk-ai mcp[/cyan]")
+    else:
+        console.print("mcp:  [red]'mcp' package missing[/red] — reinstall husk-ai")
+    replay_on = os.environ.get("HUSK_MCP_ENABLE_REPLAY", "").strip().lower() in {
+        "1",
+        "true",
+        "yes",
+        "on",
+    }
+    state = "[yellow]enabled[/yellow]" if replay_on else "disabled (read-only)"
+    console.print(
+        f"      replay: {state} "
+        "[dim](--enable-replay or HUSK_MCP_ENABLE_REPLAY=1; local-only)[/dim]"
+    )
+
 
 @main.command()
 @click.option("--url", default="http://127.0.0.1:7654", help="Husk backend URL.")
 def demo(url: str) -> None:
     """Seed demo fixtures so the Studio has a fresh narrative to show.
 
-    Posts a pending Cursor intervention (for the banner) and runs the bundled
-    LangGraph example. Requires `husk start` to be running.
+    Emits a 3-span OTel trace and a sample IDE observability event so the
+    Dashboard, /runs, and timeline have realistic data to render. Requires
+    `husk start` to be running.
     """
     import httpx
 
@@ -112,21 +133,23 @@ def demo(url: str) -> None:
         )
         sys.exit(1)
 
-    # 1. Pending Cursor intervention — drives the red banner.
+    # 1. Sample IDE observability event so the Cursor integration tile shows
+    #    "live" on the Dashboard.
     cursor_payload = {
-        "hook": "beforeShellExecution",
-        "project": "my-startup-demo",
+        "hook": "afterFileEdit",
+        "project": "husk-demo",
         "payload": {
-            "command": "rm -rf node_modules",
-            "cwd": "C:\\Users\\demo\\my-startup-demo",
+            "file_path": "src/agent/planner.py",
             "conversation_id": "demo-conv-1",
-            "model": "claude-sonnet-4-6",
         },
     }
-    r = httpx.post(f"{base}/api/cursor/events", json=cursor_payload, timeout=5.0)
-    r.raise_for_status()
-    event_id = r.json().get("event_id")
-    console.print(f"  · seeded Cursor intervention [dim](id={event_id})[/dim]")
+    try:
+        r = httpx.post(f"{base}/api/cursor/events", json=cursor_payload, timeout=5.0)
+        r.raise_for_status()
+        event_id = r.json().get("event_id")
+        console.print(f"  · seeded IDE observability event [dim](id={event_id})[/dim]")
+    except Exception as e:  # noqa: BLE001
+        console.print(f"    [yellow]IDE event skipped: {e}[/yellow]")
 
     # 2. Self-contained OTel trace emission — no extra deps beyond what
     #    husk-ai already installs (opentelemetry-sdk + OTLP/HTTP exporter).
@@ -141,7 +164,7 @@ def demo(url: str) -> None:
     console.print("\n[green]Demo data ready.[/green]")
     console.print(f"Open the Studio: [cyan]{base}[/cyan]")
     console.print(
-        "[dim]The intervention banner appears at the top; the run is under /runs.[/dim]"
+        "[dim]The Dashboard shows the run under /runs and the IDE event on the Cursor tile.[/dim]"
     )
 
 
@@ -215,6 +238,83 @@ def _emit_demo_trace(base: str) -> None:
             _time.sleep(_random.uniform(0.05, 0.12))
 
     provider.shutdown()
+
+
+@main.group(invoke_without_command=True)
+@click.option(
+    "--transport",
+    type=click.Choice(["stdio", "http", "sse"], case_sensitive=False),
+    default="stdio",
+    help="Transport: stdio for local clients (Claude Code, Cursor, …); http/sse for remote.",
+)
+@click.option("--host", default="127.0.0.1", help="Bind host for http/sse (default 127.0.0.1).")
+@click.option("--port", default=7655, type=int, help="Bind port for http/sse (default 7655).")
+@click.option(
+    "--enable-replay",
+    is_flag=True,
+    help="Expose the replay tool. It executes your agent code — local use only. "
+    "Equivalent to HUSK_MCP_ENABLE_REPLAY=1.",
+)
+@click.pass_context
+def mcp(
+    ctx: click.Context, transport: str, host: str, port: int, enable_replay: bool
+) -> None:
+    """Run the Husk MCP server (`husk-ai mcp`), or connect a client (`husk-ai mcp install`).
+
+    Exposes runs, traces, costs, and replay to MCP clients like Claude Code,
+    Cursor, Claude Desktop, Windsurf, and Lovable.
+    """
+    if ctx.invoked_subcommand is not None:
+        return  # a subcommand (e.g. `install`) was given — don't start the server.
+
+    from husk.mcp.server import serve
+
+    try:
+        serve(
+            transport=transport.lower(),
+            host=host,
+            port=port,
+            enable_replay=enable_replay,
+        )
+    except KeyboardInterrupt:
+        console.print("\n[dim]Husk MCP server stopped.[/dim]")
+        sys.exit(0)
+
+
+@mcp.command(name="install")
+@click.option(
+    "--client",
+    required=True,
+    type=click.Choice(
+        ["claude-code", "cursor", "claude-desktop", "windsurf", "lovable"],
+        case_sensitive=False,
+    ),
+    help="Which client to configure.",
+)
+@click.option(
+    "--scope",
+    type=click.Choice(["user", "project"], case_sensitive=False),
+    default="user",
+    help="Config scope (applies to cursor and claude-code).",
+)
+@click.option(
+    "--target-dir",
+    default=None,
+    help="Project directory for --scope project (default: current directory).",
+)
+@click.option("--force", is_flag=True, help="Overwrite an existing 'husk' entry.")
+def mcp_install(
+    client: str, scope: str, target_dir: str | None, force: bool
+) -> None:
+    """Write or print the MCP config needed to connect a client to Husk."""
+    from husk.mcp.install import install
+
+    msg = install(
+        client=client.lower(), scope=scope.lower(), target_dir=target_dir, force=force
+    )
+    console.print(msg)
+    if msg.startswith("error:"):
+        sys.exit(1)
 
 
 @main.command()

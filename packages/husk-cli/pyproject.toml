@@ -28,6 +28,11 @@ dependencies = [
     # just `pip install husk-ai`.
     "opentelemetry-sdk>=1.27",
     "opentelemetry-exporter-otlp-proto-http>=1.27",
+    # MCP server (`husk-ai mcp`) — the official Model Context Protocol SDK
+    # bundles FastMCP, which we use to expose Husk's runs/traces/replay to
+    # Claude Code, Cursor, Claude Desktop, Windsurf, Lovable, etc. Lazy-imported
+    # in the `mcp` command so other CLI commands stay fast.
+    "mcp>=1.2",
 ]
 
 [project.scripts]

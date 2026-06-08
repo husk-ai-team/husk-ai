@@ -20,12 +20,30 @@ A one-line `pip install husk-ai` is on the roadmap.
 ## Commands
 
 ```
-husk-ai start    Boot the backend and open the Studio.
-husk-ai demo     Seed demo fixtures (Cursor pending + OTel trace).
-husk-ai list     List recent runs.
-husk-ai doctor   Diagnostics (versions, paths, integration health).
-husk-ai clean    Wipe ~/.husk/.
+husk-ai start        Boot the backend and open the Studio.
+husk-ai demo         Seed demo fixtures (Cursor pending + OTel trace).
+husk-ai list         List recent runs.
+husk-ai doctor       Diagnostics (versions, paths, integration + MCP health).
+husk-ai mcp          Run the MCP server (connect Claude Code, Cursor, Lovable, …).
+husk-ai mcp install  Write/print the MCP config for a client.
+husk-ai clean        Wipe ~/.husk/.
 ```
+
+## MCP server
+
+`husk-ai mcp` exposes your runs, traces, cost, and (opt-in) replay to MCP clients
+like Claude Code, Cursor, Claude Desktop, Windsurf, and Lovable — so an assistant
+can debug agents with you. Read tools query `~/.husk/traces.db` directly and work
+even when the backend isn't running.
+
+```bash
+husk-ai mcp install --client claude-code   # or: cursor · claude-desktop · windsurf · lovable
+# manual: add {"command": "husk-ai", "args": ["mcp"]} under the client's mcpServers
+```
+
+Replay executes your agent code and is off by default — enable it locally with
+`husk-ai mcp --enable-replay` (or `HUSK_MCP_ENABLE_REPLAY=1`). For remote clients
+(Lovable), use `husk-ai mcp --transport http` behind a tunnel.
 
 See the [project README](https://github.com/husk-ai-team/husk-ai) for full
 docs, IDE integrations (Cursor, VS Code, Antigravity), and OTel instrumentation
