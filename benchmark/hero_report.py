@@ -42,6 +42,7 @@ if _REPO_ROOT not in sys.path:
     sys.path.insert(0, _REPO_ROOT)
 
 from benchmark.bootstrap import bca_ci, wilson_ci  # noqa: E402
+from husk_shared.pricing import cost_usd  # noqa: E402
 
 DB_PATH = Path.home() / ".husk" / "traces.db"
 
@@ -76,12 +77,22 @@ def collect(db_path: Path, since: int = 0) -> dict:
     con.row_factory = sqlite3.Row
 
     # ── Volume & failure rate
-    parents = con.execute(
+    # Replay children are recorded as fresh runs with a NULL parent_run_id (the
+    # parent↔child link lives in the `branches` table), so a naive
+    # "parent_run_id IS NULL" count double-counts them (the paper's n=617
+    # "counting quirk"). Exclude any run that is a branch child to get the true
+    # parent population.
+    child_ids = {row[0] for row in con.execute("SELECT child_run_id FROM branches")}
+    all_roots = con.execute(
         "SELECT id, status, started_at, finished_at, total_tokens_in, "
         "total_tokens_out, total_cost_usd FROM runs "
         "WHERE parent_run_id IS NULL AND started_at >= ?",
         (since,),
     ).fetchall()
+    parents = [p for p in all_roots if p["id"] not in child_ids]
+    n_runs = con.execute(
+        "SELECT COUNT(*) FROM runs WHERE started_at >= ?", (since,)
+    ).fetchone()[0]
     n_parents = len(parents)
     n_failed = sum(1 for p in parents if p["status"] in ("error", "aborted"))
     failure_rate = (100.0 * n_failed / n_parents) if n_parents else 0.0
@@ -191,7 +202,10 @@ def collect(db_path: Path, since: int = 0) -> dict:
     # ── D1: Wall-time speed-up
     d1 = {"n": len(speedups)}
     if speedups:
-        mean, lo, hi = bca_ci(speedups, n_resamples=10_000)
+        # Sort before bootstrapping so the (seeded) resampling is independent of
+        # DB row order — makes the metric byte-reproducible from any DB or
+        # fixture holding the same data. Point estimate/percentiles are unaffected.
+        mean, lo, hi = bca_ci(sorted(speedups), n_resamples=10_000)
         p50, p95 = _percentiles(speedups, [0.5, 0.95])
         d1.update(
             mean_x=round(mean, 2),
@@ -209,7 +223,7 @@ def collect(db_path: Path, since: int = 0) -> dict:
         item = {"n": len(rates)}
         if rates:
             if len(rates) >= 2:
-                m, lo, hi = bca_ci(rates, n_resamples=10_000)
+                m, lo, hi = bca_ci(sorted(rates), n_resamples=10_000)
                 item.update(
                     mean_pct=round(m, 2),
                     ci95_low_pct=round(lo, 2),
@@ -254,7 +268,7 @@ def collect(db_path: Path, since: int = 0) -> dict:
         "tokens_parent_total": int(parent_tokens_total),
     }
     if bypass_rates:
-        m, lo, hi = bca_ci(bypass_rates, n_resamples=10_000)
+        m, lo, hi = bca_ci(sorted(bypass_rates), n_resamples=10_000)
         d5.update(
             mean_pct=round(m, 2),
             ci95_low_pct=round(lo, 2),
@@ -279,7 +293,7 @@ def collect(db_path: Path, since: int = 0) -> dict:
             overhead_samples.append(float(v))
     overhead = {"n": len(overhead_samples)}
     if overhead_samples:
-        m, lo, hi = bca_ci(overhead_samples, n_resamples=10_000)
+        m, lo, hi = bca_ci(sorted(overhead_samples), n_resamples=10_000)
         p50, p95 = _percentiles(overhead_samples, [0.5, 0.95])
         overhead.update(
             mean_ms=round(m, 2),
@@ -293,16 +307,34 @@ def collect(db_path: Path, since: int = 0) -> dict:
     storage = {
         "db_size_bytes": db_size,
         "db_size_mb": round(db_size / (1024 * 1024), 3),
-        "bytes_per_trace": round(db_size / max(n_parents, 1), 1),
+        # Every recorded run is a stored trace (parents AND replay children).
+        "bytes_per_trace": round(db_size / max(n_runs, 1), 1),
     }
 
-    # Cost & token totals
-    total_cost = sum((p["total_cost_usd"] or 0) for p in parents)
-    total_in = sum((p["total_tokens_in"] or 0) for p in parents)
-    total_out = sum((p["total_tokens_out"] or 0) for p in parents)
+    # Cost & token totals computed from the authoritative per-span token counts
+    # via the shared pricing table — the runs.total_cost_usd rollup can be stale
+    # when a model's price was added after ingest (exactly what happened for the
+    # OpenRouter model IDs in the canonical run, which left the rollup at $0).
+    total_in = 0
+    total_out = 0
+    total_cost = 0.0
+    for s in con.execute(
+        "SELECT s.model AS model, s.tokens_in AS ti, s.tokens_out AS to_ FROM spans s "
+        "JOIN runs r ON r.id = s.run_id "
+        "WHERE s.kind = 'llm' AND r.started_at >= ?",
+        (since,),
+    ):
+        ti = s["ti"] or 0
+        to = s["to_"] or 0
+        total_in += ti
+        total_out += to
+        c = cost_usd(s["model"], ti, to)
+        if c:
+            total_cost += c
 
     con.close()
     return {
+        "n_runs": n_runs,
         "n_parents": n_parents,
         "n_failed": n_failed,
         "failure_rate_pct": round(failure_rate, 2),
@@ -323,7 +355,7 @@ def collect(db_path: Path, since: int = 0) -> dict:
 
 def render(data: dict, db_path: Path, since: int) -> str:
     lines: list[str] = []
-    lines.append("# Husk benchmark -- hero metrics (Groq + Bootstrap BCa)")
+    lines.append("# Husk benchmark -- hero metrics (OpenRouter Llama + Bootstrap BCa)")
     lines.append("")
     lines.append(f"- Source: `{db_path}` (live SQLite)")
     lines.append(f"- Filter: parent runs with `started_at >= {since}`")
@@ -332,10 +364,17 @@ def render(data: dict, db_path: Path, since: int) -> str:
     lines.append("")
     lines.append("## Volume")
     lines.append("")
-    lines.append(f"- Parent runs in this benchmark: **{data['n_parents']:,}**")
-    lines.append(f"  - real Groq LLM calls: **{data['real_llm_runs']:,}**")
+    lines.append(
+        f"- Parent runs in this benchmark: **{data['n_parents']:,}** "
+        f"(+ {data.get('n_runs', data['n_parents']) - data['n_parents']:,} replay children "
+        f"= {data.get('n_runs', data['n_parents']):,} total recorded traces)"
+    )
+    lines.append(f"  - with real LLM calls: **{data['real_llm_runs']:,}**")
     lines.append(f"- Failed parent runs: **{data['n_failed']:,}** ({data['failure_rate_pct']}%)")
-    lines.append(f"- Total Groq spend: **${data['total_cost_usd']:,.4f}**")
+    lines.append(
+        f"- LLM spend (list-price estimate over recorded tokens): "
+        f"**${data['total_cost_usd']:,.4f}**"
+    )
     lines.append(
         f"- Token consumption: {data['total_tokens_in']:,} in / {data['total_tokens_out']:,} out"
     )

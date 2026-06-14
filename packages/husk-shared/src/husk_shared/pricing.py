@@ -41,6 +41,16 @@ _PRICING_PER_1K: dict[str, tuple[float, float]] = {
     "gemma2-9b-it": (0.0002, 0.0002),
     "openai/gpt-oss-20b": (0.0001, 0.0001),
     "openai/gpt-oss-120b": (0.00015, 0.00015),
+    # OpenRouter (the IDs used by the published benchmark run). Same Llama
+    # models as the Groq entries above and treated as directly comparable, so
+    # we attribute the same per-1K list rates. With these present the in-DB
+    # `total_cost_usd` reflects the list-price cost of the *recorded* tokens
+    # (~$0.59 for the canonical run); the higher provider-billed figure quoted
+    # in the paper (~$2.95 / €2.73) is the actual OpenRouter charge across the
+    # whole measurement campaign (routing premium + retries + earlier runs).
+    "meta-llama/llama-3.1-8b-instruct": (0.00005, 0.00008),
+    "meta-llama/llama-3.3-70b-instruct": (0.00059, 0.00079),
+    "meta-llama/llama-3.1-70b-instruct": (0.00059, 0.00079),
 }
 
 

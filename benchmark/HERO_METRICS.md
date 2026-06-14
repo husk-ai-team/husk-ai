@@ -1,4 +1,4 @@
-# Husk benchmark -- hero metrics (Groq + Bootstrap BCa)
+# Husk benchmark -- hero metrics (OpenRouter Llama + Bootstrap BCa)
 
 - Source: `C:\Users\monti\.husk\traces.db` (live SQLite)
 - Filter: parent runs with `started_at >= 0`
@@ -7,10 +7,10 @@
 
 ## Volume
 
-- Parent runs in this benchmark: **617**
-  - real Groq LLM calls: **617**
-- Failed parent runs: **117** (18.96%)
-- Total Groq spend: **$0.0000**
+- Parent runs in this benchmark: **500** (+ 117 replay children = 617 total recorded traces)
+  - with real LLM calls: **500**
+- Failed parent runs: **117** (23.4%)
+- LLM spend (list-price estimate over recorded tokens): **$0.5862**
 - Token consumption: 1,500,488 in / 478,284 out
 
 Failure breakdown by injected mode:
@@ -21,7 +21,7 @@ Failure breakdown by injected mode:
 
 ## D1 -- Replay Wall-Time Speed-up (PRIMARY HERO)
 
-**16.78x faster** -- mean wall-time of a replay vs the parent's full run (95% CI [13.05x, 22.17x], n=117)
+**16.78x faster** -- mean wall-time of a replay vs the parent's full run (95% CI [13.1x, 21.98x], n=117)
 - p50: 6.53x   p95: 52.14x   max: 136.94x
 
 **Why this matters:** every replay short-circuits the upstream nodes.
@@ -33,9 +33,9 @@ The wall-clock saving compounds with every iteration in a debug cycle.
 |---|---:|---:|---:|---:|
 | N1 | 0.0% | [0.0, 0.0] | 0.0% | 9 |
 | N2 | 0.0% | [0.0, 0.0] | 0.0% | 26 |
-| N3 | 43.09% | [42.68, 43.5] | 45.73% | 38 |
+| N3 | 43.09% | [42.68, 43.51] | 45.73% | 38 |
 | N4 | 87.92% | [87.68, 88.17] | 89.39% | 38 |
-| unknown | 6.15% | [2.06, 10.29] | 14.17% | 6 |
+| unknown | 6.15% | [1.75, 10.26] | 14.17% | 6 |
 
 **Why this matters:** failures late in the graph bypass more
 upstream tokens than failures at the start. The pitch quotes
@@ -53,7 +53,7 @@ This is the empirical reliability of the modify-and-replay flow.
 
 ## D5 -- Mean Token Bypass Rate (baseline)
 
-**42.87% mean bypass** (95% CI [36.47, 49.53], n=117)
+**42.87% mean bypass** (95% CI [36.44, 49.4], n=117)
 
 Across all branches: **184,473 tokens** bypassed out of **334,393** that would have been re-paid in a full re-run.
 
@@ -61,7 +61,7 @@ Across all branches: **184,473 tokens** bypassed out of **334,393** that would h
 
 ## Supporting (infrastructure footnote, not hero)
 
-- **Husk ingest overhead**: mean 0.65 ms (95% CI [0.52, 0.8], p50=0.0 ms, p95=5.0 ms). Comparable: Langfuse 0.1 ms (batched), LangSmith 132 ms (cloud RTT).
+- **Husk ingest overhead**: mean 0.65 ms (95% CI [0.53, 0.79], p50=0.0 ms, p95=5.0 ms). Comparable: Langfuse 0.1 ms (batched), LangSmith 132 ms (cloud RTT).
 - **Storage**: 23,268.2 bytes / trace (13.691 MB DB total). Comparable: Datadog $0.10/GB; Helicone 1-10 GB tiers.
 
 ## Reproducibility
