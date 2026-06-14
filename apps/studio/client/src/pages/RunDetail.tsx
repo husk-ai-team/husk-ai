@@ -12,23 +12,30 @@ import {
 import {
   fmtCost,
   fmtDuration,
+  fmtPct,
   fmtTokens,
+  getDiff,
   getRun,
   getSpans,
+  listBranches,
   shortId,
   subscribeRun,
+  type Branch,
   type Run,
+  type RunDiff,
   type RunEvent,
   type Span,
 } from "@/lib/api";
 import {
   ArrowLeft,
   ArrowRight,
+  GitBranch,
   GitCompare,
   PencilLine,
-  Rewind,
   Wifi,
   WifiOff,
+  X,
+  Zap,
 } from "lucide-react";
 
 export default function RunDetail() {
@@ -40,6 +47,9 @@ export default function RunDetail() {
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [live, setLive] = useState(false);
+  const [childBranches, setChildBranches] = useState<Branch[]>([]);
+  const [parentBranch, setParentBranch] = useState<Branch | null>(null);
+  const [compare, setCompare] = useState<{ a: string; b: string } | null>(null);
 
   useEffect(() => {
     if (!runId) return;
@@ -48,6 +58,9 @@ export default function RunDetail() {
     setSpans([]);
     setSelectedId(null);
     setError(null);
+    setChildBranches([]);
+    setParentBranch(null);
+    setCompare(null);
 
     Promise.all([getRun(runId), getSpans(runId)])
       .then(([r, s]) => {
@@ -57,6 +70,15 @@ export default function RunDetail() {
         if (s.length) setSelectedId(s[0].id);
       })
       .catch((e) => alive && setError(String(e)));
+
+    // Lineage: replays produced from this run (as parent) and, if this run is
+    // itself a replay, the branch that produced it (as child).
+    listBranches({ parent_run_id: runId })
+      .then((b) => alive && setChildBranches(b))
+      .catch(() => {});
+    listBranches({ child_run_id: runId })
+      .then((b) => alive && setParentBranch(b[0] ?? null))
+      .catch(() => {});
 
     const ws = subscribeRun(runId, (ev: RunEvent) => {
       if (!alive) return;
@@ -147,10 +169,20 @@ export default function RunDetail() {
           </ResizablePanel>
           <ResizableHandle withHandle />
           <ResizablePanel defaultSize={20} minSize={16}>
-            <Actions span={selected} runId={runId ?? ""} />
+            <Actions
+              span={selected}
+              runId={runId ?? ""}
+              childBranches={childBranches}
+              parentBranch={parentBranch}
+              onCompare={setCompare}
+            />
           </ResizablePanel>
         </ResizablePanelGroup>
       </div>
+
+      {compare && (
+        <DiffSection a={compare.a} b={compare.b} onClose={() => setCompare(null)} />
+      )}
     </section>
   );
 }
@@ -222,21 +254,25 @@ function LiveBadge({ on }: { on: boolean }) {
   );
 }
 
-function Actions({ span, runId }: { span: Span | null; runId: string }) {
+function Actions({
+  span,
+  runId,
+  childBranches,
+  parentBranch,
+  onCompare,
+}: {
+  span: Span | null;
+  runId: string;
+  childBranches: Branch[];
+  parentBranch: Branch | null;
+  onCompare: (c: { a: string; b: string }) => void;
+}) {
   return (
     <div className="flex h-full flex-col">
       <div className="border-b border-border/30 bg-secondary/30 px-4 py-2.5 text-[11px] uppercase tracking-[0.16em] text-muted-foreground font-semibold">
         Actions
       </div>
-      <div className="flex flex-1 flex-col gap-2.5 p-4">
-        <button
-          type="button"
-          disabled={!span}
-          className="inline-flex w-full items-center justify-center gap-2 rounded-md border border-border/50 bg-secondary/20 px-3 py-2 text-sm hover:border-accent/40 hover:text-accent transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
-        >
-          <Rewind className="size-4" />
-          Rewind to here
-        </button>
+      <div className="flex flex-1 flex-col gap-2.5 overflow-auto p-4">
         <Link
           href={span ? `/runs/${runId}/replay` : "#"}
           onClick={(e) => {
@@ -252,19 +288,224 @@ function Actions({ span, runId }: { span: Span | null; runId: string }) {
           Modify and replay
           <ArrowRight className="size-4" />
         </Link>
+        <p className="text-[11px] leading-relaxed text-muted-foreground">
+          Fork the thread from the selected span with edited state. The original
+          run is preserved.
+        </p>
+
+        {parentBranch && (
+          <LineageCard
+            title="This run is a replay"
+            icon={<GitBranch className="size-3.5 text-sky-400" />}
+          >
+            <BranchRow
+              branch={parentBranch}
+              otherLabel="parent"
+              otherId={parentBranch.parent_run_id}
+              onCompare={() =>
+                onCompare({ a: parentBranch.parent_run_id, b: parentBranch.child_run_id })
+              }
+            />
+          </LineageCard>
+        )}
+
+        {childBranches.length > 0 && (
+          <LineageCard
+            title={`Replays from this run · ${childBranches.length}`}
+            icon={<Zap className="size-3.5 text-accent" />}
+          >
+            <div className="flex flex-col gap-2">
+              {childBranches.map((b) => (
+                <BranchRow
+                  key={b.id}
+                  branch={b}
+                  otherLabel="replay"
+                  otherId={b.child_run_id}
+                  onCompare={() =>
+                    onCompare({ a: b.parent_run_id, b: b.child_run_id })
+                  }
+                />
+              ))}
+            </div>
+          </LineageCard>
+        )}
+
+        {!parentBranch && childBranches.length === 0 && (
+          <p className="mt-2 rounded-md border border-border/40 bg-secondary/10 px-3 py-2 text-[11px] leading-relaxed text-muted-foreground">
+            No replays yet. Modify &amp; replay forks this run and the new branch
+            appears here with the tokens it bypassed.
+          </p>
+        )}
+      </div>
+    </div>
+  );
+}
+
+function LineageCard({
+  title,
+  icon,
+  children,
+}: {
+  title: string;
+  icon: React.ReactNode;
+  children: React.ReactNode;
+}) {
+  return (
+    <div className="rounded-lg border border-border/40 bg-secondary/10 p-3">
+      <div className="mb-2 flex items-center gap-1.5 text-[10px] uppercase tracking-[0.16em] text-muted-foreground/80">
+        {icon}
+        {title}
+      </div>
+      {children}
+    </div>
+  );
+}
+
+function BranchRow({
+  branch,
+  otherLabel,
+  otherId,
+  onCompare,
+}: {
+  branch: Branch;
+  otherLabel: string;
+  otherId: string;
+  onCompare: () => void;
+}) {
+  return (
+    <div className="rounded-md border border-border/30 bg-background/40 p-2.5">
+      <div className="flex items-center justify-between gap-2">
+        <Link
+          href={`/runs/${otherId}`}
+          className="font-mono text-[11px] text-foreground hover:text-accent"
+        >
+          {otherLabel} {shortId(otherId, 8)}
+        </Link>
         <button
           type="button"
-          disabled={!span}
-          className="inline-flex w-full items-center justify-center gap-2 rounded-md border border-border/50 bg-secondary/20 px-3 py-2 text-sm hover:border-accent/40 hover:text-accent transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+          onClick={onCompare}
+          className="inline-flex items-center gap-1 rounded border border-border/50 px-1.5 py-0.5 text-[10px] text-muted-foreground hover:border-accent/50 hover:text-accent transition-colors"
         >
-          <GitCompare className="size-4" />
-          Compare runs
+          <GitCompare className="size-3" />
+          diff
         </button>
-        <p className="mt-auto pt-4 text-[11px] leading-relaxed text-muted-foreground">
-          Modify & replay forks the LangGraph thread with your edited state and
-          records the new run side-by-side.
-        </p>
       </div>
+      <div className="mt-2 flex items-baseline gap-2">
+        <span className="text-lg font-bold tabular-nums text-accent">
+          {fmtPct(branch.token_bypass_pct)}
+        </span>
+        <span className="text-[10px] text-muted-foreground">
+          tokens bypassed
+        </span>
+      </div>
+      <div className="mt-0.5 text-[10px] tabular-nums text-muted-foreground">
+        {branch.tokens_bypassed.toLocaleString()} of{" "}
+        {branch.parent_llm_tokens.toLocaleString()} saved
+        {branch.cost_bypassed_usd > 0 && ` · ${fmtCost(branch.cost_bypassed_usd)}`}
+      </div>
+    </div>
+  );
+}
+
+function DiffSection({
+  a,
+  b,
+  onClose,
+}: {
+  a: string;
+  b: string;
+  onClose: () => void;
+}) {
+  const [diff, setDiff] = useState<RunDiff | null>(null);
+  const [err, setErr] = useState<string | null>(null);
+
+  useEffect(() => {
+    let alive = true;
+    setDiff(null);
+    setErr(null);
+    getDiff(a, b)
+      .then((d) => alive && setDiff(d))
+      .catch((e) => alive && setErr(String(e)));
+    return () => {
+      alive = false;
+    };
+  }, [a, b]);
+
+  return (
+    <div className="mt-6 overflow-hidden rounded-xl border border-border/30 bg-secondary/10">
+      <div className="flex items-center justify-between border-b border-border/30 bg-secondary/30 px-5 py-3">
+        <span className="flex items-center gap-2 text-[11px] uppercase tracking-[0.16em] text-muted-foreground font-semibold">
+          <GitCompare className="size-3.5 text-accent" />
+          Compare · parent vs replay
+        </span>
+        <button
+          type="button"
+          onClick={onClose}
+          className="text-muted-foreground hover:text-foreground"
+          aria-label="Close diff"
+        >
+          <X className="size-4" />
+        </button>
+      </div>
+      {err && <div className="px-5 py-3 text-sm text-destructive">{err}</div>}
+      {diff && (
+        <div className="p-5">
+          <div className="mb-4 flex flex-wrap items-baseline gap-x-6 gap-y-2">
+            <div>
+              <span className="text-3xl font-bold tabular-nums text-accent">
+                {fmtPct(diff.token_bypass_pct)}
+              </span>
+              <span className="ml-2 text-xs text-muted-foreground">
+                LLM tokens bypassed ({diff.tokens_bypassed.toLocaleString()})
+              </span>
+            </div>
+          </div>
+          <div className="grid grid-cols-2 gap-4">
+            <DiffSide title="Parent (full run)" side={diff.a} />
+            <DiffSide title="Replay (resumed)" side={diff.b} accent />
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+function DiffSide({
+  title,
+  side,
+  accent,
+}: {
+  title: string;
+  side: RunDiff["a"];
+  accent?: boolean;
+}) {
+  return (
+    <div
+      className={`rounded-lg border p-3 ${
+        accent ? "border-accent/40 bg-accent/5" : "border-border/40 bg-background/40"
+      }`}
+    >
+      <div className="mb-2 text-[10px] uppercase tracking-[0.16em] text-muted-foreground/80">
+        {title}
+      </div>
+      <div className="font-mono text-[11px] text-muted-foreground">
+        {shortId(side.run_id, 12)}
+      </div>
+      <dl className="mt-2 space-y-1 text-xs">
+        <DiffStat k="LLM spans" v={side.llm_spans.toString()} />
+        <DiffStat k="LLM tokens" v={side.llm_tokens.toLocaleString()} />
+        <DiffStat k="Duration" v={fmtDuration(side.duration_ms)} />
+        <DiffStat k="Status" v={side.status} />
+      </dl>
+    </div>
+  );
+}
+
+function DiffStat({ k, v }: { k: string; v: string }) {
+  return (
+    <div className="flex items-center justify-between">
+      <dt className="text-muted-foreground/70">{k}</dt>
+      <dd className="tabular-nums text-foreground">{v}</dd>
     </div>
   );
 }

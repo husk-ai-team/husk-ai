@@ -53,6 +53,83 @@ export const getRuns = () => fetcher<Run[]>(`${BASE}/runs`);
 export const getRun = (id: string) => fetcher<Run>(`${BASE}/runs/${id}`);
 export const getSpans = (id: string) => fetcher<Span[]>(`${BASE}/runs/${id}/spans`);
 
+// --- Branches (parent -> child replay lineage) ---
+
+export interface Branch {
+  id: string;
+  parent_run_id: string;
+  child_run_id: string;
+  fork_span_id: string;
+  override_type: string;
+  override_payload: Record<string, unknown>;
+  label: string | null;
+  notes: string | null;
+  created_at: number;
+  parent_llm_tokens: number;
+  child_llm_tokens: number;
+  tokens_bypassed: number;
+  token_bypass_pct: number;
+  cost_bypassed_usd: number;
+}
+
+export function listBranches(params: {
+  parent_run_id?: string;
+  child_run_id?: string;
+}): Promise<Branch[]> {
+  const q = new URLSearchParams();
+  if (params.parent_run_id) q.set("parent_run_id", params.parent_run_id);
+  if (params.child_run_id) q.set("child_run_id", params.child_run_id);
+  return fetcher<Branch[]>(`${BASE}/branches?${q.toString()}`);
+}
+
+// --- Diff (run vs run) ---
+
+export interface RunDiffSide {
+  run_id: string;
+  status: string;
+  duration_ms: number | null;
+  llm_spans: number;
+  llm_tokens: number;
+  nodes: string[];
+}
+
+export interface RunDiff {
+  a: RunDiffSide;
+  b: RunDiffSide;
+  tokens_delta: number;
+  tokens_bypassed: number;
+  token_bypass_pct: number;
+}
+
+export const getDiff = (a: string, b: string) =>
+  fetcher<RunDiff>(`${BASE}/diff/${a}/${b}`);
+
+// --- Replay (modify-and-replay / model-free) ---
+
+export interface ReplayResult {
+  thread_id?: string;
+  child_id?: string;
+  state?: unknown;
+  note?: string;
+}
+
+export async function replayRun(body: {
+  run_id: string;
+  span_id?: string | null;
+  state_override: unknown;
+  use_cassette?: boolean;
+  parent_thread_id?: string | null;
+  fork_node?: string | null;
+}): Promise<ReplayResult> {
+  const r = await fetch("/api/langgraph/replay", {
+    method: "POST",
+    headers: { "content-type": "application/json" },
+    body: JSON.stringify(body),
+  });
+  if (!r.ok) throw new Error(`${r.status}: ${await r.text()}`);
+  return (await r.json()) as ReplayResult;
+}
+
 export function subscribeRun(
   id: string,
   onEvent: (e: RunEvent) => void,
@@ -89,6 +166,11 @@ export function fmtCost(usd: number | null): string {
   if (usd == null || usd === 0) return "—";
   if (usd < 0.01) return `$${usd.toFixed(4)}`;
   return `$${usd.toFixed(2)}`;
+}
+
+export function fmtPct(n: number | null | undefined): string {
+  if (n == null) return "—";
+  return `${n.toFixed(1)}%`;
 }
 
 export function fmtTime(ms: number | null): string {

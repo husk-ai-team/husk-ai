@@ -6,15 +6,20 @@ import { Link, useLocation, useRoute } from "wouter";
 import { Timeline } from "@/components/timeline/Timeline";
 import {
   fmtDuration,
+  fmtPct,
   getRun,
   getSpans,
+  listBranches,
+  replayRun,
   shortId,
+  type Branch,
   type Run,
   type Span,
 } from "@/lib/api";
 import {
   ArrowLeft,
   ArrowRight,
+  Database,
   ExternalLink,
   PencilLine,
   Play,
@@ -35,10 +40,14 @@ export default function Replay() {
   const [error, setError] = useState<string | null>(null);
   const [result, setResult] = useState<{
     thread_id?: string;
+    child_id?: string;
     state?: unknown;
     note?: string;
   } | null>(null);
   const [selectedId, setSelectedId] = useState<string | null>(null);
+  const [useCassette, setUseCassette] = useState(false);
+  const [linkedChild, setLinkedChild] = useState<Branch | null>(null);
+  const [linking, setLinking] = useState(false);
 
   useEffect(() => {
     if (!runId) return;
@@ -72,22 +81,18 @@ export default function Replay() {
       return;
     }
     setRunning(true);
-    const loadingToast = toast.loading("Replaying graph…");
+    setLinkedChild(null);
+    const startedAt = Date.now();
+    const loadingToast = toast.loading(
+      useCassette ? "Replaying from cassette…" : "Replaying graph…",
+    );
     try {
-      const r = await fetch("/api/langgraph/replay", {
-        method: "POST",
-        headers: { "content-type": "application/json" },
-        body: JSON.stringify({
-          run_id: runId,
-          span_id: selectedId,
-          state_override: parsed,
-        }),
+      const j = await replayRun({
+        run_id: runId,
+        span_id: selectedId,
+        state_override: parsed,
+        use_cassette: useCassette,
       });
-      if (!r.ok) {
-        const txt = await r.text();
-        throw new Error(`${r.status}: ${txt}`);
-      }
-      const j = await r.json();
       setResult(j);
       toast.success(
         j.thread_id
@@ -95,12 +100,41 @@ export default function Replay() {
           : "Replay queued",
         { id: loadingToast },
       );
+      void pollForChild(startedAt);
     } catch (e) {
       const msg = String(e);
       setError(msg);
       toast.error(msg, { id: loadingToast });
     } finally {
       setRunning(false);
+    }
+  };
+
+  // After a replay the child run lands asynchronously (OTel ingest), then the
+  // backend records the parent->child branch. Poll for it so we can show the
+  // tokens bypassed and link straight to the new run.
+  const pollForChild = async (since: number) => {
+    if (!runId) return;
+    setLinking(true);
+    try {
+      for (let i = 0; i < 20; i++) {
+        await new Promise((r) => setTimeout(r, 600));
+        let branches: Branch[] = [];
+        try {
+          branches = await listBranches({ parent_run_id: runId });
+        } catch {
+          continue;
+        }
+        const fresh = branches
+          .filter((b) => b.created_at >= since - 2000)
+          .sort((a, b) => b.created_at - a.created_at)[0];
+        if (fresh) {
+          setLinkedChild(fresh);
+          return;
+        }
+      }
+    } finally {
+      setLinking(false);
     }
   };
 
@@ -156,16 +190,31 @@ export default function Replay() {
               <Sparkles className="size-3.5 text-accent" />
               State override (JSON)
             </span>
-            <button
-              type="button"
-              onClick={runReplay}
-              disabled={running || !runId}
-              className="inline-flex items-center gap-2 rounded-md bg-accent px-4 py-1.5 text-sm font-semibold text-white hover:bg-accent/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              <Play className="size-3.5" />
-              {running ? "Running…" : "Run from here"}
-              {!running && <ArrowRight className="size-3.5" />}
-            </button>
+            <div className="flex items-center gap-2">
+              <button
+                type="button"
+                onClick={() => setUseCassette((v) => !v)}
+                title="Replay the LLM calls from the recorded cassette instead of calling the provider — free, deterministic, byte-identical (a changed request still falls through to the real API)."
+                className={`inline-flex items-center gap-1.5 rounded-md border px-2.5 py-1.5 text-[11px] font-medium transition-colors ${
+                  useCassette
+                    ? "border-emerald-500/50 bg-emerald-500/10 text-emerald-300"
+                    : "border-border/50 bg-secondary/20 text-muted-foreground hover:text-foreground"
+                }`}
+              >
+                <Database className="size-3.5" />
+                Model-free {useCassette ? "on" : "off"}
+              </button>
+              <button
+                type="button"
+                onClick={runReplay}
+                disabled={running || !runId}
+                className="inline-flex items-center gap-2 rounded-md bg-accent px-4 py-1.5 text-sm font-semibold text-white hover:bg-accent/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                <Play className="size-3.5" />
+                {running ? "Running…" : "Run from here"}
+                {!running && <ArrowRight className="size-3.5" />}
+              </button>
+            </div>
           </div>
           <div className="h-[55vh] min-h-[400px]">
             <Editor
@@ -214,13 +263,37 @@ export default function Replay() {
             </div>
             <button
               type="button"
-              onClick={() => setLocation("/runs")}
+              onClick={() =>
+                setLocation(
+                  linkedChild ? `/runs/${linkedChild.child_run_id}` : "/runs",
+                )
+              }
               className="inline-flex items-center gap-1.5 rounded-md bg-accent px-3 py-1.5 text-sm font-semibold text-white hover:bg-accent/90"
             >
-              See new run
+              {linkedChild ? "Open new run" : "See new run"}
               <ExternalLink className="size-3.5" />
             </button>
           </div>
+          {(linking || linkedChild) && (
+            <div className="border-b border-emerald-500/20 px-5 py-3 text-xs">
+              {linkedChild ? (
+                <span className="text-muted-foreground">
+                  Replay bypassed{" "}
+                  <span className="font-semibold text-accent">
+                    {fmtPct(linkedChild.token_bypass_pct)}
+                  </span>{" "}
+                  of the parent&apos;s LLM tokens (
+                  {linkedChild.tokens_bypassed.toLocaleString()} of{" "}
+                  {linkedChild.parent_llm_tokens.toLocaleString()})
+                  {useCassette ? " · served model-free from cassette" : ""}.
+                </span>
+              ) : (
+                <span className="text-muted-foreground">
+                  Linking the new run and computing tokens bypassed…
+                </span>
+              )}
+            </div>
+          )}
           {result.state ? (
             <pre className="overflow-auto bg-background/40 p-4 font-mono text-xs leading-relaxed">
               {JSON.stringify(result.state, null, 2)}
