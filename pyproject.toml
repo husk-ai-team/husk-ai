@@ -64,6 +64,9 @@ ignore = ["E501"]
 [tool.ruff.lint.per-file-ignores]
 # Benchmark scripts are CLI utilities — `print` is the intended output channel.
 "benchmark/**" = ["T201"]
+# This test must set env vars before importing the research graph (which reads
+# them at import time), so imports intentionally follow module-level statements.
+"benchmark/tests/test_determinism.py" = ["E402", "I001", "T201"]
 
 [tool.pytest.ini_options]
 asyncio_mode = "auto"
