@@ -16,6 +16,7 @@ from pathlib import Path
 from typing import Any
 
 from sqlalchemy import select
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from husk_studio_backend.db.engine import async_session
 from husk_studio_backend.db.models import RunRow, SpanRow
@@ -50,7 +51,7 @@ def _scan_run_event_files(runs_dir: Path) -> list[tuple[str, Path]]:
 
 async def tail_events(run_id: str, event_path: Path) -> None:
     """Tail loop. Terminates when a run.end event is observed."""
-    pending: list[dict] = []
+    pending: list[dict[str, Any]] = []
     last_flush = time.monotonic()
 
     # Wait for the file to exist (the CLI creates it right before the sandbox spawns,
@@ -94,7 +95,7 @@ async def tail_events(run_id: str, event_path: Path) -> None:
         fh.close()
 
 
-async def _flush(events: list[dict]) -> None:
+async def _flush(events: list[dict[str, Any]]) -> None:
     """Persist a batch of events to SQLite. Idempotent on span ids."""
     async with async_session() as s:
         for ev in events:
@@ -105,7 +106,7 @@ async def _flush(events: list[dict]) -> None:
         await s.commit()
 
 
-async def _apply(session, ev: dict[str, Any]) -> None:
+async def _apply(session: AsyncSession, ev: dict[str, Any]) -> None:
     etype = ev.get("type")
     run_id = ev.get("run_id")
     if not run_id:
@@ -139,8 +140,8 @@ async def _apply(session, ev: dict[str, Any]) -> None:
         return
 
     if etype == "span.start":
-        existing = await session.get(SpanRow, span_id)
-        if existing is not None:
+        existing_span = await session.get(SpanRow, span_id)
+        if existing_span is not None:
             return
         session.add(
             SpanRow(
@@ -158,29 +159,29 @@ async def _apply(session, ev: dict[str, Any]) -> None:
         return
 
     if etype == "span.end":
-        row = await session.get(SpanRow, span_id)
-        if row is None:
+        span_row = await session.get(SpanRow, span_id)
+        if span_row is None:
             return
-        row.finished_at = ts
-        row.status = data.get("status") or "success"
-        row.output_inline = data.get("output_inline")
-        row.tokens_in = data.get("tokens_in")
-        row.tokens_out = data.get("tokens_out")
-        row.cost_usd = data.get("cost_usd")
-        row.provider = data.get("provider")
-        row.model = data.get("model")
-        row.error_payload = data.get("error_payload")
+        span_row.finished_at = ts
+        span_row.status = data.get("status") or "success"
+        span_row.output_inline = data.get("output_inline")
+        span_row.tokens_in = data.get("tokens_in")
+        span_row.tokens_out = data.get("tokens_out")
+        span_row.cost_usd = data.get("cost_usd")
+        span_row.provider = data.get("provider")
+        span_row.model = data.get("model")
+        span_row.error_payload = data.get("error_payload")
         if data.get("attrs"):
-            row.attrs = {**(row.attrs or {}), **data["attrs"]}
+            span_row.attrs = {**(span_row.attrs or {}), **data["attrs"]}
         # Bubble up totals to the run row.
         run = await session.get(RunRow, run_id)
         if run is not None:
-            if row.tokens_in:
-                run.total_tokens_in = (run.total_tokens_in or 0) + row.tokens_in
-            if row.tokens_out:
-                run.total_tokens_out = (run.total_tokens_out or 0) + row.tokens_out
-            if row.cost_usd:
-                run.total_cost_usd = (run.total_cost_usd or 0.0) + row.cost_usd
+            if span_row.tokens_in:
+                run.total_tokens_in = (run.total_tokens_in or 0) + span_row.tokens_in
+            if span_row.tokens_out:
+                run.total_tokens_out = (run.total_tokens_out or 0) + span_row.tokens_out
+            if span_row.cost_usd:
+                run.total_cost_usd = (run.total_cost_usd or 0.0) + span_row.cost_usd
         return
 
 

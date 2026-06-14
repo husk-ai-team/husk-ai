@@ -77,3 +77,18 @@ addopts = "--import-mode=importlib"
 python_version = "3.11"
 strict = true
 ignore_missing_imports = true
+# Type-check the public library surface (package src). Tests and benchmark CLI
+# scripts are intentionally excluded from strict checking.
+files = [
+    "packages/husk-shared/src",
+    "packages/husk-sandbox/src",
+    "packages/husk-studio-backend/src",
+    "packages/husk-cli/src",
+]
+
+[[tool.mypy.overrides]]
+# The MCP SDK's @tool() decorator is untyped, which under strict makes every
+# decorated tool "untyped". The functions themselves are annotated; accept the
+# framework's untyped decorator here rather than littering type: ignore.
+module = "husk.mcp.server"
+disallow_untyped_decorators = false

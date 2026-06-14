@@ -52,7 +52,12 @@ def _provider_from_serialized(serialized: dict[str, Any] | None) -> str | None:
 def _model_from_kwargs(kwargs: dict[str, Any] | None) -> str | None:
     if not kwargs:
         return None
-    return kwargs.get("model") or kwargs.get("model_name") or kwargs.get("invocation_params", {}).get("model")
+    model = (
+        kwargs.get("model")
+        or kwargs.get("model_name")
+        or kwargs.get("invocation_params", {}).get("model")
+    )
+    return str(model) if model is not None else None
 
 
 class HuskCallbackHandler:

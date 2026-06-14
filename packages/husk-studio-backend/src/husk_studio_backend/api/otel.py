@@ -12,8 +12,10 @@ from __future__ import annotations
 
 import json
 import logging
+from typing import Any
 
 from fastapi import APIRouter, HTTPException, Request, Response
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from husk_shared.pricing import cost_usd
 from husk_studio_backend.db.engine import async_session
@@ -65,7 +67,7 @@ async def ingest_traces(request: Request) -> Response:
     for s in spans:
         by_run.setdefault(s.run_id, []).append(s)
 
-    persisted_for_broadcast: list[tuple[str, dict]] = []
+    persisted_for_broadcast: list[tuple[str, dict[str, Any]]] = []
 
     async with async_session() as session:
         for run_id, run_spans in by_run.items():
@@ -86,7 +88,7 @@ async def ingest_traces(request: Request) -> Response:
     return Response(content=_OK_BODY, media_type="application/json")
 
 
-async def _upsert_run(session, run_id: str, spans: list[ParsedSpan]) -> None:
+async def _upsert_run(session: AsyncSession, run_id: str, spans: list[ParsedSpan]) -> None:
     row = await session.get(RunRow, run_id)
     earliest = min(spans, key=lambda s: s.started_at_ms or 0)
     framework_id = earliest.gen_ai_system or earliest.service_name or "otel"
@@ -114,7 +116,7 @@ async def _upsert_run(session, run_id: str, spans: list[ParsedSpan]) -> None:
         row.status = "success"
 
 
-async def _upsert_span(session, s: ParsedSpan) -> bool:
+async def _upsert_span(session: AsyncSession, s: ParsedSpan) -> bool:
     """Insert a new span or update terminal fields. Returns True if newly inserted."""
     existing = await session.get(SpanRow, s.id)
     cost = cost_usd(s.model, s.tokens_in, s.tokens_out)
@@ -161,7 +163,7 @@ async def _upsert_span(session, s: ParsedSpan) -> bool:
     return False
 
 
-def _serialize(s: ParsedSpan) -> dict:
+def _serialize(s: ParsedSpan) -> dict[str, Any]:
     return {
         "id": s.id,
         "run_id": s.run_id,

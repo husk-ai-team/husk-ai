@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import asyncio
 import logging
+from typing import Any
 
 from fastapi import APIRouter, WebSocket, WebSocketDisconnect
 from sqlalchemy import select
@@ -15,7 +16,7 @@ log = logging.getLogger(__name__)
 
 
 @router.get("/api/v1/runs/{run_id}/spans")
-async def list_spans(run_id: str) -> list[dict]:
+async def list_spans(run_id: str) -> list[dict[str, Any]]:
     async with async_session() as s:
         rows = (
             (
@@ -65,7 +66,7 @@ async def run_stream(ws: WebSocket, run_id: str) -> None:
         await unsubscribe(run_id, q)
 
 
-def _serialize(r: SpanRow) -> dict:
+def _serialize(r: SpanRow) -> dict[str, Any]:
     return {
         "id": r.id,
         "run_id": r.run_id,

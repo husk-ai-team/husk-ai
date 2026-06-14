@@ -2,23 +2,25 @@ from __future__ import annotations
 
 import asyncio
 from collections import defaultdict
+from typing import Any
 
 # Simple per-run pub/sub. Each WebSocket subscriber gets its own bounded queue;
 # slow subscribers drop oldest messages rather than blocking the publisher.
 
-_subscribers: dict[str, set[asyncio.Queue]] = defaultdict(set)
+_Event = dict[str, Any]
+_subscribers: dict[str, set[asyncio.Queue[_Event]]] = defaultdict(set)
 _lock = asyncio.Lock()
 _MAX_QUEUE = 500
 
 
-async def subscribe(run_id: str) -> asyncio.Queue:
-    q: asyncio.Queue = asyncio.Queue(maxsize=_MAX_QUEUE)
+async def subscribe(run_id: str) -> asyncio.Queue[_Event]:
+    q: asyncio.Queue[_Event] = asyncio.Queue(maxsize=_MAX_QUEUE)
     async with _lock:
         _subscribers[run_id].add(q)
     return q
 
 
-async def unsubscribe(run_id: str, q: asyncio.Queue) -> None:
+async def unsubscribe(run_id: str, q: asyncio.Queue[_Event]) -> None:
     async with _lock:
         subs = _subscribers.get(run_id)
         if subs is not None:
@@ -27,7 +29,7 @@ async def unsubscribe(run_id: str, q: asyncio.Queue) -> None:
                 _subscribers.pop(run_id, None)
 
 
-async def publish(run_id: str, event: dict) -> None:
+async def publish(run_id: str, event: _Event) -> None:
     async with _lock:
         subs = list(_subscribers.get(run_id, ()))
     for q in subs:

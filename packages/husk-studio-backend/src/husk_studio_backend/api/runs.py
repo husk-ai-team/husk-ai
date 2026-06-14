@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+from typing import Any
+
 from fastapi import APIRouter, HTTPException
 from sqlalchemy import select
 
@@ -10,7 +12,7 @@ router = APIRouter(prefix="/api/v1/runs", tags=["runs"])
 
 
 @router.get("")
-async def list_runs(limit: int = 50, offset: int = 0) -> list[dict]:
+async def list_runs(limit: int = 50, offset: int = 0) -> list[dict[str, Any]]:
     async with async_session() as s:
         rows = (
             (
@@ -28,7 +30,7 @@ async def list_runs(limit: int = 50, offset: int = 0) -> list[dict]:
 
 
 @router.get("/{run_id}")
-async def get_run(run_id: str) -> dict:
+async def get_run(run_id: str) -> dict[str, Any]:
     async with async_session() as s:
         row = await s.get(RunRow, run_id)
         if row is None:
@@ -36,7 +38,7 @@ async def get_run(run_id: str) -> dict:
         return _serialize(row)
 
 
-def _serialize(r: RunRow) -> dict:
+def _serialize(r: RunRow) -> dict[str, Any]:
     return {
         "id": r.id,
         "parent_run_id": r.parent_run_id,

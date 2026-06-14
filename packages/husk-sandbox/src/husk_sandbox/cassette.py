@@ -28,6 +28,7 @@ import logging
 from collections.abc import Iterator
 from contextlib import contextmanager
 from pathlib import Path
+from typing import Any
 
 import httpx
 
@@ -68,11 +69,12 @@ class CassetteStore:
     def _path(self, key: str) -> Path:
         return self.dir / f"{key}.json"
 
-    def get(self, key: str) -> dict | None:
+    def get(self, key: str) -> dict[str, Any] | None:
         path = self._path(key)
         if not path.exists():
             return None
-        return json.loads(path.read_text(encoding="utf-8"))
+        entry: dict[str, Any] = json.loads(path.read_text(encoding="utf-8"))
+        return entry
 
     def put(
         self,
@@ -111,7 +113,7 @@ class CassetteStore:
         return len(self.keys())
 
 
-def _response_from_entry(entry: dict, request: httpx.Request) -> httpx.Response:
+def _response_from_entry(entry: dict[str, Any], request: httpx.Request) -> httpx.Response:
     body = base64.b64decode(entry["body_b64"])
     return httpx.Response(
         status_code=int(entry["status"]),

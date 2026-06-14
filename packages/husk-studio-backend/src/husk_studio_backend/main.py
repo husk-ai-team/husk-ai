@@ -8,6 +8,7 @@ import subprocess
 from collections.abc import AsyncIterator
 from contextlib import asynccontextmanager
 from pathlib import Path
+from typing import Any
 
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
@@ -320,12 +321,12 @@ _LANDING_HTML = """<!doctype html>
 
 
 @app.get("/api/health")
-async def health() -> dict:
+async def health() -> dict[str, Any]:
     return {"ok": True, "service": "husk-studio-backend", "version": __version__}
 
 
 @app.get("/healthz")
-async def healthz() -> dict:
+async def healthz() -> dict[str, Any]:
     # Back-compat alias for older clients.
     return {"ok": True}
 
@@ -336,11 +337,12 @@ async def healthz() -> dict:
 _ensure_studio_built()
 _studio_dist = _find_studio_dist()
 if _studio_dist is not None:
-    log.info("Serving studio bundle from %s", _studio_dist)
+    studio_dist = _studio_dist  # narrowed to Path for the closures below
+    log.info("Serving studio bundle from %s", studio_dist)
 
     @app.get("/", include_in_schema=False)
     async def _spa_root() -> FileResponse:
-        return FileResponse(_studio_dist / "index.html")
+        return FileResponse(studio_dist / "index.html")
 
     # SPA fallback: any unknown route under / that isn't an API/WS/asset
     # request returns index.html so wouter / react-router can handle it.
@@ -353,15 +355,15 @@ if _studio_dist is not None:
             from fastapi import HTTPException
 
             raise HTTPException(status_code=404)
-        asset = _studio_dist / full_path
+        asset = studio_dist / full_path
         if asset.is_file():
             return FileResponse(asset)
-        return FileResponse(_studio_dist / "index.html")
+        return FileResponse(studio_dist / "index.html")
 
     # The Vite build emits hashed assets under /assets/*.
     app.mount(
         "/assets",
-        StaticFiles(directory=_studio_dist / "assets"),
+        StaticFiles(directory=studio_dist / "assets"),
         name="studio-assets",
     )
 else:

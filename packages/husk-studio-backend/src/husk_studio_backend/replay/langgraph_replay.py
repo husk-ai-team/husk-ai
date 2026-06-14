@@ -93,11 +93,12 @@ def replay_graph(
         replay_from = getattr(module, "replay_from", None)
         if callable(replay_from):
             with _replay_lock:
-                return replay_from(
+                resumed: dict[str, Any] = replay_from(
                     state_override=state_override,
                     parent_thread_id=parent_thread_id,
                     fork_node=fork_node,
                 )
+                return resumed
 
     target = getattr(module, symbol, None)
     if target is None:
@@ -108,7 +109,8 @@ def replay_graph(
     # Preferred path: module exposes its own `invoke(state, thread_id=...)`.
     fn = getattr(module, "invoke", None)
     if callable(fn) and fn is not target:
-        return fn(state_override, thread_id=tid)
+        invoked: dict[str, Any] = fn(state_override, thread_id=tid)
+        return invoked
 
     # Otherwise treat the symbol as a compiled LangGraph.
     if hasattr(target, "invoke"):

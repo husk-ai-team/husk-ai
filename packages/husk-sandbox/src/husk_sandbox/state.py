@@ -12,15 +12,16 @@ The shape:
 from __future__ import annotations
 
 import logging
+from typing import Any
 
 log = logging.getLogger(__name__)
 
 
-def capture(span_id: str, payload: dict) -> str | None:
+def capture(span_id: str, payload: dict[str, Any]) -> str | None:
     log.debug("snapshot.capture(span_id=%s) — stub, wired in M2.", span_id)
     return None
 
 
-def restore(snapshot_id: str) -> dict | None:
+def restore(snapshot_id: str) -> dict[str, Any] | None:
     log.debug("snapshot.restore(%s) — stub, wired in M2.", snapshot_id)
     return None

@@ -45,7 +45,7 @@ def decode_attr_value(v: dict[str, Any]) -> Any:
     return None
 
 
-def decode_attributes(attrs: Iterable[dict]) -> dict[str, Any]:
+def decode_attributes(attrs: Iterable[dict[str, Any]]) -> dict[str, Any]:
     """Decode an OTLP attributes list into a flat {key: value} dict."""
     out: dict[str, Any] = {}
     for a in attrs or []:
@@ -123,10 +123,12 @@ def _span_id_short(span_id: str) -> str:
     return _normalize_id(span_id)[:26]
 
 
-def _extract_messages(events: list[dict]) -> tuple[list[dict], list[dict]]:
+def _extract_messages(
+    events: list[dict[str, Any]],
+) -> tuple[list[dict[str, Any]], list[dict[str, Any]]]:
     """Split GenAI span events into input messages and output choices."""
-    inputs: list[dict] = []
-    outputs: list[dict] = []
+    inputs: list[dict[str, Any]] = []
+    outputs: list[dict[str, Any]] = []
     for ev in events or []:
         name = ev.get("name") or ""
         attrs = decode_attributes(ev.get("attributes") or [])
