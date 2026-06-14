@@ -41,6 +41,10 @@ class ReplayRequest(BaseModel):
     # absent and not derivable, the replay falls back to a full re-run.
     parent_thread_id: str | None = None
     fork_node: str | None = None
+    # Optional: serve the replay's LLM calls from the parent's recorded HTTP
+    # cassette instead of re-calling the provider — free, deterministic,
+    # byte-identical (a changed request still falls through to the real API).
+    use_cassette: bool = False
 
 
 @router.post("/replay")
@@ -95,6 +99,10 @@ async def replay(req: ReplayRequest, request: Request) -> dict[str, Any]:
                 saved_env[k] = os.environ.get(k)
                 os.environ[k] = v
 
+    prev_cassette = os.environ.get("HUSK_REPLAY_CASSETTE")
+    if req.use_cassette:
+        os.environ["HUSK_REPLAY_CASSETTE"] = "1"
+
     # Resolve checkpoint-resume targets: prefer explicit request fields, else
     # derive them from the run's spans (root span carries langgraph.thread_id;
     # the selected span carries langgraph.node). This upgrades a plain replay
@@ -137,6 +145,26 @@ async def replay(req: ReplayRequest, request: Request) -> dict[str, Any]:
                 os.environ.pop(k, None)
             else:
                 os.environ[k] = prev
+        if req.use_cassette:
+            if prev_cassette is None:
+                os.environ.pop("HUSK_REPLAY_CASSETTE", None)
+            else:
+                os.environ["HUSK_REPLAY_CASSETTE"] = prev_cassette
+
+    # Link parent -> child as a branch once the child run lands (async, so the
+    # endpoint can return immediately). This makes UI replays first-class:
+    # they show up as lineage with token-bypass in the Studio, like the
+    # benchmark's real_replays.
+    child_id = result.get("child_id")
+    if child_id:
+        asyncio.create_task(
+            _record_branch_when_ready(
+                parent_run_id=req.run_id,
+                child_id=str(child_id),
+                fork_span_id=req.span_id,
+                fork_node=fork_node,
+            )
+        )
 
     return {
         "thread_id": result.get("thread_id"),
@@ -144,6 +172,48 @@ async def replay(req: ReplayRequest, request: Request) -> dict[str, Any]:
         "state": result.get("state"),
         "note": "Refresh /runs in a moment — the new run will appear once OTel flushes.",
     }
+
+
+async def _record_branch_when_ready(
+    *,
+    parent_run_id: str,
+    child_id: str,
+    fork_span_id: str | None,
+    fork_node: str | None,
+    tries: int = 20,
+    interval_s: float = 0.4,
+) -> None:
+    """Poll for the replay's child run (by its child_id marker) and record a branch."""
+    from husk_studio_backend.api.branches import CreateBranchRequest, record_branch
+
+    for _ in range(tries):
+        await asyncio.sleep(interval_s)
+        async with async_session() as s:
+            rows = (
+                (await s.execute(select(SpanRow).where(SpanRow.name == "agent.run")))
+                .scalars()
+                .all()
+            )
+        child_run_id = next(
+            (r.run_id for r in rows if (r.attrs or {}).get("husk.replay.child_id") == child_id),
+            None,
+        )
+        if child_run_id is None:
+            continue
+        try:
+            await record_branch(
+                CreateBranchRequest(
+                    parent_run_id=parent_run_id,
+                    child_run_id=child_run_id,
+                    fork_span_id=fork_span_id or child_run_id,
+                    override_type="input_replace",
+                    label=f"replay from {fork_node}" if fork_node else "replay",
+                )
+            )
+        except Exception:  # noqa: BLE001
+            log.exception("failed to record replay branch for child_id=%s", child_id)
+        return
+    log.warning("replay child (child_id=%s) not ingested in time; no branch recorded", child_id)
 
 
 async def _derive_resume_targets(
