@@ -12,7 +12,7 @@
 <p align="center">
   <a href="LICENSE"><img src="https://img.shields.io/badge/license-BUSL--1.1-FF6B35.svg" alt="License: BUSL 1.1" /></a>
   <img src="https://img.shields.io/badge/python-3.11+-blue.svg" alt="Python 3.11+" />
-  <a href="https://github.com/husk-ai-team/husk-ai/actions/workflows/ci.yml"><img src="https://github.com/husk-ai-team/husk-ai/actions/workflows/ci.yml/badge.svg" alt="CI" /></a>
+  <a href="https://github.com/husk-ai-team/husk-ai/actions/workflows/ci.yml"><img src="https://github.com/husk-ai-team/husk-ai/actions/workflows/ci.yml/badge.svg?branch=main" alt="CI" /></a>
   <img src="https://img.shields.io/badge/local--first-no%20telemetry-0F1117.svg" alt="local-first · no telemetry" />
 </p>
 
