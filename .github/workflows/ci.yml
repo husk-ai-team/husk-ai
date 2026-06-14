@@ -26,11 +26,42 @@ jobs:
       - name: Set up Python ${{ matrix.python }}
         run: uv python install ${{ matrix.python }}
 
-      - name: Sync workspace
-        run: uv sync --all-packages
+      - name: Sync workspace (+ examples for replay/determinism tests)
+        run: uv sync --all-packages --group examples
 
       - name: Ruff lint
         run: uv run ruff check .
 
+      - name: Mypy (strict, package surface)
+        run: uv run mypy
+
       - name: Pytest
-        run: uv run pytest -q
+        run: uv run python -m pytest -q
+
+      - name: Benchmark smoke — regenerate hero numbers offline (no API key)
+        run: uv run python benchmark/reproduce.py
+
+  studio:
+    name: studio (node 20)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Enable corepack
+        run: corepack enable
+
+      - name: Install
+        run: corepack pnpm install --frozen-lockfile
+
+      - name: Typecheck
+        run: corepack pnpm --filter studio check
+
+      - name: Unit tests
+        run: corepack pnpm --filter studio test
+
+      - name: Build
+        run: corepack pnpm --filter studio build
