@@ -1,0 +1,143 @@
+{
+  "n_engineers": 12,
+  "n_rows": 48,
+  "descriptive": {
+    "t_identify_min": {
+      "baseline": {
+        "n": 24,
+        "mean": 14.333,
+        "stdev": 2.2,
+        "median": 15.0,
+        "p25": 13.0,
+        "p75": 16.0,
+        "min": 10.0,
+        "max": 18.0
+      },
+      "husk": {
+        "n": 24,
+        "mean": 2.708,
+        "stdev": 0.624,
+        "median": 3.0,
+        "p25": 2.0,
+        "p75": 3.0,
+        "min": 2.0,
+        "max": 4.0
+      }
+    },
+    "t_edit_min": {
+      "baseline": {
+        "n": 24,
+        "mean": 5.25,
+        "stdev": 0.676,
+        "median": 5.0,
+        "p25": 5.0,
+        "p75": 6.0,
+        "min": 4.0,
+        "max": 6.0
+      },
+      "husk": {
+        "n": 24,
+        "mean": 3.208,
+        "stdev": 0.588,
+        "median": 3.0,
+        "p25": 3.0,
+        "p75": 4.0,
+        "min": 2.0,
+        "max": 4.0
+      }
+    },
+    "t_verify_min": {
+      "baseline": {
+        "n": 24,
+        "mean": 8.042,
+        "stdev": 0.859,
+        "median": 8.0,
+        "p25": 7.0,
+        "p75": 9.0,
+        "min": 7.0,
+        "max": 10.0
+      },
+      "husk": {
+        "n": 24,
+        "mean": 1.0,
+        "stdev": 0.0,
+        "median": 1.0,
+        "p25": 1.0,
+        "p75": 1.0,
+        "min": 1.0,
+        "max": 1.0
+      }
+    },
+    "t_total_min": {
+      "baseline": {
+        "n": 24,
+        "mean": 27.625,
+        "stdev": 2.81,
+        "median": 28.0,
+        "p25": 25.0,
+        "p75": 30.0,
+        "min": 22.0,
+        "max": 32.0
+      },
+      "husk": {
+        "n": 24,
+        "mean": 6.917,
+        "stdev": 0.83,
+        "median": 7.0,
+        "p25": 6.0,
+        "p75": 7.0,
+        "min": 6.0,
+        "max": 9.0
+      }
+    }
+  },
+  "paired_ttest": {
+    "t_identify_min": {
+      "n": 4,
+      "t": 9.9076,
+      "df": 3,
+      "p_two_tailed": 0.00219,
+      "mean_diff": 11.625,
+      "sd_diff": 2.347,
+      "ci95_low": 7.891,
+      "ci95_high": 15.359
+    },
+    "t_edit_min": {
+      "n": 4,
+      "t": 6.3435,
+      "df": 3,
+      "p_two_tailed": 0.00792,
+      "mean_diff": 2.042,
+      "sd_diff": 0.644,
+      "ci95_low": 1.018,
+      "ci95_high": 3.066
+    },
+    "t_verify_min": {
+      "n": 4,
+      "t": 20.9619,
+      "df": 3,
+      "p_two_tailed": 0.00024,
+      "mean_diff": 7.042,
+      "sd_diff": 0.672,
+      "ci95_low": 5.973,
+      "ci95_high": 8.111
+    },
+    "t_total_min": {
+      "n": 4,
+      "t": 12.6661,
+      "df": 3,
+      "p_two_tailed": 0.00106,
+      "mean_diff": 20.708,
+      "sd_diff": 3.27,
+      "ci95_low": 15.506,
+      "ci95_high": 25.911
+    }
+  },
+  "cohens_d": {
+    "t_identify_min": 4.954,
+    "t_edit_min": 3.172,
+    "t_verify_min": 10.481,
+    "t_total_min": 6.333
+  },
+  "publishable": true
+}

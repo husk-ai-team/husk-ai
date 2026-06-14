@@ -1,0 +1,105 @@
+{
+  "n_parents": 617,
+  "n_failed": 117,
+  "failure_rate_pct": 18.96,
+  "real_llm_runs": 617,
+  "failure_breakdown": [
+    [
+      "N4",
+      38
+    ],
+    [
+      "N3",
+      38
+    ],
+    [
+      "N2",
+      26
+    ],
+    [
+      "N1",
+      9
+    ]
+  ],
+  "total_cost_usd": 0,
+  "total_tokens_in": 1500488,
+  "total_tokens_out": 478284,
+  "d1_wall_time_speedup": {
+    "n": 117,
+    "mean_x": 16.78,
+    "ci95_low_x": 13.05,
+    "ci95_high_x": 22.17,
+    "p50_x": 6.53,
+    "p95_x": 52.14,
+    "max_x": 136.94
+  },
+  "d2_bypass_by_failure_mode": {
+    "N1": {
+      "n": 9,
+      "mean_pct": 0.0,
+      "ci95_low_pct": 0.0,
+      "ci95_high_pct": 0.0,
+      "max_pct": 0.0
+    },
+    "N2": {
+      "n": 26,
+      "mean_pct": 0.0,
+      "ci95_low_pct": 0.0,
+      "ci95_high_pct": 0.0,
+      "max_pct": 0.0
+    },
+    "N3": {
+      "n": 38,
+      "mean_pct": 43.09,
+      "ci95_low_pct": 42.68,
+      "ci95_high_pct": 43.5,
+      "max_pct": 45.73
+    },
+    "N4": {
+      "n": 38,
+      "mean_pct": 87.92,
+      "ci95_low_pct": 87.68,
+      "ci95_high_pct": 88.17,
+      "max_pct": 89.39
+    },
+    "unknown": {
+      "n": 6,
+      "mean_pct": 6.15,
+      "ci95_low_pct": 2.06,
+      "ci95_high_pct": 10.29,
+      "max_pct": 14.17
+    }
+  },
+  "d3_max_bypass": {
+    "max_pct": 89.39,
+    "n_branches": 117
+  },
+  "d4_replay_success": {
+    "n_total_branches": 117,
+    "n_with_child": 117,
+    "success_pct": 100.0,
+    "ci95_low_pct": 96.82,
+    "ci95_high_pct": 100.0
+  },
+  "d5_mean_bypass": {
+    "n_branches": 117,
+    "tokens_bypassed_total": 184473,
+    "tokens_parent_total": 334393,
+    "mean_pct": 42.87,
+    "ci95_low_pct": 36.47,
+    "ci95_high_pct": 49.53
+  },
+  "supporting_ingest_overhead_ms": {
+    "n": 617,
+    "mean_ms": 0.65,
+    "ci95_low_ms": 0.52,
+    "ci95_high_ms": 0.8,
+    "p50_ms": 0.0,
+    "p95_ms": 5.0
+  },
+  "supporting_storage_efficiency": {
+    "db_size_bytes": 14356480,
+    "db_size_mb": 13.691,
+    "bytes_per_trace": 23268.2
+  }
+}

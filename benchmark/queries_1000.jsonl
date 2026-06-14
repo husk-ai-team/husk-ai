@@ -1,0 +1,1000 @@
+{"index": 0, "topic": "Who was the man behind The Chipmunks?", "expected_answer": "David Seville", "source": "triviaqa:tc_2"}
+{"index": 1, "topic": "Which Lloyd Webber musical premiered in the US on 10th December 1993?", "expected_answer": "Sunset Boulevard", "source": "triviaqa:tc_33"}
+{"index": 2, "topic": "Who was the next British Prime Minister after Arthur Balfour?", "expected_answer": "Campbell-Bannerman", "source": "triviaqa:tc_40"}
+{"index": 3, "topic": "Who had a 70s No 1 hit with Kiss You All Over?", "expected_answer": "Exile", "source": "triviaqa:tc_49"}
+{"index": 4, "topic": "What claimed the life of singer Kathleen Ferrier?", "expected_answer": "Cancer", "source": "triviaqa:tc_56"}
+{"index": 5, "topic": "Rita Coolidge sang the title song for which Bond film?", "expected_answer": "Octopussy", "source": "triviaqa:tc_69"}
+{"index": 6, "topic": "What was the last US state to reintroduce alcohol after prohibition?", "expected_answer": "Utah", "source": "triviaqa:tc_79"}
+{"index": 7, "topic": "Which actress was voted Miss Greenwich Village in 1942?", "expected_answer": "Lauren Bacall", "source": "triviaqa:tc_106"}
+{"index": 8, "topic": "What is the Japanese share index called?", "expected_answer": "Nikkei", "source": "triviaqa:tc_133"}
+{"index": 9, "topic": "What was the name of Michael Jackson's autobiography written in 1988?", "expected_answer": "Moonwalk", "source": "triviaqa:tc_137"}
+{"index": 10, "topic": "In which decade did stereo records first go on sale?", "expected_answer": "1930s", "source": "triviaqa:tc_149"}
+{"index": 11, "topic": "In what year's Olympics were electric timing devices and a public-address system used for the first time?", "expected_answer": "In 1912, in Stockholm", "source": "triviaqa:tc_165"}
+{"index": 12, "topic": "Which volcano in Tanzania is the highest mountain in Africa?", "expected_answer": "Kilimanjaro", "source": "triviaqa:tc_217"}
+{"index": 13, "topic": "The flag of Libya is a plain rectangle of which color?", "expected_answer": "Green", "source": "triviaqa:tc_219"}
+{"index": 14, "topic": "Of which African country is Niamey the capital?", "expected_answer": "Niger", "source": "triviaqa:tc_241"}
+{"index": 15, "topic": "Who was the director of the CIA from 1976-81?", "expected_answer": "George Bush", "source": "triviaqa:tc_245"}
+{"index": 16, "topic": "Which musical featured the song The Street Where You Live?", "expected_answer": "My Fair Lady", "source": "triviaqa:tc_261"}
+{"index": 17, "topic": "\"Who was the target of the failed \"\"Bomb Plot\"\" of 1944?\"", "expected_answer": "Hitler", "source": "triviaqa:tc_267"}
+{"index": 18, "topic": "Who had an 80s No 1 hit with Hold On To The Nights?", "expected_answer": "Richard Marx", "source": "triviaqa:tc_276"}
+{"index": 19, "topic": "Who directed the classic 30s western Stagecoach?", "expected_answer": "John Ford", "source": "triviaqa:tc_280"}
+{"index": 20, "topic": "Dave Gilmore and Roger Waters were in which rock group?", "expected_answer": "Pink Floyd", "source": "triviaqa:tc_282"}
+{"index": 21, "topic": "Which highway was Revisited in a classic 60s album by Bob Dylan?", "expected_answer": "61", "source": "triviaqa:tc_288"}
+{"index": 22, "topic": "Which was the only eastern bloc country to participate in the 1984 LA Olympics?", "expected_answer": "Rumania", "source": "triviaqa:tc_298"}
+{"index": 23, "topic": "Which 90s sci fi series with James Belushi was based on Bruce Wagner's comic strip of the same name?", "expected_answer": "Wild Palms", "source": "triviaqa:tc_304"}
+{"index": 24, "topic": "If I Were A Rich Man Was a big hit from which stage show?", "expected_answer": "Fiddler on the Roof", "source": "triviaqa:tc_316"}
+{"index": 25, "topic": "Men Against the Sea and Pitcairn's Island were two sequels to what famous novel?", "expected_answer": "Mutiny On The Bounty", "source": "triviaqa:tc_349"}
+{"index": 26, "topic": "What was Truman Capote's last name before he was adopted by his stepfather?", "expected_answer": "Persons", "source": "triviaqa:tc_379"}
+{"index": 27, "topic": "In Lewis Carroll's poem The Hunting of the Snark, what did the elusive, troublesome snark turn into to fool hunters?", "expected_answer": "A boojum", "source": "triviaqa:tc_397"}
+{"index": 28, "topic": "In the Bible, who did the sun and moon stand still before?", "expected_answer": "Joshua", "source": "triviaqa:tc_453"}
+{"index": 29, "topic": "What Michelle Pfeiffer movie got a boost from the Coolio song Gangsta's Paradise?", "expected_answer": "Dangerous Minds", "source": "triviaqa:tc_455"}
+{"index": 30, "topic": "What was President Gerald Ford's middle name?", "expected_answer": "Rudolph", "source": "triviaqa:tc_510"}
+{"index": 31, "topic": "Art Garfunkel trained for which profession although he didn't qualify?", "expected_answer": "Architect", "source": "triviaqa:tc_515"}
+{"index": 32, "topic": "Who was the last inmate of Spandau jail in Berlin?", "expected_answer": "Rudolf Hess", "source": "triviaqa:tc_517"}
+{"index": 33, "topic": "What was Eddie Murphy's first movie?", "expected_answer": "48 Hours", "source": "triviaqa:tc_518"}
+{"index": 34, "topic": "In the 80s who wrote the novel Empire of The Sun?", "expected_answer": "J. G. Ballard", "source": "triviaqa:tc_538"}
+{"index": 35, "topic": "Kagoshima international airport is in which country?", "expected_answer": "Japan", "source": "triviaqa:tc_540"}
+{"index": 36, "topic": "In which sport could the Pacers take on the Pistons?", "expected_answer": "A: Basketball", "source": "triviaqa:tc_543"}
+{"index": 37, "topic": "Kim Carnes' nine weeks at No 1 with Bette Davis Eyes was interrupted for one week by which song?", "expected_answer": "Stars on 45 medley", "source": "triviaqa:tc_559"}
+{"index": 38, "topic": "Where in Canada is the Lion's Gate bridge?", "expected_answer": "Vancouver", "source": "triviaqa:tc_561"}
+{"index": 39, "topic": "What was Walter Matthau's first movie?", "expected_answer": "The Kentuckian", "source": "triviaqa:tc_564"}
+{"index": 40, "topic": "Otis Barton was a pioneer in exploring where?", "expected_answer": "Underwater", "source": "triviaqa:tc_585"}
+{"index": 41, "topic": "Where in England was actor Nigel Hawthorne born?", "expected_answer": "Coventry", "source": "triviaqa:tc_586"}
+{"index": 42, "topic": "What mythological beast has the head of a man, the body of a lion, and the tail and feet of a dragon?", "expected_answer": "A manticore", "source": "triviaqa:tc_596"}
+{"index": 43, "topic": "In Greek mythology, who were Arges, Brontes and Steropes?", "expected_answer": "Cyclopes", "source": "triviaqa:tc_604"}
+{"index": 44, "topic": "Which musician founded the Red Hot Peppers?", "expected_answer": "Jelly Roll Morton", "source": "triviaqa:tc_626"}
+{"index": 45, "topic": "Where did the Shinning Path terrorists operate?", "expected_answer": "Peru", "source": "triviaqa:tc_635"}
+{"index": 46, "topic": "How old was Jimi Hendrix when he died?", "expected_answer": "27", "source": "triviaqa:tc_653"}
+{"index": 47, "topic": "Which Brit broke the land speed record in 1990 in Thrust 2?", "expected_answer": "Richard Noble", "source": "triviaqa:tc_657"}
+{"index": 48, "topic": "In which state was Gene Vincent born?", "expected_answer": "Virginia", "source": "triviaqa:tc_664"}
+{"index": 49, "topic": "How was the European Recovery Program in the 1940s more commonly known?", "expected_answer": "Marshall Plan", "source": "triviaqa:tc_665"}
+{"index": 50, "topic": "Brandon Lee died during the making of which movie?", "expected_answer": "The Crow", "source": "triviaqa:tc_672"}
+{"index": 51, "topic": "Who had a 70s No 1 hit with Let's Do It Again?", "expected_answer": "The Staple Singers", "source": "triviaqa:tc_678"}
+{"index": 52, "topic": "Who had a Too Legit To Quit Tour?", "expected_answer": "MC Hammer", "source": "triviaqa:tc_687"}
+{"index": 53, "topic": "\"According to Rudyard Kipling what were the \"\"two imposters\"\" to meet and treat the same day?\"", "expected_answer": "Triumph and Disaster", "source": "triviaqa:tc_690"}
+{"index": 54, "topic": "Who is the most successful UK solo artist in the USA?", "expected_answer": "Elton John", "source": "triviaqa:tc_691"}
+{"index": 55, "topic": "Which country does the airline TAAG come from?", "expected_answer": "Angola", "source": "triviaqa:tc_704"}
+{"index": 56, "topic": "Which US No 1 single came from Diana Ross's platinum album Diana?", "expected_answer": "Upside Down", "source": "triviaqa:tc_715"}
+{"index": 57, "topic": "River Phoenix died during the making of which movie?", "expected_answer": "Dark Blood", "source": "triviaqa:tc_719"}
+{"index": 58, "topic": "Which artist David was born in Bradford UK?", "expected_answer": "Hockney", "source": "triviaqa:tc_723"}
+{"index": 59, "topic": "What is Mel Gibson's middle name?", "expected_answer": "Columcille", "source": "triviaqa:tc_725"}
+{"index": 60, "topic": "Richard Daley was mayor of which city for 21 years?", "expected_answer": "Chicago", "source": "triviaqa:tc_731"}
+{"index": 61, "topic": "\"In which movie did Garbo say, \"\"I want to be alone\"\".\"", "expected_answer": "Grand Hotel", "source": "triviaqa:tc_759"}
+{"index": 62, "topic": "What is Osbert Lancaster best known for producing?", "expected_answer": "Cartoons", "source": "triviaqa:tc_783"}
+{"index": 63, "topic": "Who was the defending champion when Martina Navratilova first won Wimbledon singles?", "expected_answer": "Virginia Wade", "source": "triviaqa:tc_812"}
+{"index": 64, "topic": "Who was the first US-born winner of golf's British Open?", "expected_answer": "Walter Hagen", "source": "triviaqa:tc_827"}
+{"index": 65, "topic": "In which country is the Sky Train Rail bridge?", "expected_answer": "Canada", "source": "triviaqa:tc_841"}
+{"index": 66, "topic": "What was the Paramount Film Company originally called?", "expected_answer": "Famous Players Film Company", "source": "triviaqa:tc_847"}
+{"index": 67, "topic": "Who was the first person after Scott to reach the South Pole overland?", "expected_answer": "Edmond Hillary", "source": "triviaqa:tc_866"}
+{"index": 68, "topic": "Which journalist first told the world about the My Lai massacre?", "expected_answer": "Seymour Hersh", "source": "triviaqa:tc_875"}
+{"index": 69, "topic": "What is the name of Terence and Shirley Conran's dress designer son?", "expected_answer": "Jasper", "source": "triviaqa:tc_881"}
+{"index": 70, "topic": "Which drink did The Spice Girls promote?", "expected_answer": "Pepsi", "source": "triviaqa:tc_886"}
+{"index": 71, "topic": "Who was the youngest brother in the Beach Boys?", "expected_answer": "Carl Wilson", "source": "triviaqa:tc_888"}
+{"index": 72, "topic": "Who first hosted Family Feud?", "expected_answer": "Richard Dawson", "source": "triviaqa:tc_905"}
+{"index": 73, "topic": "What did the Lone Ranger's title Kemo Sabe mean in Apache?", "expected_answer": "White Shirt", "source": "triviaqa:tc_935"}
+{"index": 74, "topic": "Who or what was Gentle Ben in the 60s TV series?", "expected_answer": "Bear cub", "source": "triviaqa:tc_938"}
+{"index": 75, "topic": "Which 70s show was based on the British show Till Death Us Do Part?", "expected_answer": "All In The Family", "source": "triviaqa:tc_945"}
+{"index": 76, "topic": "On what date in 1969 did Neil Armstrong first set foot on the Moon?", "expected_answer": "July 20th", "source": "triviaqa:tc_954"}
+{"index": 77, "topic": "Bandar Seri Begawan International airport is in which country?", "expected_answer": "Brunei", "source": "triviaqa:tc_955"}
+{"index": 78, "topic": "What was the profession of Paul Strand (1890 - 1976)?", "expected_answer": "Photographer", "source": "triviaqa:tc_962"}
+{"index": 79, "topic": "Who had a 60s No 1 with Downtown?", "expected_answer": "Petula Clark", "source": "triviaqa:tc_1004"}
+{"index": 80, "topic": "Who was born first, Kiefer Sutherland or Christian Slater?", "expected_answer": "Kiefer Sutherland", "source": "triviaqa:tc_1007"}
+{"index": 81, "topic": "To the nearest two, how many tennis Grand Slam titles did Jimmy Connors win?", "expected_answer": "10", "source": "triviaqa:tc_1008"}
+{"index": 82, "topic": "Who was the Georgia Peach?", "expected_answer": "Ty Cobb", "source": "triviaqa:tc_1009"}
+{"index": 83, "topic": "Who set fire to his guitar at the Monterey Pop festival in 19676?", "expected_answer": "Jimi Hendrix", "source": "triviaqa:tc_1020"}
+{"index": 84, "topic": "Della Street was whose secretary?", "expected_answer": "Perry Mason", "source": "triviaqa:tc_1023"}
+{"index": 85, "topic": "In music, who was Sweet and Innocent and Too Young?", "expected_answer": "Donny Osmond", "source": "triviaqa:tc_1028"}
+{"index": 86, "topic": "Who is featured on Puff Daddy's Can't Hold Me Down?", "expected_answer": "Mase", "source": "triviaqa:tc_1029"}
+{"index": 87, "topic": "What had Edmond Hillary worked at before taking up mountain climbing?", "expected_answer": "Bee Keeping", "source": "triviaqa:tc_1068"}
+{"index": 88, "topic": "In which American state is the Isabella Stewart Gardner Museum?", "expected_answer": "Massachusetts", "source": "triviaqa:tc_1069"}
+{"index": 89, "topic": "Benina international airport is in which country?", "expected_answer": "Libya", "source": "triviaqa:tc_1070"}
+{"index": 90, "topic": "Beloved in 1999 was whose first movie since The Color Purple in 1985?", "expected_answer": "Oprah Winfrey", "source": "triviaqa:tc_1098"}
+{"index": 91, "topic": "Which Star Trek star directed Three Men and a Baby?", "expected_answer": "Leonard Nimoy", "source": "triviaqa:tc_1114"}
+{"index": 92, "topic": "Which sitcom star appeared on the big screening The Object of My Affection?", "expected_answer": "Jennifer Aniston", "source": "triviaqa:tc_1115"}
+{"index": 93, "topic": "\"Which character did Julia \"\"Roberts play in Steven Spielberg's Hook?\"", "expected_answer": "Tinkerbell", "source": "triviaqa:tc_1120"}
+{"index": 94, "topic": "Which US president did Anthony Hopkins play in a film whose title was simply his name?", "expected_answer": "Nixon", "source": "triviaqa:tc_1123"}
+{"index": 95, "topic": "Which movie was a biopic about the life of David Helfgott?", "expected_answer": "Shine", "source": "triviaqa:tc_1124"}
+{"index": 96, "topic": "Which film director guested as the FBI Director in The Silence of the Lambs?", "expected_answer": "Roger Corman", "source": "triviaqa:tc_1128"}
+{"index": 97, "topic": "In which sci fi classic did the space ship Nostromo first appear?", "expected_answer": "Alien", "source": "triviaqa:tc_1131"}
+{"index": 98, "topic": "Nigel Hawthorne was Oscar nominated for The Madness of which King?", "expected_answer": "George", "source": "triviaqa:tc_1152"}
+{"index": 99, "topic": "Which Swedish actress won the Best Supporting Actress Oscar for Murder on the Orient Express?", "expected_answer": "Ingrid Bergman", "source": "triviaqa:tc_1156"}
+{"index": 100, "topic": "Which Oscar-nominated film had You Sexy Thing as its theme song?", "expected_answer": "The Full Monty", "source": "triviaqa:tc_1176"}
+{"index": 101, "topic": "Which Joan's career revived in Whatever Happened to Baby Jane?", "expected_answer": "Crawford", "source": "triviaqa:tc_1179"}
+{"index": 102, "topic": "Which much-loved actor won the Best Actor Oscar for The Philadelphia Story?", "expected_answer": "James Stewart", "source": "triviaqa:tc_1181"}
+{"index": 103, "topic": "Which legendary dancer was Oscar-nominated for The Towering Inferno?", "expected_answer": "Fred Astaire", "source": "triviaqa:tc_1183"}
+{"index": 104, "topic": "What was the name of the brothel in The Best Little Whorehouse in Texas?", "expected_answer": "Chicken Ranch", "source": "triviaqa:tc_1189"}
+{"index": 105, "topic": "Who was the male star of the movie The Man of La Mancha?", "expected_answer": "Peter O'Toole", "source": "triviaqa:tc_1210"}
+{"index": 106, "topic": "What relation is Joey Richardson to Vanessa Redgrave?", "expected_answer": "Daughter", "source": "triviaqa:tc_1243"}
+{"index": 107, "topic": "Melanie Molitor is the mom of which tennis world NO 1?", "expected_answer": "Martina Hingis", "source": "triviaqa:tc_1250"}
+{"index": 108, "topic": "Marc Dutroux hit the headlines over a 'house of horrors' in which country?", "expected_answer": "Belgium", "source": "triviaqa:tc_1254"}
+{"index": 109, "topic": "On which date in 1945 did Hitler take cyanide then shoot himself?", "expected_answer": "April 30th", "source": "triviaqa:tc_1284"}
+{"index": 110, "topic": "In which river is the Boulder Dam?", "expected_answer": "Colorado", "source": "triviaqa:tc_1313"}
+{"index": 111, "topic": "Which sports event was first held at Worcester, Massachusetts in 1927?", "expected_answer": "Ryder Cup", "source": "triviaqa:tc_1321"}
+{"index": 112, "topic": "In which European city is the Belvederen Gallery?", "expected_answer": "Vienna", "source": "triviaqa:tc_1323"}
+{"index": 113, "topic": "How old was Woody Herman when he founded his own orchestra?", "expected_answer": "13", "source": "triviaqa:tc_1324"}
+{"index": 114, "topic": "For which movie did Katharine Hepburn win her second Oscar?", "expected_answer": "Guess Who's Coming To Dinner", "source": "triviaqa:tc_1328"}
+{"index": 115, "topic": "Who had a 60s No 1 hit with This Diamond Ring?", "expected_answer": "Gary Lewis and the Playboys", "source": "triviaqa:tc_1331"}
+{"index": 116, "topic": "The world was first aware of the Chernobyl disaster after detectors were triggered at a nuclear plant in which country?", "expected_answer": "Sweden", "source": "triviaqa:tc_1333"}
+{"index": 117, "topic": "In which country was the first permanent bungee jumping site situated?", "expected_answer": "New Zealand", "source": "triviaqa:tc_1340"}
+{"index": 118, "topic": "Who succeeded Brezhnev as Soviet premier?", "expected_answer": "Andropov", "source": "triviaqa:tc_1341"}
+{"index": 119, "topic": "In the late 60s Owen Finlay MacLaren pioneered what useful item for parents of small chldren?", "expected_answer": "Baby Buggy", "source": "triviaqa:tc_1348"}
+{"index": 120, "topic": "In which city's shipyard was Solidarity set up?", "expected_answer": "Gdansk, Poland", "source": "triviaqa:tc_1365"}
+{"index": 121, "topic": "Which female singer was born on exactly the same day as impressionist Rich Little?", "expected_answer": "Tina Turner", "source": "triviaqa:tc_1387"}
+{"index": 122, "topic": "What is Harrison Ford's real name?", "expected_answer": "Harrison Ford", "source": "triviaqa:tc_1421"}
+{"index": 123, "topic": "Who's home runs record did Mark McGwire break in the 1998 season?", "expected_answer": "Roger Maris", "source": "triviaqa:tc_1442"}
+{"index": 124, "topic": "Who won baseball's first World Series of the 80s?", "expected_answer": "Philadelphia Phillies", "source": "triviaqa:tc_1456"}
+{"index": 125, "topic": "What was Pete Sampras seeded when he won his first US Open?", "expected_answer": "12", "source": "triviaqa:tc_1468"}
+{"index": 126, "topic": "\"Which boxer famously said,\"\" If I can't beat this bum take my name off the record books?\"\"\"", "expected_answer": "Rocky Marciano", "source": "triviaqa:tc_1484"}
+{"index": 127, "topic": "Where did Jonathan Edwards set his 1995 triple jump world record?", "expected_answer": "Sweden", "source": "triviaqa:tc_1485"}
+{"index": 128, "topic": "In baseball, where do the Orioles come from?", "expected_answer": "Baltimore", "source": "triviaqa:tc_1516"}
+{"index": 129, "topic": "The Naismith Award is presented in which sport?", "expected_answer": "Basket ball", "source": "triviaqa:tc_1535"}
+{"index": 130, "topic": "Which cartoon and film character is the nickname of super athlete Michael Johnson?", "expected_answer": "Superman", "source": "triviaqa:tc_1537"}
+{"index": 131, "topic": "For which team did Babe Ruth blast his last Major League home run?", "expected_answer": "Boston Braves", "source": "triviaqa:tc_1542"}
+{"index": 132, "topic": "What was Warren Beatty's first movie?", "expected_answer": "Splendor in the Grass", "source": "triviaqa:tc_1602"}
+{"index": 133, "topic": "Which future Hollywood star got her break as Wonder Girl, Wonder Woman's sister Drusilla?", "expected_answer": "Debra Winger", "source": "triviaqa:tc_1606"}
+{"index": 134, "topic": "Mickey Braddock in the 50s series Circus Boy found fame with which surname in which pop band?", "expected_answer": "Mickey Dolenz (The Monkees)", "source": "triviaqa:tc_1609"}
+{"index": 135, "topic": "Which war veteran was Director of News & Special Events for ABC before find fame as a TV cop?", "expected_answer": "Tom Selleck", "source": "triviaqa:tc_1620"}
+{"index": 136, "topic": "What US sitcom was the first exported to Britain?", "expected_answer": "Amos 'N' Andy", "source": "triviaqa:tc_1622"}
+{"index": 137, "topic": "In Hanna and Barbera's TV cartoons base on The Addams Family who was the voice of Gomez?", "expected_answer": "John Astin", "source": "triviaqa:tc_1623"}
+{"index": 138, "topic": "Who was the only female victim to be killed off in the opening credit sequence in Police Squad?", "expected_answer": "Florence Henderson", "source": "triviaqa:tc_1635"}
+{"index": 139, "topic": "Which US president won the Nobel Peace Prize in 1920?", "expected_answer": "Woodrow Wilson", "source": "triviaqa:tc_1686"}
+{"index": 140, "topic": "Who beat Tim Henman in his first Wimbledon singles semifinal?", "expected_answer": "Pete Sampras", "source": "triviaqa:tc_1693"}
+{"index": 141, "topic": "What relation was Flo Jo to Jackie Joyner Kersee?", "expected_answer": "Sister-in-law", "source": "triviaqa:tc_1699"}
+{"index": 142, "topic": "How long was swimmer Michelle Smith-de Bruin banned for attempting to manipulate a drugs test?", "expected_answer": "4 years", "source": "triviaqa:tc_1700"}
+{"index": 143, "topic": "Yuan Yuan was caught carrying drugs for which Chinese team?", "expected_answer": "Swimming", "source": "triviaqa:tc_1702"}
+{"index": 144, "topic": "Which grand slam did Pete Sampras not win in the 20th century?", "expected_answer": "French", "source": "triviaqa:tc_1704"}
+{"index": 145, "topic": "In which events did Gert Fredriksson win six Olympic gold medals?", "expected_answer": "Canoeing", "source": "triviaqa:tc_1730"}
+{"index": 146, "topic": "How many of his 45 races did Mike Hawthorn, a former Formula One motor racing world champion, win?", "expected_answer": "Three", "source": "triviaqa:tc_1735"}
+{"index": 147, "topic": "On the Internet what is Spam?", "expected_answer": "Junk mail", "source": "triviaqa:tc_1754"}
+{"index": 148, "topic": "In which country did the Internet start?", "expected_answer": "USA", "source": "triviaqa:tc_1773"}
+{"index": 149, "topic": "In which year was the Juilliard School founded in New York?", "expected_answer": "1905", "source": "triviaqa:tc_1798"}
+{"index": 150, "topic": "Who wrote My Life and Loves in 1926, originally banned in the US?", "expected_answer": "Frank Harris", "source": "triviaqa:tc_1816"}
+{"index": 151, "topic": "What was Blondie's last UK No 1 of the 80s?", "expected_answer": "Rapture", "source": "triviaqa:tc_1826"}
+{"index": 152, "topic": "In baseball, where do the Royals come from?", "expected_answer": "Kansas city", "source": "triviaqa:tc_1858"}
+{"index": 153, "topic": "What is the largest city in Ohio?", "expected_answer": "Cleveland", "source": "triviaqa:tc_1859"}
+{"index": 154, "topic": "In which decade of the 20th century was Anne Bancroft born?", "expected_answer": "1930s", "source": "triviaqa:tc_1865"}
+{"index": 155, "topic": "The Suez Canal connects the Mediterranean Sea to which other Sea?", "expected_answer": "Red sea", "source": "triviaqa:tc_1867"}
+{"index": 156, "topic": "Which rock star did Cindy Crawford name her first son after?", "expected_answer": "Presley", "source": "triviaqa:tc_1888"}
+{"index": 157, "topic": "Sun Yat Sen overthrew the emperor in which country establishing a republic after 2000 years of imperial rule?", "expected_answer": "China", "source": "triviaqa:tc_1914"}
+{"index": 158, "topic": "Who designed the dress which made the most at Diana's dress auction?", "expected_answer": "Victor Edelstein", "source": "triviaqa:tc_1921"}
+{"index": 159, "topic": "Which Palestinian co-founded al Fatah in 1957?", "expected_answer": "Yasser Arafat", "source": "triviaqa:tc_1924"}
+{"index": 160, "topic": "In which country was Earl Spencer's acrimonious divorce settlement heard?", "expected_answer": "South Africa", "source": "triviaqa:tc_1938"}
+{"index": 161, "topic": "In which North African country was Mohammed Al-Fayed, owner of Harrods department store in London, born?", "expected_answer": "Egypt", "source": "triviaqa:tc_1943"}
+{"index": 162, "topic": "Aung San Suu Kyi is a controversial leader in which country?", "expected_answer": "Myanmar", "source": "triviaqa:tc_1944"}
+{"index": 163, "topic": "Which of the founders of United Artists had the last name nearest the beginning of the alphabet?", "expected_answer": "Chaplin", "source": "triviaqa:tc_1945"}
+{"index": 164, "topic": "In La Cage Aux Folles, what was La Cage Aux Folles?", "expected_answer": "Nightclub", "source": "triviaqa:tc_1968"}
+{"index": 165, "topic": "Where was the Fiddler in the musical's title?", "expected_answer": "On the Roof", "source": "triviaqa:tc_1973"}
+{"index": 166, "topic": "South Pacific was set during which war?", "expected_answer": "WWII", "source": "triviaqa:tc_1977"}
+{"index": 167, "topic": "What percentage of the earth's surface is covered by Europe?", "expected_answer": "8%", "source": "triviaqa:tc_2020"}
+{"index": 168, "topic": "Which European town gave its name to a Treaty which symbolizes closer economic links between European countries?", "expected_answer": "Maastricht", "source": "triviaqa:tc_2031"}
+{"index": 169, "topic": "Which home of champagne in France was also where the German High Command surrendered in WWII?", "expected_answer": "Reims", "source": "triviaqa:tc_2032"}
+{"index": 170, "topic": "Which was the first European city this century to open an underground railway system?", "expected_answer": "Paris", "source": "triviaqa:tc_2063"}
+{"index": 171, "topic": "Who first drew Mickey Mouse when ?Disney first supplied the voice?", "expected_answer": "Ub Iwerks", "source": "triviaqa:tc_2090"}
+{"index": 172, "topic": "Which actress wrote the novel The Last of the Really Great Whangdoodles?", "expected_answer": "Julie Andrews", "source": "triviaqa:tc_2097"}
+{"index": 173, "topic": "Who was the star of the film based on the record Harper Valley PTA by Jeannie C Riley?", "expected_answer": "Barbara Eden", "source": "triviaqa:tc_2111"}
+{"index": 174, "topic": "What color golf balls are used on the golf course in Antarctica?", "expected_answer": "Orange", "source": "triviaqa:tc_2114"}
+{"index": 175, "topic": "Throughout the 80s and 90s Phil Collins recorded on which record label?", "expected_answer": "Atlantic", "source": "triviaqa:tc_2116"}
+{"index": 176, "topic": "On which label did Chuck Berry record in the 1950s and 1960s?", "expected_answer": "Chess", "source": "triviaqa:tc_2128"}
+{"index": 177, "topic": "What was the name of Michael Jackson's second wife?", "expected_answer": "Debbie Rowe", "source": "triviaqa:tc_2145"}
+{"index": 178, "topic": "Which US city was named after a British Prime Minister?", "expected_answer": "Pittsburgh", "source": "triviaqa:tc_2167"}
+{"index": 179, "topic": "\"Who said, To err is human but it feels divine?\"\"\"", "expected_answer": "Mae West", "source": "triviaqa:tc_2182"}
+{"index": 180, "topic": "Which singer had a big 60s No 1 with Roses Are Red?", "expected_answer": "Bobby Vinton", "source": "triviaqa:tc_2191"}
+{"index": 181, "topic": "What are the international registration letters of a vehicle from Iceland?", "expected_answer": "IS", "source": "triviaqa:tc_2202"}
+{"index": 182, "topic": "Where was the American venue of the Live Aid concert?", "expected_answer": "Philadelphia", "source": "triviaqa:tc_2208"}
+{"index": 183, "topic": "Which was the longest moon landing?", "expected_answer": "Apollo 17", "source": "triviaqa:tc_2218"}
+{"index": 184, "topic": "Who had the most expensive presidential inauguration ceremony of the 20th century?", "expected_answer": "George W. Bush", "source": "triviaqa:tc_2222"}
+{"index": 185, "topic": "Who became Israel's head of state in 1993?", "expected_answer": "Ezer Weizman", "source": "triviaqa:tc_2229"}
+{"index": 186, "topic": "In WWII, who was the head of the Nazi party's security service?", "expected_answer": "Reinhard Heidrich", "source": "triviaqa:tc_2236"}
+{"index": 187, "topic": "Which President of the Philippines was deposed in 1986?", "expected_answer": "Marcos", "source": "triviaqa:tc_2244"}
+{"index": 188, "topic": "What kind of disaster claimed some 100,000 lives in Armenia in 1988?", "expected_answer": "Earthquake", "source": "triviaqa:tc_2250"}
+{"index": 189, "topic": "Which state on the Gulf of Mexico is nearest the end of the alphabet?", "expected_answer": "Texas", "source": "triviaqa:tc_2252"}
+{"index": 190, "topic": "Truax Field international airport is in which US state?", "expected_answer": "Wisconsin", "source": "triviaqa:tc_2256"}
+{"index": 191, "topic": "In what month was the attack on Pearl Harbor?", "expected_answer": "December", "source": "triviaqa:tc_2257"}
+{"index": 192, "topic": "Who did Dr. Crippen murder?", "expected_answer": "His wife", "source": "triviaqa:tc_2265"}
+{"index": 193, "topic": "In the 1904 Olympics, how many of the 23 track and field titles were won by Americans?", "expected_answer": "21", "source": "triviaqa:tc_2270"}
+{"index": 194, "topic": "The Black Hills lie between which two rivers?", "expected_answer": "Belle Fourche and Cheyenne", "source": "triviaqa:tc_2280"}
+{"index": 195, "topic": "In what year was the first in-flight movie shown on an internal flight in the USA.", "expected_answer": "1929", "source": "triviaqa:tc_2287"}
+{"index": 196, "topic": "In which city was John Lennon murdered?", "expected_answer": "New York", "source": "triviaqa:tc_2295"}
+{"index": 197, "topic": "How was President Kennedy assassinated?", "expected_answer": "Shot", "source": "triviaqa:tc_2299"}
+{"index": 198, "topic": "Which caped crusader operated in Gotham City?", "expected_answer": "Batman", "source": "triviaqa:tc_2300"}
+{"index": 199, "topic": "Who did Jack Ruby shoot in November 1963?", "expected_answer": "Lee Harvey Oswald", "source": "triviaqa:tc_2306"}
+{"index": 200, "topic": "Who was the first American to travel faster than the speed of sound?", "expected_answer": "Chuck Yeager", "source": "triviaqa:tc_2317"}
+{"index": 201, "topic": "Who was the first US president Barbara Walters interviewed?", "expected_answer": "Nixon", "source": "triviaqa:tc_2331"}
+{"index": 202, "topic": "Which orchestral conductor was married to one of the subjects of the film Hillary and Jackie?", "expected_answer": "Daniel Barenboim", "source": "triviaqa:tc_2350"}
+{"index": 203, "topic": "Which writer and politician became Lord Tweedsmuir?", "expected_answer": "John Buchan", "source": "triviaqa:tc_2359"}
+{"index": 204, "topic": "In what year was the first Tarzan novel published?", "expected_answer": "1914", "source": "triviaqa:tc_2380"}
+{"index": 205, "topic": "In which country were motorized ambulances first used?", "expected_answer": "France", "source": "triviaqa:tc_2400"}
+{"index": 206, "topic": "What is the Pacific terminus of the Trans Siberian Railway?", "expected_answer": "Vladivostok", "source": "triviaqa:tc_2417"}
+{"index": 207, "topic": "What is the name of the mountain pass which lies between Pakistan and Afghanistan?", "expected_answer": "Khyber pass", "source": "triviaqa:tc_2454"}
+{"index": 208, "topic": "What is the name of the group of 1,196 islands in the North Indian Ocean, none bigger than five square miles?", "expected_answer": "Maldives", "source": "triviaqa:tc_2457"}
+{"index": 209, "topic": "Which Syrian city is said to be the oldest continually inhabited city in the world?", "expected_answer": "Damascus", "source": "triviaqa:tc_2481"}
+{"index": 210, "topic": "Who was king of France at the time of the French Revolution?", "expected_answer": "Louis XVI", "source": "triviaqa:tc_2496"}
+{"index": 211, "topic": "What is the principal language of Bulgaria?", "expected_answer": "Bulgarian", "source": "triviaqa:tc_2499"}
+{"index": 212, "topic": "What is the name of the cathedral in Red Square, Moscow?", "expected_answer": "St. Basil's", "source": "triviaqa:tc_2505"}
+{"index": 213, "topic": "Which country is known to its people as Suomen Tasavalta?", "expected_answer": "Finland", "source": "triviaqa:tc_2506"}
+{"index": 214, "topic": "Which crusade was led by Philip II Augustus of France and Richard I of England?", "expected_answer": "Third crusade", "source": "triviaqa:tc_2524"}
+{"index": 215, "topic": "In which Netherlands city does the United Nations International Court of Justice sit?", "expected_answer": "The Hague", "source": "triviaqa:tc_2544"}
+{"index": 216, "topic": "In which battle did Harold II, the last Saxon king, lose his life?", "expected_answer": "Battle of Hastings", "source": "triviaqa:tc_2556"}
+{"index": 217, "topic": "Who proclaimed the People's Republic of China in 1949?", "expected_answer": "Mao Zedong", "source": "triviaqa:tc_2564"}
+{"index": 218, "topic": "Which wife of Henry VIII had already married twice before she became queen, and married for a fourth time after Henry's death?", "expected_answer": "Catherine Parr", "source": "triviaqa:tc_2573"}
+{"index": 219, "topic": "In which country is the castle that gives the Habsburg dynasty its name?", "expected_answer": "Switzerland", "source": "triviaqa:tc_2580"}
+{"index": 220, "topic": "In which parliament has the UK 87 seats for members who are elected for a five0-year term?", "expected_answer": "European Parliament", "source": "triviaqa:tc_2622"}
+{"index": 221, "topic": "What was the former name of the British Green Party?", "expected_answer": "Ecology Party", "source": "triviaqa:tc_2644"}
+{"index": 222, "topic": "\"What is the more common name of the \"\"simple plurality\"\" system of voting?\"", "expected_answer": "First past the post", "source": "triviaqa:tc_2669"}
+{"index": 223, "topic": "What word for unthinking patriotism is derived from the name of one of Napoleon's admirers?", "expected_answer": "Chauvinism", "source": "triviaqa:tc_2677"}
+{"index": 224, "topic": "Which builder of steam engines formed a successful partnership with Matthew Boulton?", "expected_answer": "James Watt", "source": "triviaqa:tc_2687"}
+{"index": 225, "topic": "What was the nickname of the French singer Edith Piaf?", "expected_answer": "The Little Sparrow", "source": "triviaqa:tc_2699"}
+{"index": 226, "topic": "Whose birthday is celebrated by a public holiday on the third Monday in January in the USA?", "expected_answer": "Martin Luther King", "source": "triviaqa:tc_2701"}
+{"index": 227, "topic": "What type of coal is brown and fibrous?", "expected_answer": "Lignite", "source": "triviaqa:tc_2718"}
+{"index": 228, "topic": "What raw material is used for making glass?", "expected_answer": "Sand", "source": "triviaqa:tc_2728"}
+{"index": 229, "topic": "What kind of an organism is a truffle?", "expected_answer": "Fungus", "source": "triviaqa:tc_2736"}
+{"index": 230, "topic": "What is the name of the strong material found in plant cell walls?", "expected_answer": "Cellulose", "source": "triviaqa:tc_2740"}
+{"index": 231, "topic": "What name is given to the change of state from liquid to gas?", "expected_answer": "Evaporation", "source": "triviaqa:tc_2744"}
+{"index": 232, "topic": "Which branch of science has four fundamental principles: addition, subtraction, multiplication, and division.", "expected_answer": "Arithmetic", "source": "triviaqa:tc_2758"}
+{"index": 233, "topic": "What is the force that opposes the relative motion of two bodies that are in contact?", "expected_answer": "Friction", "source": "triviaqa:tc_2767"}
+{"index": 234, "topic": "What is the fastest animal on two legs?", "expected_answer": "An Ostrich", "source": "triviaqa:tc_2805"}
+{"index": 235, "topic": "What is the green pigment used by plants to trap sunlight?", "expected_answer": "Chlorophyll", "source": "triviaqa:tc_2806"}
+{"index": 236, "topic": "What id the name given to the study of birds?", "expected_answer": "Ornithology", "source": "triviaqa:tc_2814"}
+{"index": 237, "topic": "Of which reptile are there only two species, one living in the Mississippi and the other in China?", "expected_answer": "Alligator", "source": "triviaqa:tc_2816"}
+{"index": 238, "topic": "What type of seaweed grows up to 100 meters in length, and is farmed for its alginates?", "expected_answer": "Kelp", "source": "triviaqa:tc_2818"}
+{"index": 239, "topic": "Where in a vertebrate would you find the protein myoglobin?", "expected_answer": "Muscle tissue", "source": "triviaqa:tc_2829"}
+{"index": 240, "topic": "What is the most abundant substance in the plant kingdom, which no mammal produces the enzyme to digest?", "expected_answer": "Cellulose", "source": "triviaqa:tc_2833"}
+{"index": 241, "topic": "Which family of insects has species named 'drivers', 'weavers', 'and even individuals called 'soldiers'?", "expected_answer": "Ant", "source": "triviaqa:tc_2834"}
+{"index": 242, "topic": "What name is given to the study of animal behavior?", "expected_answer": "Ethology", "source": "triviaqa:tc_2836"}
+{"index": 243, "topic": "Mosses are classified as belonging to which part of the plant kingdom?", "expected_answer": "Bryophyta", "source": "triviaqa:tc_2838"}
+{"index": 244, "topic": "Which rodent rears its young, called kittens, in a nest called a drey?", "expected_answer": "Squirrel", "source": "triviaqa:tc_2841"}
+{"index": 245, "topic": "What has a central vein called a midrib?", "expected_answer": "Leaf", "source": "triviaqa:tc_2849"}
+{"index": 246, "topic": "Which mammal constructs a lodge in which to store food, rear young, and pass the winter?", "expected_answer": "Beaver", "source": "triviaqa:tc_2850"}
+{"index": 247, "topic": "What is the generic word for plants that grow in water or water-logged conditions?", "expected_answer": "Hydrophytes", "source": "triviaqa:tc_2861"}
+{"index": 248, "topic": "Which teeth are the third molars, and are always the last to0 erupt?", "expected_answer": "Wisdom teeth", "source": "triviaqa:tc_2900"}
+{"index": 249, "topic": "What is secreted by the pancreas to regulate blood sugar levels?", "expected_answer": "Insulin", "source": "triviaqa:tc_2901"}
+{"index": 250, "topic": "How many chambers has the heart?", "expected_answer": "Four", "source": "triviaqa:tc_2914"}
+{"index": 251, "topic": "What is the name of the large buttock and thigh muscle?", "expected_answer": "Gluteus maximus", "source": "triviaqa:tc_2926"}
+{"index": 252, "topic": "When the egg is released from the ovary, what is left behind?", "expected_answer": "Corpus luteum", "source": "triviaqa:tc_2930"}
+{"index": 253, "topic": "What is the scientific name for the heart's pacemaker?", "expected_answer": "Sinoatrial node", "source": "triviaqa:tc_2956"}
+{"index": 254, "topic": "Which hormone helps control ovulation?", "expected_answer": "Luteinizing hormone", "source": "triviaqa:tc_2957"}
+{"index": 255, "topic": "What is the second most common gas in the atmosphere?", "expected_answer": "Oxygen", "source": "triviaqa:tc_2973"}
+{"index": 256, "topic": "What is the term for nutrient enrichment of lakes?", "expected_answer": "Eutrophication", "source": "triviaqa:tc_3016"}
+{"index": 257, "topic": "Five-legged creatures have damaged which 1250 mile long wonder of the world?", "expected_answer": "Great Barrier Reef", "source": "triviaqa:tc_3026"}
+{"index": 258, "topic": "Which radioactive substance sometimes occurs naturally in spring water?", "expected_answer": "Radon", "source": "triviaqa:tc_3033"}
+{"index": 259, "topic": "What is the approximate circumference of the earth?", "expected_answer": "24,900 miles", "source": "triviaqa:tc_3039"}
+{"index": 260, "topic": "Which common mineral is used to make casts, moulds, blackboard chalk and plaster of Paris?", "expected_answer": "Gypsum", "source": "triviaqa:tc_3070"}
+{"index": 261, "topic": "What name was given to the invisible material once thought to occupy all space?", "expected_answer": "Ether", "source": "triviaqa:tc_3086"}
+{"index": 262, "topic": "From which areas of space can there be no escape?", "expected_answer": "Black holes", "source": "triviaqa:tc_3119"}
+{"index": 263, "topic": "Who was the first man to walk on the Moon?", "expected_answer": "Neil Armstrong", "source": "triviaqa:tc_3120"}
+{"index": 264, "topic": "Proteus and Nereid are moons of which planet?", "expected_answer": "Neptune", "source": "triviaqa:tc_3129"}
+{"index": 265, "topic": "What is the Milky Way?", "expected_answer": "The local galaxy", "source": "triviaqa:tc_3130"}
+{"index": 266, "topic": "Which force is nothing more than the bending of space and time?", "expected_answer": "Gravitational force", "source": "triviaqa:tc_3155"}
+{"index": 267, "topic": "Which star is as bright as 23 Suns, and is orbited by the Pup?", "expected_answer": "Sirius", "source": "triviaqa:tc_3156"}
+{"index": 268, "topic": "What are the three primary colours of light?", "expected_answer": "Red, Blue and Green", "source": "triviaqa:qz_2"}
+{"index": 269, "topic": "In what film did Oprah Winfrey make her big screen acting debut?", "expected_answer": "The Color Purple", "source": "triviaqa:qz_63"}
+{"index": 270, "topic": "What is the second lightest chemical element?", "expected_answer": "Helium", "source": "triviaqa:qz_68"}
+{"index": 271, "topic": "Used in mathematics, what is the value of Pi to three decimal places?", "expected_answer": "3.142", "source": "triviaqa:qz_74"}
+{"index": 272, "topic": "What colour is the number 10 on the door of 10 Downing Street? White, Yellow or Brown?", "expected_answer": "White", "source": "triviaqa:qz_76"}
+{"index": 273, "topic": "What was advertised with Eva Herzagovia using the slogan hello boys?", "expected_answer": "The Wonder-Bra", "source": "triviaqa:qz_77"}
+{"index": 274, "topic": "What number in Bingo is sometimes referred to as Heinz varieties?", "expected_answer": "57", "source": "triviaqa:qz_78"}
+{"index": 275, "topic": "As at March 2001, who holds the record for scoring the most league goals for the soccer team Arsenal?", "expected_answer": "Ian Wright", "source": "triviaqa:qz_107"}
+{"index": 276, "topic": "How many verses make up the national anthem God Save The Queen?", "expected_answer": "Three", "source": "triviaqa:qz_122"}
+{"index": 277, "topic": "What colour is the cross on the national flag of Switzerland?", "expected_answer": "White", "source": "triviaqa:qz_127"}
+{"index": 278, "topic": "Who was the American President when the Berlin Wall was constructed?", "expected_answer": "John F Kennedy", "source": "triviaqa:qz_135"}
+{"index": 279, "topic": "What is the minimum number of darts a person needs to throw to complete a leg from 501?", "expected_answer": "9", "source": "triviaqa:qz_147"}
+{"index": 280, "topic": "What was the first British football team to win the European Cup?", "expected_answer": "Celtic", "source": "triviaqa:qz_148"}
+{"index": 281, "topic": "What is the most popular natural attraction in Alaska?", "expected_answer": "Mount McKinley", "source": "triviaqa:qz_186"}
+{"index": 282, "topic": "What type of acid is extracted from the juice of lemons, oranges, limes, and grapefruit?", "expected_answer": "Citric acid", "source": "triviaqa:qz_188"}
+{"index": 283, "topic": "How many pieces are there in a standard set of dominoes?", "expected_answer": "28", "source": "triviaqa:qz_196"}
+{"index": 284, "topic": "What is the acronym for the agency which provides co-operation between police forces worldwide?", "expected_answer": "Interpol", "source": "triviaqa:qz_204"}
+{"index": 285, "topic": "What were Benjy and Laska, which were sent into space in 1958?", "expected_answer": "Mice", "source": "triviaqa:qz_250"}
+{"index": 286, "topic": "In what year in the 20th century was the Miss World contest held for the first time?", "expected_answer": "1951", "source": "triviaqa:qz_256"}
+{"index": 287, "topic": "In which year was the Encyclopedia Britannica first published?", "expected_answer": "1768", "source": "triviaqa:qz_267"}
+{"index": 288, "topic": "On the London Underground, which is the only line to connect at some point with every other line on the system?", "expected_answer": "The Jubilee Line", "source": "triviaqa:qz_298"}
+{"index": 289, "topic": "Who wrote The Importance Of Being Earnest?", "expected_answer": "Oscar Wilde", "source": "triviaqa:qz_340"}
+{"index": 290, "topic": "Thomas Edison, who invented the lightbulb, was afraid of the dark?", "expected_answer": "True", "source": "triviaqa:qz_347"}
+{"index": 291, "topic": "Taphephobia is the fear of losing your teeth?", "expected_answer": "False", "source": "triviaqa:qz_349"}
+{"index": 292, "topic": "The letter t is the second most common letter used in the English language?", "expected_answer": "True", "source": "triviaqa:qz_351"}
+{"index": 293, "topic": "The invention of what in 1867, made Alfred Nobel famous?", "expected_answer": "Dynamite", "source": "triviaqa:qz_374"}
+{"index": 294, "topic": "What is the most populated city in America?", "expected_answer": "New York", "source": "triviaqa:qz_385"}
+{"index": 295, "topic": "What is the only letter of the alphabet which does not appear in any of the names of the 50 American states?", "expected_answer": "Q", "source": "triviaqa:qz_418"}
+{"index": 296, "topic": "What was the Spice Girls' debut single called?", "expected_answer": "Wannabee", "source": "triviaqa:qz_429"}
+{"index": 297, "topic": "What are the only two musical notes which have no flats?", "expected_answer": "C and F", "source": "triviaqa:qz_430"}
+{"index": 298, "topic": "From which country do French fries originate? France, Belgium or Switzerland?", "expected_answer": "Switzerland", "source": "triviaqa:qz_438"}
+{"index": 299, "topic": "For what novel did J. K. Rowling win the 1999 Whitbread Children's book of the year award?", "expected_answer": "Harry Potter and the Prisoner of Azkaban", "source": "triviaqa:qz_453"}
+{"index": 300, "topic": "What is the longest word can be typed using only the top row of letters on a typewriter?", "expected_answer": "Typewriter", "source": "triviaqa:qz_547"}
+{"index": 301, "topic": "In which city would you find O'Hare International Airport?", "expected_answer": "Chicago", "source": "triviaqa:qz_603"}
+{"index": 302, "topic": "Which Asian country was once called Siam?", "expected_answer": "Thailand", "source": "triviaqa:qz_608"}
+{"index": 303, "topic": "What are the names of Donald Duck's three nephews?", "expected_answer": "Huey, Dewey and Louie", "source": "triviaqa:qz_611"}
+{"index": 304, "topic": "In which 1993 film does a boy called Jonah write to a woman called Annie, asking her to meet his father at the Empire State building on St. Valentine's Day?", "expected_answer": "Sleepless In Seattle", "source": "triviaqa:qz_620"}
+{"index": 305, "topic": "Who had a top ten hit in 1988 with Valentine?", "expected_answer": "T'Pau", "source": "triviaqa:qz_621"}
+{"index": 306, "topic": "What is the second most common word in written English?", "expected_answer": "Of", "source": "triviaqa:qz_644"}
+{"index": 307, "topic": "In which arcade game, would you find ghosts called Inky, Pinky, Blinky and Clyde?", "expected_answer": "Pac-Man", "source": "triviaqa:qz_647"}
+{"index": 308, "topic": "More commonly known as the thigh bone, what is the medical name for the longest bone in the human body?", "expected_answer": "The Femur", "source": "triviaqa:qz_664"}
+{"index": 309, "topic": "What word is used to describe someone who is neither left or right handed, but can use both hands with equal ease?", "expected_answer": "Ambidextrous", "source": "triviaqa:qz_666"}
+{"index": 310, "topic": "Which cult film, starring Harrison Ford, was based on the story Do Androids Dream of Electric Sheep?", "expected_answer": "Blade Runner", "source": "triviaqa:qz_685"}
+{"index": 311, "topic": "Which ITV magazine style show ran from 1968 to 1980 and featured presenters including Jenny Hanley, Mick Robertson and Tommy Boyd?", "expected_answer": "Magpie", "source": "triviaqa:qz_688"}
+{"index": 312, "topic": "Which type of animal was Robin Hood in the Disney cartoon film 'Robin Hood'?", "expected_answer": "Fox", "source": "triviaqa:qz_690"}
+{"index": 313, "topic": "Who provided the voice for Bob The Builder on his number one hit Can We Fix It?", "expected_answer": "Neil Morrissey", "source": "triviaqa:qz_726"}
+{"index": 314, "topic": "Which actor received 4 million dollars for his 10 minutes on screen in the film Superman?", "expected_answer": "Marlon Brando", "source": "triviaqa:qz_735"}
+{"index": 315, "topic": "Who directed the films Thelma and Louise, Hannibal and Black Hawk Down?", "expected_answer": "Ridley Scott", "source": "triviaqa:qz_737"}
+{"index": 316, "topic": "Which serial killer is the subject of the films A Study In Terror, Murder By Decree and From Hell?", "expected_answer": "Jack The Ripper", "source": "triviaqa:qz_755"}
+{"index": 317, "topic": "In cricket, what is the score of 111 known as?", "expected_answer": "Nelson", "source": "triviaqa:qz_757"}
+{"index": 318, "topic": "Who wrote the novels About A Boy, How To Be Good and High Fidelity?", "expected_answer": "Nick Hornby", "source": "triviaqa:qz_832"}
+{"index": 319, "topic": "With which game would you use a squidger, a circular disc between 25mm and 51 mm?", "expected_answer": "Tiddlywinks", "source": "triviaqa:qz_845"}
+{"index": 320, "topic": "The melody for which famous song was written by sisters and school teachers Patty and Mildred Hill in Kentucky in 1893?", "expected_answer": "Happy Birthday", "source": "triviaqa:qz_847"}
+{"index": 321, "topic": "What is the most common pub name in the UK?", "expected_answer": "The Red Lion", "source": "triviaqa:qz_848"}
+{"index": 322, "topic": "What is the name of Kevin the teenager's friend played by Kathy Burke in a series of sketches with Harry Enfield?", "expected_answer": "Perry", "source": "triviaqa:qz_860"}
+{"index": 323, "topic": "What seven letter word, beginning with the letters 'Ra' is a palindrome?", "expected_answer": "Racecar", "source": "triviaqa:qz_866"}
+{"index": 324, "topic": "Which fruit can go in the middle of the word aped to make a new word?", "expected_answer": "Pear", "source": "triviaqa:qz_871"}
+{"index": 325, "topic": "How many scottish football league teams names end in United?", "expected_answer": "3", "source": "triviaqa:qz_881"}
+{"index": 326, "topic": "Who had a top ten hit in the UK with Cupid in 1961?", "expected_answer": "Sam Cooke", "source": "triviaqa:qz_921"}
+{"index": 327, "topic": "The theme tune to which TV show starts with the line Stick a pony in me pocket?", "expected_answer": "Only Fools And Horses", "source": "triviaqa:qz_941"}
+{"index": 328, "topic": "What word is given to a point in tennis which has to be replayed?", "expected_answer": "Let", "source": "triviaqa:qz_952"}
+{"index": 329, "topic": "How many episodes of Prisoner: Cell Block H were made?", "expected_answer": "692", "source": "triviaqa:qz_1032"}
+{"index": 330, "topic": "Who is the last English-born player to win the men's singles title at Wimbledon?", "expected_answer": "Fred Perry", "source": "triviaqa:qz_1046"}
+{"index": 331, "topic": "Which famous painter's surname was Harmenzoon van Rijn which translated as son of Harmen, of the Rhine?", "expected_answer": "Rembrandt", "source": "triviaqa:qz_1047"}
+{"index": 332, "topic": "In 1976, which gymnast scored 7 maximum scores of 10 as she won three gold medals, one silver and one bronze?", "expected_answer": "Nadia Comaneci", "source": "triviaqa:qz_1064"}
+{"index": 333, "topic": "In years and days, how old was Luigina Giavotti when she won a silver medal in gymnastics in 1928, and is still the youngest medal winner today?", "expected_answer": "11 years and 302 days", "source": "triviaqa:qz_1074"}
+{"index": 334, "topic": "Which Eastenders actor has played the policeman Nick Rowan on TV?", "expected_answer": "Nick Berry", "source": "triviaqa:qz_1086"}
+{"index": 335, "topic": "What type of animal was Boris, the subject of a song by The Who?", "expected_answer": "Spider", "source": "triviaqa:qz_1098"}
+{"index": 336, "topic": "Which brand of beer does Homer Simpson drink regularly?", "expected_answer": "Duff", "source": "triviaqa:qz_1111"}
+{"index": 337, "topic": "From which animal does Haggis come?", "expected_answer": "Sheep", "source": "triviaqa:qz_1112"}
+{"index": 338, "topic": "In which country was Marie Curie born? Poland, Austria or Switzerland?", "expected_answer": "Poland", "source": "triviaqa:qz_1128"}
+{"index": 339, "topic": "What is the most common blood type in humans? A, B or O?", "expected_answer": "O", "source": "triviaqa:qz_1130"}
+{"index": 340, "topic": "Which P is the correct technical term for the art of making and displaying fireworks?", "expected_answer": "Pyrotechnics", "source": "triviaqa:qz_1139"}
+{"index": 341, "topic": "Which King did Guy Fawkes attempt to kill with his gunpowder plot?", "expected_answer": "James I", "source": "triviaqa:qz_1141"}
+{"index": 342, "topic": "In which film was the song White Christmas first sung?", "expected_answer": "Holiday Inn", "source": "triviaqa:qz_1173"}
+{"index": 343, "topic": "Which Pop Idol had a number one hit in 2004 called All This Time?", "expected_answer": "Michelle McManus", "source": "triviaqa:qz_1178"}
+{"index": 344, "topic": "Which Channel 4 TV show's presenters included Mark Lamarr, Amanda De Cadenet and Terry Christian?", "expected_answer": "The Word", "source": "triviaqa:qz_1189"}
+{"index": 345, "topic": "What is the name of the device made of wood and horsehair that is used to play a violin?", "expected_answer": "Bow", "source": "triviaqa:qz_1191"}
+{"index": 346, "topic": "What colour is the bottom stripe on the U.S. flag?", "expected_answer": "Red", "source": "triviaqa:qz_1197"}
+{"index": 347, "topic": "What is the name given to the largest bee in a hive?", "expected_answer": "Queen", "source": "triviaqa:qz_1221"}
+{"index": 348, "topic": "Who won the Ladies singles title at Wimbledon in 2004?", "expected_answer": "Maria Sharapova", "source": "triviaqa:qz_1230"}
+{"index": 349, "topic": "What is the alcoholic ingredient of Irish coffee?", "expected_answer": "Whiskey", "source": "triviaqa:qz_1249"}
+{"index": 350, "topic": "In which year did St George die?", "expected_answer": "303", "source": "triviaqa:qz_1291"}
+{"index": 351, "topic": "What are the names of the Four Horseman of the Apocalypse?", "expected_answer": "War, Famine, Pestilence and Death", "source": "triviaqa:qz_1345"}
+{"index": 352, "topic": "Who is the Vice-President for George W Bush?", "expected_answer": "Dick Cheyney", "source": "triviaqa:qz_1354"}
+{"index": 353, "topic": "Which film sees Clint Eastwood, Tommy Lee Jones, James Garner and Donald Sutherland as retired astronauts?", "expected_answer": "Space Cowboys", "source": "triviaqa:qz_1357"}
+{"index": 354, "topic": "In a standard deck of cards, how many Kings have a moustache?", "expected_answer": "Three", "source": "triviaqa:qz_1380"}
+{"index": 355, "topic": "According to the film Gremlins, if you are looking after a Gremlin you should not feed him after midnight, not get him wet and not expose him to what?", "expected_answer": "Bright Light", "source": "triviaqa:qz_1382"}
+{"index": 356, "topic": "The Canary Islands are named after what animal?", "expected_answer": "Dog", "source": "triviaqa:qz_1384"}
+{"index": 357, "topic": "In which capital city would you find Charles Bridge and Wenceslas Square?", "expected_answer": "Prague", "source": "triviaqa:qz_1393"}
+{"index": 358, "topic": "What was the surname of the woman who was the inspiration behind the Rolling Stones song Angie?", "expected_answer": "Bowie", "source": "triviaqa:qz_1417"}
+{"index": 359, "topic": "What is the final event in a decathlon?", "expected_answer": "1500 metres", "source": "triviaqa:qz_1429"}
+{"index": 360, "topic": "Peter Simple, Jack Horner and Ben Nevis have all won which famous sporting event?", "expected_answer": "The Grand National", "source": "triviaqa:qz_1430"}
+{"index": 361, "topic": "What is the largest city in Turkey?", "expected_answer": "Istanbul", "source": "triviaqa:qz_1453"}
+{"index": 362, "topic": "Who bought Chelsea football club for £1 in 1982?", "expected_answer": "Ken Bates", "source": "triviaqa:qz_1516"}
+{"index": 363, "topic": "In 1998, which director's Oscar acceptance speech included the line I'm king of the world?", "expected_answer": "James Cameron", "source": "triviaqa:qz_1545"}
+{"index": 364, "topic": "What nationality was the painter Vincent Van Gogh?", "expected_answer": "Dutch", "source": "triviaqa:qz_1572"}
+{"index": 365, "topic": "Which film features the characters Sally Albright and Harry Burns?", "expected_answer": "When Harry Met Sally", "source": "triviaqa:qz_1603"}
+{"index": 366, "topic": "Which act won the Eurovision Song Contest for the United Kingdom singing Love Shine A Light?", "expected_answer": "Katrina And The Waves", "source": "triviaqa:qz_1631"}
+{"index": 367, "topic": "Which English word comes from an old French word meaning sour wine?", "expected_answer": "Vinegar", "source": "triviaqa:qz_1665"}
+{"index": 368, "topic": "Which team beat American Samoa 31-0 in a qualifying match for the 2002 World Cup, but still failed to qualify?", "expected_answer": "Australia", "source": "triviaqa:qz_1670"}
+{"index": 369, "topic": "What was the name of Roland Rat's gerbil friend?", "expected_answer": "Kevin", "source": "triviaqa:qz_1684"}
+{"index": 370, "topic": "Which animal has the longest gestation period at around 22 months?", "expected_answer": "The elephant", "source": "triviaqa:qz_1690"}
+{"index": 371, "topic": "What name is given to the home of a beaver?", "expected_answer": "Lodge", "source": "triviaqa:qz_1693"}
+{"index": 372, "topic": "What name is given to a baby marsupial?", "expected_answer": "Joey", "source": "triviaqa:qz_1720"}
+{"index": 373, "topic": "Who dated actress Elizabeth Hurley between 2000 and 2001 and denied he was the father of her son born in 2002 before a DNA test proved otherwise?", "expected_answer": "Stephen Bing", "source": "triviaqa:qz_1725"}
+{"index": 374, "topic": "What type of animal is the star of the 2005 film Racing Stripes?", "expected_answer": "Zebra", "source": "triviaqa:qz_1730"}
+{"index": 375, "topic": "Author Dick Francis is famous for writing novels based around which sport?", "expected_answer": "Horseracing", "source": "triviaqa:qz_1745"}
+{"index": 376, "topic": "Which Scottish newspaper features the Broons and Oor Wullie?", "expected_answer": "The Sunday Post", "source": "triviaqa:qz_1794"}
+{"index": 377, "topic": "Which famous book features the character of Bob Cratchit?", "expected_answer": "A Christmas Carol", "source": "triviaqa:qz_1797"}
+{"index": 378, "topic": "Which act has had more Christmas number one singles than any other?", "expected_answer": "The Beatles", "source": "triviaqa:qz_1800"}
+{"index": 379, "topic": "Which Christmas song includes the line It seems so long since I could say 'sister Susie sitting on a thistle'?", "expected_answer": "All I Want for Christmas Is My Two Front Teeth", "source": "triviaqa:qz_1804"}
+{"index": 380, "topic": "Which British footballer has the most number of International caps?", "expected_answer": "Peter Shilton", "source": "triviaqa:qz_1821"}
+{"index": 381, "topic": "Who holds a trumpet on the album cover of Sgt. Pepper's Lonely Hearts Club Band by The Beatles?", "expected_answer": "Ringo Starr", "source": "triviaqa:qz_1825"}
+{"index": 382, "topic": "Which song begins with the line The taxman's taken all my dough?", "expected_answer": "Sunny Afternoon", "source": "triviaqa:qz_1834"}
+{"index": 383, "topic": "The Kray twins were convicted of the murder of George Cornell in the East End of London in 1966. What was the name of the pub in which he was shot?", "expected_answer": "The Blind Beggar", "source": "triviaqa:qz_1858"}
+{"index": 384, "topic": "Who composed the musical theme for the Pink Panther?", "expected_answer": "Henry Mancini", "source": "triviaqa:qz_1872"}
+{"index": 385, "topic": "Who was the cartoon adversary of Pixie and Dixie, who would often say I hate those meeces to pieces?", "expected_answer": "Mr Jinx", "source": "triviaqa:qz_1880"}
+{"index": 386, "topic": "Which actress married Dennis Quaid on Valentine's Day in 1991?", "expected_answer": "Meg Ryan", "source": "triviaqa:qz_1882"}
+{"index": 387, "topic": "During Margaret Thatcher's years as Prime Minister, there were three Chancellors of the Exchequer. Geoffrey Howe and Nigel Lawson were two, but who was the other one?", "expected_answer": "John Major", "source": "triviaqa:qz_1915"}
+{"index": 388, "topic": "Buddy Holly and the Big Bopper were two of the three musicians who died in a plane crash in February 1959. Who was the other one?", "expected_answer": "Richie Valens", "source": "triviaqa:qz_1918"}
+{"index": 389, "topic": "Fruit, cricket and horseshoe are varieties of what type of animal?", "expected_answer": "Bat", "source": "triviaqa:qz_1952"}
+{"index": 390, "topic": "Apart from being warm blooded and giving birth to live young, what do mammals produce to differentiate them from other families of animals?", "expected_answer": "Milk", "source": "triviaqa:qz_1958"}
+{"index": 391, "topic": "To which poet does Il Postino deliver mail?", "expected_answer": "Pablo Neruda", "source": "triviaqa:qz_2001"}
+{"index": 392, "topic": "Which scientist was Time magazine's \"Person of the 20th Century\"?", "expected_answer": "Albert Einstein", "source": "triviaqa:qz_2018"}
+{"index": 393, "topic": "What was the nickname given to premiership footballer Neil Ruddock?", "expected_answer": "Razor", "source": "triviaqa:qz_2029"}
+{"index": 394, "topic": "The Ducati is manufactured in which city and what country?", "expected_answer": "Bologna, Italy", "source": "triviaqa:qz_2053"}
+{"index": 395, "topic": "Wayne Rooney signed for Manchester United from which other Premiership Club?", "expected_answer": "Everton", "source": "triviaqa:qz_2090"}
+{"index": 396, "topic": "The Yalu river forms a sort of natural border between China and which of its neighbours?", "expected_answer": "North Korea", "source": "triviaqa:qz_2111"}
+{"index": 397, "topic": "Which stand-up comedian presents 8 Out Of 10 Cats and Distraction?", "expected_answer": "Jimmy Carr", "source": "triviaqa:qz_2131"}
+{"index": 398, "topic": "Name the game show, presented by Leslie Grantham and Melinda Messenger, where contestants were set physical and mental challenges?", "expected_answer": "Fort Boyard", "source": "triviaqa:qz_2135"}
+{"index": 399, "topic": "Who presented Family Fortunes in the two years between Bob Monkhouse and Les Dennis?", "expected_answer": "Max Bygraves", "source": "triviaqa:qz_2165"}
+{"index": 400, "topic": "For what did Einstien gat Nobel prize in Physics?", "expected_answer": "The photoelectric effect", "source": "triviaqa:qz_2175"}
+{"index": 401, "topic": "Which planet has moons named after Shakespearean characters?", "expected_answer": "Uranus", "source": "triviaqa:qz_2176"}
+{"index": 402, "topic": "Who was part man, part machine, all cop and hailed from a futuristic Detroit?", "expected_answer": "Robocop", "source": "triviaqa:qz_2194"}
+{"index": 403, "topic": "Who dubbed Miss Piggy's singing voice in The Muppet Movie?", "expected_answer": "Johnny Mathis", "source": "triviaqa:qz_2206"}
+{"index": 404, "topic": "Who wrote the Bourne trilogy of books, made into movies starring Matt Damon?", "expected_answer": "Robert Ludlum", "source": "triviaqa:qz_2217"}
+{"index": 405, "topic": "The Bible tells of 3 wise men visiting Jesus after his birth, but in which of the Gospels does this appear?", "expected_answer": "Matthew", "source": "triviaqa:qz_2223"}
+{"index": 406, "topic": "Athos and Porthos are two of the 3 musketeers, name the other one.", "expected_answer": "Aramis", "source": "triviaqa:qz_2225"}
+{"index": 407, "topic": "What is the name of the small fifth claw called on the side of a dog's foot ?", "expected_answer": "The dewclaw", "source": "triviaqa:qz_2227"}
+{"index": 408, "topic": "What is the name of the plastic bit on the end of shoelaces?", "expected_answer": "An aglet", "source": "triviaqa:qz_2231"}
+{"index": 409, "topic": "The river Danube flows into which sea?", "expected_answer": "Black Sea", "source": "triviaqa:qz_2260"}
+{"index": 410, "topic": "Anna Nicole Smith was controversially married to which oil billionaire?", "expected_answer": "J Howard Marshall", "source": "triviaqa:qz_2280"}
+{"index": 411, "topic": "Wayne Rooney scored his first senior goal against which club?", "expected_answer": "Arsenal", "source": "triviaqa:qz_2289"}
+{"index": 412, "topic": "How meny times have Liverpool won the Europion Cup?", "expected_answer": "5", "source": "triviaqa:qz_2291"}
+{"index": 413, "topic": "The Sign Of Four was a detective story written by which author?", "expected_answer": "Sir Arthur Conan Doyle", "source": "triviaqa:qz_2309"}
+{"index": 414, "topic": "Who was the author of 'The Old Curiosity Shop'?", "expected_answer": "Charles Dickens", "source": "triviaqa:qz_2324"}
+{"index": 415, "topic": "In which sport or pastime can you see nose walking?", "expected_answer": "Surfing", "source": "triviaqa:qz_2349"}
+{"index": 416, "topic": "What sport or pastime would you be playing if your balls were black and blue and your opponent's were red and yellow?", "expected_answer": "Croquet", "source": "triviaqa:qz_2355"}
+{"index": 417, "topic": "The age of the railway began in which year with the introduction of the Liverpool-Manchester line?", "expected_answer": "1830", "source": "triviaqa:qz_2379"}
+{"index": 418, "topic": "Who played Frankenstein in the 1994 film of the same name?", "expected_answer": "Kenneth Branagh", "source": "triviaqa:qz_2384"}
+{"index": 419, "topic": "Who was the first person to sell one million records?", "expected_answer": "Enrico Caruso", "source": "triviaqa:qz_2391"}
+{"index": 420, "topic": "In Greek mythology, where do righteous souls go after death?", "expected_answer": "Elysian Fields", "source": "triviaqa:qz_2397"}
+{"index": 421, "topic": "What is the scientific name given to tea?", "expected_answer": "Camellia Sinensis", "source": "triviaqa:qz_2404"}
+{"index": 422, "topic": "In the 1999 film Stuart Little, who plays the part of Mrs Eleanor Little?", "expected_answer": "Geena Davis", "source": "triviaqa:qz_2419"}
+{"index": 423, "topic": "Suger Mice was a 1987 single for which British rock band?", "expected_answer": "Marillion", "source": "triviaqa:qz_2423"}
+{"index": 424, "topic": "In which decade were ZIP codes introduced in the USA?", "expected_answer": "1960s", "source": "triviaqa:qz_2426"}
+{"index": 425, "topic": "What are the shape-shifting foxes of the Japanese folklore?", "expected_answer": "Kitsune", "source": "triviaqa:qz_2428"}
+{"index": 426, "topic": "In Greek mythology who was the twin of Polydeuces?", "expected_answer": "Castor", "source": "triviaqa:qz_2430"}
+{"index": 427, "topic": "Which film features the Dawes Tomes Mousley Grubbs Fidelity Fiduciary Bank?", "expected_answer": "Mary Poppins", "source": "triviaqa:qz_2440"}
+{"index": 428, "topic": "What is Robin Williams character called in Good Morning Vietnam?", "expected_answer": "Adrian", "source": "triviaqa:qz_2444"}
+{"index": 429, "topic": "Who plays Cruella de Vil in the 1996 live action version of 101 Dalmations?", "expected_answer": "Glenn Close", "source": "triviaqa:qz_2458"}
+{"index": 430, "topic": "Who stars in the 2008 movie Seven Pounds?", "expected_answer": "Will Smith", "source": "triviaqa:qz_2466"}
+{"index": 431, "topic": "Marilyn Monroe starred in the Seven Year Itch. Who directed it?", "expected_answer": "Billy Wilder", "source": "triviaqa:qz_2471"}
+{"index": 432, "topic": "On Red Nose Day 2001 who won Celebrity Big Brother?", "expected_answer": "Jack Dee", "source": "triviaqa:qz_2478"}
+{"index": 433, "topic": "What is the name of the London Underground station in EastEnders?", "expected_answer": "Walford East", "source": "triviaqa:qz_2532"}
+{"index": 434, "topic": "How many runs did Donald Bradman score in his last ever test match innings?", "expected_answer": "None", "source": "triviaqa:qz_2537"}
+{"index": 435, "topic": "Nicknamed the cannibal, who is the only rider to have won all three jerseys in the same year in the Tour de France?", "expected_answer": "Eddy Merckx", "source": "triviaqa:qz_2538"}
+{"index": 436, "topic": "Whose arch nemisis is the Red Skull?", "expected_answer": "Captain America's", "source": "triviaqa:qz_2562"}
+{"index": 437, "topic": "By what name is comic book villain Oswald Chesterfield Cobblepot better known?", "expected_answer": "The Penguin", "source": "triviaqa:qz_2564"}
+{"index": 438, "topic": "First appearing on TV in 1967, which detective solved all of his crimes sitting down?", "expected_answer": "Ironside", "source": "triviaqa:qz_2567"}
+{"index": 439, "topic": "How many times was Wyatt Earp shot?", "expected_answer": "None", "source": "triviaqa:qz_2589"}
+{"index": 440, "topic": "Which famous cowboy was created by George W. Trendle?", "expected_answer": "The Lone Ranger", "source": "triviaqa:qz_2594"}
+{"index": 441, "topic": "The pub with the longest name in the UK has how many letters in it? 55, 75 or 95?", "expected_answer": "55", "source": "triviaqa:qz_2601"}
+{"index": 442, "topic": "Which movie starred Michael Caine as a murderous transvestite psychiatrist?", "expected_answer": "Dressed To Kill", "source": "triviaqa:qz_2619"}
+{"index": 443, "topic": "In 1961, who famously scored six goals in a match but still ended up on the losing team in a FA Cup tie?", "expected_answer": "Denis Law", "source": "triviaqa:qz_2654"}
+{"index": 444, "topic": "Which economist wrote The Wealth Of Nations?", "expected_answer": "Adam Smith", "source": "triviaqa:qz_2713"}
+{"index": 445, "topic": "Macbeth belonged to which royal house or dynasty?", "expected_answer": "House of Dunkeld", "source": "triviaqa:qz_2717"}
+{"index": 446, "topic": "Was James II known as: James The Bald, Fiery Face, or The Red King?", "expected_answer": "Fiery Face", "source": "triviaqa:qz_2718"}
+{"index": 447, "topic": "In Harry Potter And The Goblet Of Fire, which dragon did Harry have to defeat?", "expected_answer": "Hungarian Horntail", "source": "triviaqa:qz_2749"}
+{"index": 448, "topic": "What is the full name of the train robber played by Phil Collins in a 1988 movie?", "expected_answer": "Buster Edwards", "source": "triviaqa:qz_2758"}
+{"index": 449, "topic": "Tony Hadley was the lead singer with which 1980s new romantic band?", "expected_answer": "Spandau Ballet", "source": "triviaqa:qz_2768"}
+{"index": 450, "topic": "What was the surname of the butler played by Gordon Jackson in Upstairs Downstairs?", "expected_answer": "Hudson", "source": "triviaqa:qz_2784"}
+{"index": 451, "topic": "Which Jackson appeared in Celebrity Big Brother in January 2009?", "expected_answer": "La Toya Jackson", "source": "triviaqa:qz_2787"}
+{"index": 452, "topic": "Who was the seventh president of the United States?", "expected_answer": "Andrew Jackson", "source": "triviaqa:qz_2789"}
+{"index": 453, "topic": "In which country are the Angel Falls, the highest waterfall in the world?", "expected_answer": "Venezuela", "source": "triviaqa:qz_2821"}
+{"index": 454, "topic": "The 1955 comedy movie We're No Angels centred on three escaped convicts. Peter Ustinov and Aldo Ray were two, but who played the third?", "expected_answer": "Humphrey Bogart", "source": "triviaqa:qz_2822"}
+{"index": 455, "topic": "Who played King Arthur in the 1967 musical film Camelot?", "expected_answer": "Richard Harris", "source": "triviaqa:qz_2835"}
+{"index": 456, "topic": "Which country grows the largest number of mangoes?", "expected_answer": "India", "source": "triviaqa:qz_2841"}
+{"index": 457, "topic": "Ecuador has a border with Peru and which other country ?", "expected_answer": "Colombia", "source": "triviaqa:qz_2845"}
+{"index": 458, "topic": "In 2009, who was convicted of the murder of Lana Clarkson?", "expected_answer": "Phil Spector", "source": "triviaqa:qz_2853"}
+{"index": 459, "topic": "The left side of the heart pumps blood to all parts of the body, but the right side pumps blood to which organ in particular?", "expected_answer": "The lungs", "source": "triviaqa:qz_2866"}
+{"index": 460, "topic": "Which cartoon character lives in a pineapple under the sea?", "expected_answer": "SpongeBob SquarePants", "source": "triviaqa:qz_2873"}
+{"index": 461, "topic": "Which serial killer hanged himself in Wakefield Prison in January 2004, four years after being found guilty of 15 murders?", "expected_answer": "Dr Harold Shipman", "source": "triviaqa:qz_2884"}
+{"index": 462, "topic": "What public school did the Duke of Edinburgh and Prince Charles attend?", "expected_answer": "Gordonston", "source": "triviaqa:qz_2908"}
+{"index": 463, "topic": "If it was Phil Mickelson in 2006, Zach Johnson in 2007, and Trevor Immelman in 2008, who was it in 2009?", "expected_answer": "Angel Cabrera", "source": "triviaqa:qz_2933"}
+{"index": 464, "topic": "Red Stripe lager comes from which country?", "expected_answer": "Jamaica", "source": "triviaqa:qz_2968"}
+{"index": 465, "topic": "Which architect was known as the Wizard of the Dome?", "expected_answer": "Buckminster Fuller", "source": "triviaqa:qz_2977"}
+{"index": 466, "topic": "What is the name of the Salvador Dali painting that shows clocks oozing over a landscape?", "expected_answer": "The Persistence Of Memory", "source": "triviaqa:qz_2980"}
+{"index": 467, "topic": "In what year did Edward Vlll abdicate?", "expected_answer": "1936", "source": "triviaqa:qz_2999"}
+{"index": 468, "topic": "Which well known couple live at Bagshot Park in Surrey?", "expected_answer": "The Earl and Countess of Wessex", "source": "triviaqa:qz_3023"}
+{"index": 469, "topic": "Which notorious murderer lived at 10 Rillington Place?", "expected_answer": "John Christie", "source": "triviaqa:qz_3027"}
+{"index": 470, "topic": "Who killed Lee harvey Oswald?", "expected_answer": "Jack Ruby", "source": "triviaqa:qz_3040"}
+{"index": 471, "topic": "Who killed Robert F Kennedy?", "expected_answer": "Sirhan Sirhan", "source": "triviaqa:qz_3041"}
+{"index": 472, "topic": "Who killed Jean Paul Marat?", "expected_answer": "Charlotte Corday", "source": "triviaqa:qz_3042"}
+{"index": 473, "topic": "What was the name of the kangaroo often mistaken by Sylvester the cat to be a giant mouse?", "expected_answer": "Hippety Hopper", "source": "triviaqa:qz_3101"}
+{"index": 474, "topic": "Gjetost is the national cheese of which country?", "expected_answer": "Norway", "source": "triviaqa:qz_3127"}
+{"index": 475, "topic": "A youngberry is a cross between a dewberry and what else?", "expected_answer": "A blackberry", "source": "triviaqa:qz_3130"}
+{"index": 476, "topic": "Who is Arthur Wellesley better known as?", "expected_answer": "Duke of Wellington", "source": "triviaqa:qz_3152"}
+{"index": 477, "topic": "Which town in East Sussex now stands on the site of the battle of Hastings?", "expected_answer": "Battle", "source": "triviaqa:qz_3154"}
+{"index": 478, "topic": "Which 1986 Peter Weir movie and based on a Paul Theroux novel starred Harrison Ford, Helen Mirren and River Phoenix?", "expected_answer": "The Mosquito Coast", "source": "triviaqa:qz_3159"}
+{"index": 479, "topic": "What is the name of CS Lewis' 7 book fantasy?", "expected_answer": "The Chronicles of Narnia", "source": "triviaqa:qz_3236"}
+{"index": 480, "topic": "Name the tv series about FBI agent Don Eppes and his mathematical genius brother Charlie", "expected_answer": "Numb3rs", "source": "triviaqa:qz_3237"}
+{"index": 481, "topic": "All children except one grow up.", "expected_answer": "Peter Pan", "source": "triviaqa:qz_3311"}
+{"index": 482, "topic": "Scarlett O'Hara was not beautiful, but men seldom realised it when caught by her charm as the Tarleton twins were", "expected_answer": "Gone with the wind", "source": "triviaqa:qz_3320"}
+{"index": 483, "topic": "Which horse racing jockey was sometimes referred to as the long fellow?", "expected_answer": "Lester Piggott", "source": "triviaqa:qz_3354"}
+{"index": 484, "topic": "Who is the patron saint of lost causes?", "expected_answer": "St Jude", "source": "triviaqa:qz_3358"}
+{"index": 485, "topic": "True or False: Sharks do not blink?", "expected_answer": "True", "source": "triviaqa:qz_3392"}
+{"index": 486, "topic": "Which `B` was the name of the mechanical shark used in the original `Jaws` film?", "expected_answer": "Bruce", "source": "triviaqa:qz_3393"}
+{"index": 487, "topic": "The American legal drama Shark ran from Sept 06 to May 08. Who starred in the title role, playing Sebastian Stark?", "expected_answer": "James Woods", "source": "triviaqa:qz_3397"}
+{"index": 488, "topic": "Which Italian fashion designer was shot dead on the steps of his Miami mansion in 1997?", "expected_answer": "Gianni Versace", "source": "triviaqa:qz_3431"}
+{"index": 489, "topic": "Who was famous for popularising the 'little black dress' in the 1920s?", "expected_answer": "Coco Chanel", "source": "triviaqa:qz_3432"}
+{"index": 490, "topic": "Who designed Madonna's wedding dress for her marriage to Guy Ritchie?", "expected_answer": "Stella McCartney", "source": "triviaqa:qz_3433"}
+{"index": 491, "topic": "Meryl Streep's character, Miranda, in the 2006 film The Devil Wears Prada was based on the editor-in-chief of which fashion magazine?", "expected_answer": "Vogue", "source": "triviaqa:qz_3440"}
+{"index": 492, "topic": "In the TV show Camberwick Green, who lived in Colly's Mill?", "expected_answer": "Windy Miller", "source": "triviaqa:qz_3456"}
+{"index": 493, "topic": "Which part of the human body produces insulin?", "expected_answer": "The pancreas", "source": "triviaqa:qz_3477"}
+{"index": 494, "topic": "Who played Dr. Doug Ross on the TV show E.R.?", "expected_answer": "George Clooney", "source": "triviaqa:qz_3479"}
+{"index": 495, "topic": "Who played the role of Kate Flax in the 1990 film Mermaids?", "expected_answer": "Christina Ricci", "source": "triviaqa:qz_3504"}
+{"index": 496, "topic": "Who played the character Mrs. Merton on TV?", "expected_answer": "Caroline Aherne", "source": "triviaqa:qz_3557"}
+{"index": 497, "topic": "What nationality was three time Olympic gold medallist in figure skating Sonja Henie?", "expected_answer": "Norwegian", "source": "triviaqa:qz_3569"}
+{"index": 498, "topic": "At which Winter Olympic host city would you find the Cresta Run?", "expected_answer": "St. Moritz", "source": "triviaqa:qz_3570"}
+{"index": 499, "topic": "What kind of an animal is a wireworm?", "expected_answer": "A Beetle", "source": "triviaqa:qz_3583"}
+{"index": 500, "topic": "What are the flat treeless plains of Argentina called?", "expected_answer": "The Pampas", "source": "triviaqa:qz_3588"}
+{"index": 501, "topic": "Which Canadian born  actress was the star in the movie Barb Wire?", "expected_answer": "Pamela Anderson", "source": "triviaqa:qz_3623"}
+{"index": 502, "topic": "Which 2004 \"puppet\" movie, made by the makers of South Park, satirises Americas politics and jingoism?", "expected_answer": "Team America: World Police.", "source": "triviaqa:qz_3644"}
+{"index": 503, "topic": "Which river originates in the Taurus Mountains, and flows through Syria and Iraq?", "expected_answer": "Euphrates", "source": "triviaqa:qz_3708"}
+{"index": 504, "topic": "Following success at the 1979 election whose party conference speeech included the lines 'you turn if you want to, the lady's not for turning'?", "expected_answer": "Margaret Thatcher", "source": "triviaqa:qz_3736"}
+{"index": 505, "topic": "In the run up to the 1997 election, Tony Blair outlined his parties' three priorities for office, can you name them?", "expected_answer": "Education, Education, Education", "source": "triviaqa:qz_3741"}
+{"index": 506, "topic": "Which snooker player was simply known as 'The Grinder'?", "expected_answer": "Cliff Thorburn", "source": "triviaqa:qz_3745"}
+{"index": 507, "topic": "Which former West Indian fast bowler was known as 'Whispering Death'?", "expected_answer": "Michael Holding", "source": "triviaqa:qz_3752"}
+{"index": 508, "topic": "Which Eastenders character had a dog called Willy?", "expected_answer": "Ethel Skinner", "source": "triviaqa:qz_3760"}
+{"index": 509, "topic": "In which year did the first episode of Minder take place?", "expected_answer": "1979", "source": "triviaqa:qz_3775"}
+{"index": 510, "topic": "What was the name of the cat in Rising Damp?", "expected_answer": "Vienna", "source": "triviaqa:qz_3777"}
+{"index": 511, "topic": "Which comedy written by Johnny Speight which first aired in 1965, featured a fervent West Ham supporter?", "expected_answer": "Till Death Us Do Part", "source": "triviaqa:qz_3780"}
+{"index": 512, "topic": "What was the name of the comedy written by Ray Galton, Alan Simpson which aired 57 episodes?", "expected_answer": "Steptoe and Son", "source": "triviaqa:qz_3781"}
+{"index": 513, "topic": "Bonar Law is the only Prime Minister not born in the UK. In which country was he born?", "expected_answer": "Canada", "source": "triviaqa:qz_3833"}
+{"index": 514, "topic": "Who lives in the Hundred Acre Wood?", "expected_answer": "Winnie-the-Pooh", "source": "triviaqa:qz_3863"}
+{"index": 515, "topic": "If you heard the catchphrase \"They're great\" what would expect to be advertised?", "expected_answer": "Frosties", "source": "triviaqa:qz_3878"}
+{"index": 516, "topic": "How many times was Boris Becker runner-up in the Men's Singles at Wimbledon?", "expected_answer": "4", "source": "triviaqa:qz_3895"}
+{"index": 517, "topic": "How many times did Steffi Graf win the Ladies Singles at Wimbledon?", "expected_answer": "7", "source": "triviaqa:qz_3898"}
+{"index": 518, "topic": "In which postcode area are the Wimbledon Championships held? SW15, SW17 or SW19?", "expected_answer": "SW19", "source": "triviaqa:qz_3903"}
+{"index": 519, "topic": "Who did Top of the Pops mistakenly portray in a Dexys Midnight Runners song?", "expected_answer": "Jocky Wilson", "source": "triviaqa:qz_3911"}
+{"index": 520, "topic": "What story introduced the Cybermen?", "expected_answer": "The Tenth Planet", "source": "triviaqa:qz_3920"}
+{"index": 521, "topic": "Who played the tenth Doctor?", "expected_answer": "David Tennant", "source": "triviaqa:qz_3923"}
+{"index": 522, "topic": "How many Rings of Power were there, in total?", "expected_answer": "20", "source": "triviaqa:qz_3927"}
+{"index": 523, "topic": "Which common colour can also be known as heliotrope?", "expected_answer": "Purple", "source": "triviaqa:qz_3968"}
+{"index": 524, "topic": "Which golf shot is the opposite of a slice?", "expected_answer": "Hook", "source": "triviaqa:qz_3969"}
+{"index": 525, "topic": "Which actress left Eastenders for Hollywood only to flop as The Bionic Woman?", "expected_answer": "Michelle Ryan", "source": "triviaqa:qz_3971"}
+{"index": 526, "topic": "In Only Fools And Horses, Rodney Trotter shares his middle name with which London football club?", "expected_answer": "Charlton", "source": "triviaqa:qz_3995"}
+{"index": 527, "topic": "How were Dr Stantz, Dr Spengler and Dr Venkman better known in the 1980's?", "expected_answer": "Ghostbusters", "source": "triviaqa:qz_4002"}
+{"index": 528, "topic": "General Charles de Gaulle was French President 1959 to 1969. Who succeeded him?", "expected_answer": "Georges Pompidou", "source": "triviaqa:qz_4005"}
+{"index": 529, "topic": "When Mr Benn was looking for an adventure, what type of shop did he visit?", "expected_answer": "A fancy dress shop", "source": "triviaqa:qz_4047"}
+{"index": 530, "topic": "What is the name of the enzyme usually added to milk to coagulate it, to make \"curds and whey\"?", "expected_answer": "Rennet.", "source": "triviaqa:qz_4056"}
+{"index": 531, "topic": "Which cheese shares its name with a Guiness Premiership rugby team that play at Welford Road?", "expected_answer": "Leicester.", "source": "triviaqa:qz_4061"}
+{"index": 532, "topic": "Where in London were the first escalators installed in 1898?", "expected_answer": "Harrods", "source": "triviaqa:qz_4085"}
+{"index": 533, "topic": "In what year was the first episode of Doctor Who broadcast? 1959, 1963 or 1967?", "expected_answer": "1963", "source": "triviaqa:qz_4093"}
+{"index": 534, "topic": "What is the name of the company that owned the spaceship Red Dwarf?", "expected_answer": "The Jupiter Mining Corporation", "source": "triviaqa:qz_4101"}
+{"index": 535, "topic": "Which character has been played by Jack Lord, Cec Linder, Rik Van Nutter, Norman Burton, David Hedison, John Terry, David Hedison and Jeffrey Wright?", "expected_answer": "A) Felix Leiter", "source": "triviaqa:qz_4121"}
+{"index": 536, "topic": "Name the magician who first introduced us to Basil Brush.", "expected_answer": "David Nixon", "source": "triviaqa:qz_4127"}
+{"index": 537, "topic": "Who was the only Prime Minister of Britain to be assassinated?", "expected_answer": "Spencer Percival", "source": "triviaqa:qz_4140"}
+{"index": 538, "topic": "What is the name of the chain of islands in the southwestern Philippines?", "expected_answer": "The Sulu Archipelago", "source": "triviaqa:qz_4147"}
+{"index": 539, "topic": "What was the name of the ferry that capsized after leaving Zeebrugge in 1987", "expected_answer": "The Herald of free Enterprise", "source": "triviaqa:qz_4151"}
+{"index": 540, "topic": "The Flying Pickets were a British vocal group who had Christmas no1 hit in 1983. What was the title of the song.", "expected_answer": "Only You", "source": "triviaqa:qz_4171"}
+{"index": 541, "topic": "In Risk, what colour is Europe?", "expected_answer": "Blue", "source": "triviaqa:qz_4175"}
+{"index": 542, "topic": "Which British band named themselves after a South African football team?", "expected_answer": "Kaiser Chiefs", "source": "triviaqa:qz_4186"}
+{"index": 543, "topic": "How many female P.Ms have there been?", "expected_answer": "One", "source": "triviaqa:qz_4208"}
+{"index": 544, "topic": "Newspapers come is various sizes, broadsheet being the largest, and tabloid being smaller, but what name is given to the smallest size.", "expected_answer": "Compact", "source": "triviaqa:qz_4224"}
+{"index": 545, "topic": "Which wedding anniversary is celebrated with paper", "expected_answer": "1st", "source": "triviaqa:qz_4226"}
+{"index": 546, "topic": "Which American female rap artist, film & television actress release a song called Paper in 1998", "expected_answer": "Queen Latifah", "source": "triviaqa:qz_4231"}
+{"index": 547, "topic": "Who won the 2010 Giro D'Italia?", "expected_answer": "Ivan Basso", "source": "triviaqa:qz_4240"}
+{"index": 548, "topic": "In the Commonwealth games in Delhi, which British athlete won the mens 200m gold medal?", "expected_answer": "Leon Baptiste", "source": "triviaqa:qz_4241"}
+{"index": 549, "topic": "Which singer picked up three Ivor Novello awards in May, including songwriter of the year for her hit single, The Fear?", "expected_answer": "Lily Allen", "source": "triviaqa:qz_4267"}
+{"index": 550, "topic": "Which American singer was born Eleanora Fagan?", "expected_answer": "Billie Holiday", "source": "triviaqa:qz_4308"}
+{"index": 551, "topic": "Which famous woman in history had a cottage in Shottery in Warwickshire?", "expected_answer": "Anne Hathaway", "source": "triviaqa:qz_4311"}
+{"index": 552, "topic": "Who sang the theme song for the TV show 'Rawhide'?", "expected_answer": "Frankie Laine", "source": "triviaqa:qz_4322"}
+{"index": 553, "topic": "Which sea lies between Italy and the former Yugoslavia?", "expected_answer": "Adriatic", "source": "triviaqa:qz_4414"}
+{"index": 554, "topic": "In which country is the region Dalmatia?", "expected_answer": "Croatia", "source": "triviaqa:qz_4417"}
+{"index": 555, "topic": "Who was known as the Great Lover of the Silent Screen?", "expected_answer": "Rudolf Valentino", "source": "triviaqa:qz_4432"}
+{"index": 556, "topic": "Which actor plays Cate Blanchett's father in the 2004 film \"The Missing\", a story set in 19th century New Mexico where the father works with estranged daughter Blanchett to get her kidnapped child back?", "expected_answer": "Tommy Lee Jones", "source": "triviaqa:qz_4435"}
+{"index": 557, "topic": "How is Frances Gumm the actress better known?", "expected_answer": "Judy Garland", "source": "triviaqa:qz_4443"}
+{"index": 558, "topic": "Who won the Best Actress Oscar for the 1988 film, The Accused?", "expected_answer": "Jodie Foster", "source": "triviaqa:qz_4450"}
+{"index": 559, "topic": "Which  constellation contains many bright shining stars, such as Regulus?", "expected_answer": "Leo.", "source": "triviaqa:qz_4493"}
+{"index": 560, "topic": "Which London river, now flowing underground, rises in Hampstead, flows through St. Pancras, down Farringdon Street and enters the Thames by Blackfriars Bridge?", "expected_answer": "River Fleet", "source": "triviaqa:qz_4540"}
+{"index": 561, "topic": "-Day in 1944 was the greatest sea-bourn invasion in history. What was the code name for the operation?", "expected_answer": "Operation Overlord", "source": "triviaqa:qz_4548"}
+{"index": 562, "topic": "On which island are the Cuillin Hills?", "expected_answer": "The Isle of Skye", "source": "triviaqa:qz_4565"}
+{"index": 563, "topic": "Which dancer has only one notable film cameo, appearing with Sean Connery in the 1979 movie The First Great Train Robbery, breaking into a guarded station office.", "expected_answer": "Wayne Sleep", "source": "triviaqa:qz_4575"}
+{"index": 564, "topic": "What was the first name of the character played by John Travolta in Saturday Night Fever.", "expected_answer": "Tony (Manero).", "source": "triviaqa:qz_4576"}
+{"index": 565, "topic": "In which 1969 movie did Michael Caine appear with his brother Stanley.", "expected_answer": "The Italian Job", "source": "triviaqa:qz_4585"}
+{"index": 566, "topic": "In 1969, a man was stabbed to death by a member of the Hell's Angels at a Rolling Stones concert. Where was the concert held?", "expected_answer": "Altamont", "source": "triviaqa:qz_4606"}
+{"index": 567, "topic": "How long does it take, approximately, for light to travel from the Sun to the Earth?", "expected_answer": "About 8 minutes", "source": "triviaqa:qz_4637"}
+{"index": 568, "topic": "A Long Island Iced Tea is a cocktail based on vodka, gin, tequila, and which other spirit?", "expected_answer": "Rum", "source": "triviaqa:qz_4638"}
+{"index": 569, "topic": "Anellini pasta is what type of shape?", "expected_answer": "Rings", "source": "triviaqa:qz_4641"}
+{"index": 570, "topic": "A Cuba Libre is based on which spirit", "expected_answer": "Rum", "source": "triviaqa:qz_4642"}
+{"index": 571, "topic": "Which company were responsible for the production of the Spitfire?", "expected_answer": "Supermarine", "source": "triviaqa:qz_4706"}
+{"index": 572, "topic": "The lyric Always sunny in a rich man's world', is from which song?", "expected_answer": "Money, Money, Money", "source": "triviaqa:qz_4739"}
+{"index": 573, "topic": "Who won the men's singles title at Wimbledon in 1987?", "expected_answer": "Pat Cash", "source": "triviaqa:qz_4745"}
+{"index": 574, "topic": "Who made Victor Krum's wand?", "expected_answer": "Gregorovitch", "source": "triviaqa:qz_4839"}
+{"index": 575, "topic": "What kind of creature is Firenze?", "expected_answer": "Centaur", "source": "triviaqa:qz_4845"}
+{"index": 576, "topic": "What building in Scotland is said to house the Holy Grail and features prominently at the end of The Da Vinci Code?", "expected_answer": "Rosslyn Chapel", "source": "triviaqa:qz_4861"}
+{"index": 577, "topic": "In which sitcom did Penelope Wilton play the wife of Richard Briers?", "expected_answer": "Ever Decreasing Circles", "source": "triviaqa:qz_4910"}
+{"index": 578, "topic": "Who plays the role of Bubble in Absolutely Fabulous?", "expected_answer": "Jane Horrocks", "source": "triviaqa:qz_4911"}
+{"index": 579, "topic": "Which cockney private detective, co-created by Terry Venables, was portrayed on TV by Nicholas Ball?", "expected_answer": "James Hazell", "source": "triviaqa:qz_4923"}
+{"index": 580, "topic": "Who in 1975 became the first black man to win a Wimbledon singles title?", "expected_answer": "Arthur Ashe", "source": "triviaqa:qz_4925"}
+{"index": 581, "topic": "Which South African fast bowler had the nickname White Lightning", "expected_answer": "Allan Donald", "source": "triviaqa:qz_4945"}
+{"index": 582, "topic": "In 1953, Edmund Hillary was half of the famous pair to first do what?", "expected_answer": "Climb Everest", "source": "triviaqa:qz_4979"}
+{"index": 583, "topic": "Another name for the Holy Wars between the  Christian states of Europe against the Saracens", "expected_answer": "Crusades", "source": "triviaqa:qz_4991"}
+{"index": 584, "topic": "1986 film starring Goldie Hawn as a High School football coach.", "expected_answer": "Wildcats", "source": "triviaqa:qz_4992"}
+{"index": 585, "topic": "Who was the 16th president of the U.S.A.,assasinated in 1865", "expected_answer": "Abraham LINCOLN", "source": "triviaqa:qz_5039"}
+{"index": 586, "topic": "Which Italian explorer had ships named Nina, Pinta and Santa Maria?", "expected_answer": "Christopher COLUMBUS", "source": "triviaqa:qz_5042"}
+{"index": 587, "topic": "Who had chart hits which included Annie`s Song and Rocky Mountain High?", "expected_answer": "John DENVER", "source": "triviaqa:qz_5044"}
+{"index": 588, "topic": "Which cartoon series featured the characters Lion-o, Cheetera, Tygra and Snarf/", "expected_answer": "Thundercats.", "source": "triviaqa:qz_5050"}
+{"index": 589, "topic": "Who was the leader of the gang whose members included Benny the Ball ,Brain and Choo Choo?", "expected_answer": "Top Cat.", "source": "triviaqa:qz_5053"}
+{"index": 590, "topic": "Which famous resident resides at Highgrove House?", "expected_answer": "The Prince of Wales", "source": "triviaqa:qz_5075"}
+{"index": 591, "topic": "What is the currency of India?", "expected_answer": "Rupee", "source": "triviaqa:qz_5082"}
+{"index": 592, "topic": "How many avenues radiate from the Arc de Triomphe?", "expected_answer": "12", "source": "triviaqa:qz_5083"}
+{"index": 593, "topic": "In which country is Dubrovnik?", "expected_answer": "Croatia", "source": "triviaqa:qz_5084"}
+{"index": 594, "topic": "The Dakar Rally (previously known as the Paris Dakar rally) is an annual event, but of which country is Dakar the capital city?", "expected_answer": "Senegal", "source": "triviaqa:qz_5143"}
+{"index": 595, "topic": "The Miller Brewing Company got its start in what U.S. city?", "expected_answer": "Milwaukee, Wisconsin", "source": "triviaqa:qz_5172"}
+{"index": 596, "topic": "Who did Simple Simon meet on his way to the fair?", "expected_answer": "The Pie man.", "source": "triviaqa:qz_5202"}
+{"index": 597, "topic": "Which cartoon strip character first appeared in The Beano in 1951?", "expected_answer": "Dennis the Menace.", "source": "triviaqa:qz_5203"}
+{"index": 598, "topic": "The Asian Tsunami or Boxing day tsunami that hit Thailand, Indonesia and many other countries happened in what year?", "expected_answer": "2004", "source": "triviaqa:qz_5217"}
+{"index": 599, "topic": "Following that year's April Budget, Alderman Sir Cuthbert Ackroyd, who later became Lord Mayor of London, bought the first what on 1 November 1956?", "expected_answer": "Premium Bond", "source": "triviaqa:qz_5235"}
+{"index": 600, "topic": "Produced between 1970 and 1974, what is a Bond Bug?", "expected_answer": "Car", "source": "triviaqa:qz_5236"}
+{"index": 601, "topic": "What was Jacques Cousteau's mobile oceonagraphic laboratory.", "expected_answer": "Calypso", "source": "triviaqa:qz_5252"}
+{"index": 602, "topic": "What is the name of the helicopter used to transport the President of the United States", "expected_answer": "Marine One", "source": "triviaqa:qz_5270"}
+{"index": 603, "topic": "Which queen consort of England is associated with Hever Castle in Kent?", "expected_answer": "Anne Boleyn", "source": "triviaqa:qz_5300"}
+{"index": 604, "topic": "What was the capital of the United States between 1785 and 1790??", "expected_answer": "New York", "source": "triviaqa:qz_5301"}
+{"index": 605, "topic": "Which country does the drink Cinzano come from?", "expected_answer": "Italy", "source": "triviaqa:qz_5332"}
+{"index": 606, "topic": "Which fictional girls' boarding school was created by the cartoonist Ronald Searle", "expected_answer": "St. Trinians", "source": "triviaqa:qz_5341"}
+{"index": 607, "topic": "Who played the character Mr Chips in the 2002 TV adaptation of Goodbye Mr Chips", "expected_answer": "Martin Clunes", "source": "triviaqa:qz_5346"}
+{"index": 608, "topic": "Rarely is the question asked: Is our children learning?", "expected_answer": "George W Bush", "source": "triviaqa:qz_5409"}
+{"index": 609, "topic": "Are you going to come quietly, or do I have to use earplugs?", "expected_answer": "Spike Milligan", "source": "triviaqa:qz_5410"}
+{"index": 610, "topic": "Which shipping forecast area is directly north of German Bight?", "expected_answer": "Fisher", "source": "triviaqa:qz_5420"}
+{"index": 611, "topic": "By what name did Samuel Langhorne Clemens publish his novels under?", "expected_answer": "Mark Twain", "source": "triviaqa:qz_5459"}
+{"index": 612, "topic": "Who wrote the novel Rasselas in a single week in 1759 to pay for his mother's funeral?", "expected_answer": "Samuel Johnson", "source": "triviaqa:qz_5461"}
+{"index": 613, "topic": "Who painted Girl with a Pearl Earring?", "expected_answer": "Johannes Vermeer", "source": "triviaqa:qz_5462"}
+{"index": 614, "topic": "What is 1009 when expressed as Roman Numerals?", "expected_answer": "MIX", "source": "triviaqa:qz_5487"}
+{"index": 615, "topic": "Who had hits with Go Now and Nights in White Satin?", "expected_answer": "Moody Blues", "source": "triviaqa:qz_5489"}
+{"index": 616, "topic": "Which statesman was known as the Iron Chancellor?", "expected_answer": "Otto Van Bismark", "source": "triviaqa:qz_5493"}
+{"index": 617, "topic": "What was left in Pandora's Box after all the evil escaped?", "expected_answer": "Hope", "source": "triviaqa:qz_5496"}
+{"index": 618, "topic": "What type of bird was the first released by Noah?", "expected_answer": "Raven", "source": "triviaqa:qz_5511"}
+{"index": 619, "topic": "What is the state capital of Florida?", "expected_answer": "Tallahassee", "source": "triviaqa:qz_5520"}
+{"index": 620, "topic": "Who was sacked as the Beatles' drummer and replaced by Ringo Starr?", "expected_answer": "Pete Best", "source": "triviaqa:qz_5552"}
+{"index": 621, "topic": "In which is Shakespeare's plays are the title character's last words the rest is silence?", "expected_answer": "Hamlet", "source": "triviaqa:qz_5554"}
+{"index": 622, "topic": "Tsar Nicholas I abidacated in 1917, who was the other monarch to abdicate during this period?", "expected_answer": "Constantine I of Greece", "source": "triviaqa:qz_5560"}
+{"index": 623, "topic": "Which Roman Emperor was allegedy killed by his wife, Aggripina, in AD54?", "expected_answer": "Claudius", "source": "triviaqa:qz_5580"}
+{"index": 624, "topic": "Whose last words were Et Tu Brute according to Shakespeare?", "expected_answer": "Julius Ceasar", "source": "triviaqa:qz_5584"}
+{"index": 625, "topic": "Mel Gibson (1990) and Kenneth Branagh (1996) have both played which character in movies?", "expected_answer": "Hamlet", "source": "triviaqa:qz_5598"}
+{"index": 626, "topic": "The original United Artists film studio was founded in 1919 by D.W. Griffith, Mary Pickford, Douglas Fairbanks and who else?", "expected_answer": "Charlie Chaplin", "source": "triviaqa:qz_5614"}
+{"index": 627, "topic": "Which Holiday movie favourite featured a character called Kevin McCallister?", "expected_answer": "Home Alone", "source": "triviaqa:qz_5645"}
+{"index": 628, "topic": "Who was the author of Pygmalion'?", "expected_answer": "George Bernard Shaw", "source": "triviaqa:qz_5670"}
+{"index": 629, "topic": "Who was the third President of the USA, following on from George Washington and John Adams was also famed for his numerous inventions?", "expected_answer": "Thomas Jefferson", "source": "triviaqa:qz_5674"}
+{"index": 630, "topic": "What is the minimum age of someone running for the office of President of the United States?", "expected_answer": "35 years of age", "source": "triviaqa:qz_5684"}
+{"index": 631, "topic": "England won the 1966 World Cup beating Germany 4-2. Hurst scored 3 of England's goals who scored the other?", "expected_answer": "Martin Peters", "source": "triviaqa:qz_5728"}
+{"index": 632, "topic": "From which 1960s sci-fi movie did 1980s pop sensation Duran Duran take their name from a character from the movie?", "expected_answer": "Barbarella", "source": "triviaqa:qz_5790"}
+{"index": 633, "topic": "What year did E.T. Hit the cinema screen?", "expected_answer": "1982", "source": "triviaqa:qz_5792"}
+{"index": 634, "topic": "The Red Sea is connected to the Indian Ocean by which gulf ?", "expected_answer": "Gulf of Aden.", "source": "triviaqa:qz_5795"}
+{"index": 635, "topic": "The Red Setter is more properly known by which name?", "expected_answer": "The Irish Setter.", "source": "triviaqa:qz_5796"}
+{"index": 636, "topic": "What was the name of the World War I fighter ace nicknamed the Red Baron?", "expected_answer": "Manfred von Richtofen.", "source": "triviaqa:qz_5801"}
+{"index": 637, "topic": "What is the capital of the U.S. state of Connecticut?", "expected_answer": "Hartford.", "source": "triviaqa:qz_5812"}
+{"index": 638, "topic": "What was founded by Ferdinand II of Aragon and Isabella I of Castile to keep Catholic orthodoxy as the major religion of their kingdoms?", "expected_answer": "Spanish Inquisition", "source": "triviaqa:qz_5867"}
+{"index": 639, "topic": "In golf, what name is given to a score of three under par on a given hole?", "expected_answer": "Albatross", "source": "triviaqa:qz_5870"}
+{"index": 640, "topic": "In dentistry, what is the name given to hardened dental plaque?", "expected_answer": "TARTAR.", "source": "triviaqa:qz_5877"}
+{"index": 641, "topic": "Which singer played the Goblin King Jareth in the film Labyrinth'?", "expected_answer": "David Bowie", "source": "triviaqa:qz_5894"}
+{"index": 642, "topic": "Who played Aunty Entity' in the film 'Mad Max Beyond the Thunderdome'?", "expected_answer": "Tina Turner", "source": "triviaqa:qz_5898"}
+{"index": 643, "topic": "Name the fantasy movie directed by Terry Gilliam, where 6 dwarves have stolen a map.", "expected_answer": "Time Bandits", "source": "triviaqa:qz_5918"}
+{"index": 644, "topic": "Which TV comedy had characters McLaren, Blanco & Warren", "expected_answer": "Porridge", "source": "triviaqa:qz_5919"}
+{"index": 645, "topic": "In which TV series would you find an Eagle Transporter", "expected_answer": "Space 1999", "source": "triviaqa:qz_5950"}
+{"index": 646, "topic": "Which jazz saxophonist was nicknamed Bird", "expected_answer": "Charlie Parker", "source": "triviaqa:qz_5999"}
+{"index": 647, "topic": "Which patriotic Irving Berlin song includes the line  From the mountains to the prairie to the oceans white with foam ?", "expected_answer": "God Bless AMERICA.", "source": "triviaqa:qz_6028"}
+{"index": 648, "topic": "Who created the Miss World pageant?", "expected_answer": "Eric Morley.", "source": "triviaqa:qz_6036"}
+{"index": 649, "topic": "In Egyptian myth who was the God of chaos and disorder?", "expected_answer": "Seth", "source": "triviaqa:qz_6046"}
+{"index": 650, "topic": "What type of creature is a Painted Dragon?", "expected_answer": "Lizard.", "source": "triviaqa:qz_6077"}
+{"index": 651, "topic": "Which method of painting consists of applying pigment to wet plaster?", "expected_answer": "Fresco.", "source": "triviaqa:qz_6079"}
+{"index": 652, "topic": "Who is credited with the discovery of the tomb of King Tutankhamen in 1922?", "expected_answer": "Howard Carter", "source": "triviaqa:qz_6127"}
+{"index": 653, "topic": "The King of Wishful Thinking was a hit song used during the opening credits of the movie Pretty Woman. Who sang it?", "expected_answer": "Go West", "source": "triviaqa:qz_6128"}
+{"index": 654, "topic": "What dish, especially popular in parts of Wales and the English Midlands,  is traditionally made from pig's heart, liver and fatty belly meat or bacon minced together, with herbs added for flavouring and sometimes bread crumbs", "expected_answer": "Faggots", "source": "triviaqa:qz_6186"}
+{"index": 655, "topic": "What was the name of Shari Lewis' sassy sock puppet?", "expected_answer": "Lamb Chop.", "source": "triviaqa:qz_6215"}
+{"index": 656, "topic": "Captain Corelli's mandolin is a book a film set in which country", "expected_answer": "Greece", "source": "triviaqa:qz_6235"}
+{"index": 657, "topic": "The Bull is the village pub in an everyday tale of country folk. In which village is The Bull?", "expected_answer": "Ambridge", "source": "triviaqa:qz_6264"}
+{"index": 658, "topic": "What is the second biggest city in the UK?", "expected_answer": "Birmingham", "source": "triviaqa:qz_6268"}
+{"index": 659, "topic": "Who was the second wife of Henry VIII?", "expected_answer": "Anne Boleyn", "source": "triviaqa:qz_6273"}
+{"index": 660, "topic": "Which actor does the interviewing in 'Interview with a Vampire'?", "expected_answer": "Christian Slater", "source": "triviaqa:qz_6316"}
+{"index": 661, "topic": "What is the southernmost city in USA", "expected_answer": "Honolulu", "source": "triviaqa:qz_6380"}
+{"index": 662, "topic": "In Vladimir Nabokov's book \"Lolita\", what is Lolita's real name?", "expected_answer": "Dolores HAZE", "source": "triviaqa:qz_6389"}
+{"index": 663, "topic": "Which Shakespeare play tells the story of Prospero, the rightful Duke of Milan?", "expected_answer": "The TEMPEST", "source": "triviaqa:qz_6391"}
+{"index": 664, "topic": "Which RAF fighter-bomber was built by the Panavia partnership?", "expected_answer": "The TORNADO", "source": "triviaqa:qz_6393"}
+{"index": 665, "topic": "What was the name of the sixth studio album released by Prince and the Revolution in June of 1984?", "expected_answer": "Purple RAIN", "source": "triviaqa:qz_6396"}
+{"index": 666, "topic": "The undersurface of a person's foot or of a shoe?", "expected_answer": "Sole", "source": "triviaqa:qz_6403"}
+{"index": 667, "topic": "In which film series would you expect to film Katniss Everdeen and Peeta Malark?", "expected_answer": "The Hunger Games", "source": "triviaqa:qz_6456"}
+{"index": 668, "topic": "\"Rodney you plonka\" and \"This time next year we'll be millionaires\" are catchphrases from which well-known television sitcom?", "expected_answer": "Only Fools and Horses", "source": "triviaqa:qz_6459"}
+{"index": 669, "topic": "What did my true love bring to me on the Sixth Day of Christmas?", "expected_answer": "Six Geese-A-Laying", "source": "triviaqa:qz_6489"}
+{"index": 670, "topic": "Louis Smith won an individual silver medal in gymnastics at the 2012 London Olympics. For what discipline?", "expected_answer": "Pommel Horse", "source": "triviaqa:qz_6596"}
+{"index": 671, "topic": "What animal did Reggie Perrin think of every time his Mother-in-law was mentioned?", "expected_answer": "A Hippopotamus.", "source": "triviaqa:qz_6607"}
+{"index": 672, "topic": "Which former prime minister appeared on the Morecambe and Wise Christmas Special in 1978?", "expected_answer": "Harold Wilson", "source": "triviaqa:qz_6626"}
+{"index": 673, "topic": "Where does the infamous \"Streif\" downhill ski race take place?", "expected_answer": "Kitzbühel", "source": "triviaqa:qz_6685"}
+{"index": 674, "topic": "What song was a hit for Tom Jones and Cerys Matthews in 1999?", "expected_answer": "Baby it's cold outside", "source": "triviaqa:qz_6687"}
+{"index": 675, "topic": "How many lines are there in a sonnet?", "expected_answer": "14", "source": "triviaqa:qz_6713"}
+{"index": 676, "topic": "What is the American version of Strictly Come Dancing called?", "expected_answer": "Dancing With The Stars", "source": "triviaqa:qz_6727"}
+{"index": 677, "topic": "What is the lightest metal under standard conditions?", "expected_answer": "Lithium", "source": "triviaqa:qz_6774"}
+{"index": 678, "topic": "What artist designed the logo for Chupa Chups lollipops?", "expected_answer": "Salvador Dali", "source": "triviaqa:qz_6778"}
+{"index": 679, "topic": "What is being built in the Olympic Park, that will be the world's longest and tallest of its kind?", "expected_answer": "A slide", "source": "triviaqa:qz_6793"}
+{"index": 680, "topic": "In the 'Jungle Book' what type of creature was 'Bagheera'?", "expected_answer": "Panther", "source": "triviaqa:qz_6806"}
+{"index": 681, "topic": "What was the first Beatles film?", "expected_answer": "A Hard Day's Night", "source": "triviaqa:qz_6819"}
+{"index": 682, "topic": "What was the name of the Liverpool nightclub where the Beatles regularly played?", "expected_answer": "The Cavern", "source": "triviaqa:qz_6827"}
+{"index": 683, "topic": "How many US states are prefixed by the word New?", "expected_answer": "4", "source": "triviaqa:qz_6834"}
+{"index": 684, "topic": "Although he never won an Oscar for best director, one of Hitchcock's films did win an Oscar for best picture. What was the film?", "expected_answer": "Rebecca", "source": "triviaqa:qz_6851"}
+{"index": 685, "topic": "In which New York borough would you find Hell’s Kitchen?", "expected_answer": "Manhattan", "source": "triviaqa:qz_6898"}
+{"index": 686, "topic": "Which airline is nicknamed ‘The Flying Kangaroo’?", "expected_answer": "QANTAS", "source": "triviaqa:qb_34"}
+{"index": 687, "topic": "Which cartoon character had the maiden name ‘Slaghoople’?", "expected_answer": "Wilma Flintstone", "source": "triviaqa:qb_38"}
+{"index": 688, "topic": "‘Think Different’ is an advertising slogan for which company?", "expected_answer": "Apple (computers)", "source": "triviaqa:qb_41"}
+{"index": 689, "topic": "Which ‘A’ is a calculating frame with sliding balls on wires?", "expected_answer": "Abacus", "source": "triviaqa:qb_60"}
+{"index": 690, "topic": "The rowan tree is also known as the Mountain ‘what’?", "expected_answer": "Ash", "source": "triviaqa:qb_66"}
+{"index": 691, "topic": "Which ‘A’ means in the open air?", "expected_answer": "Al fresco", "source": "triviaqa:qb_73"}
+{"index": 692, "topic": "Buenos Aires is the capital of which South American country?", "expected_answer": "Argentina", "source": "triviaqa:qb_76"}
+{"index": 693, "topic": "Apiculture is the raising and care of which creatures?", "expected_answer": "Bees", "source": "triviaqa:qb_84"}
+{"index": 694, "topic": "What is the capital of Indonesia?", "expected_answer": "Jakarta", "source": "triviaqa:qb_92"}
+{"index": 695, "topic": "Which vegetable was the first to be canned?", "expected_answer": "Peas", "source": "triviaqa:qb_104"}
+{"index": 696, "topic": "In computers, the X-Y Position Indicator for a Display System is now known as what?", "expected_answer": "Cursor", "source": "triviaqa:qb_107"}
+{"index": 697, "topic": "The Khyber Pass is approximately how many miles long?", "expected_answer": "33 Miles", "source": "triviaqa:qb_113"}
+{"index": 698, "topic": "Which fruit did Nell Gwynn, mistress of King Charles II, sell in Drury Lane?", "expected_answer": "Oranges", "source": "triviaqa:qb_151"}
+{"index": 699, "topic": "The town of Tobermory is on which Scottish island?", "expected_answer": "Mull", "source": "triviaqa:qb_153"}
+{"index": 700, "topic": "In the novel ‘Wuthering Heights’ by Emily Bronte, Catherine’s father found Heathcliffe on the streets of which English city?", "expected_answer": "Liverpool", "source": "triviaqa:qb_158"}
+{"index": 701, "topic": "Which Asian country hosted its first Formula One Grand Prix motor race in October 2010?", "expected_answer": "South Korea", "source": "triviaqa:qb_162"}
+{"index": 702, "topic": "In UK currency, how many sides does a twenty pence piece have?", "expected_answer": "Seven", "source": "triviaqa:qb_163"}
+{"index": 703, "topic": "In humans, otalgia, is the medical term for what?", "expected_answer": "Earache", "source": "triviaqa:qb_189"}
+{"index": 704, "topic": "British MP, Diane Abbott, learned to play which musical instrument in the tv series ‘Play It Again’?", "expected_answer": "Piano", "source": "triviaqa:qb_192"}
+{"index": 705, "topic": "Cristina Fernandez de Kirchner became President of which South American country in December 2007?", "expected_answer": "Argentina", "source": "triviaqa:qb_203"}
+{"index": 706, "topic": "In Greek mythology, what was the name of the nymph who fell in love with Narcissus, but who was said to have pined away when her love was not returned, leaving only her voice?", "expected_answer": "Echo", "source": "triviaqa:qb_207"}
+{"index": 707, "topic": "The Marquesas Islands lie in which ocean?", "expected_answer": "Pacific", "source": "triviaqa:qb_218"}
+{"index": 708, "topic": "Keflavik is the main international airport of which country?", "expected_answer": "Iceland", "source": "triviaqa:qb_241"}
+{"index": 709, "topic": "Which British artist’s works include ‘The First Real Target’?", "expected_answer": "Peter Blake", "source": "triviaqa:qb_250"}
+{"index": 710, "topic": "Which King of England sold Dunkirk to Louis XIV of France?", "expected_answer": "Charles II", "source": "triviaqa:qb_254"}
+{"index": 711, "topic": "What was the middle name of US actor James Dean?", "expected_answer": "Byron", "source": "triviaqa:qb_255"}
+{"index": 712, "topic": "Which French author wrote the fairy tales ‘Little Red Riding Hood’ ‘Sleeping Beauty’ and ‘Puss in Boots’?", "expected_answer": "Charles Perrault", "source": "triviaqa:qb_260"}
+{"index": 713, "topic": "Author J.R.R. Tolkien was born in which country?", "expected_answer": "South Africa", "source": "triviaqa:qb_274"}
+{"index": 714, "topic": "The pilgrim route to Santiago de Compostela in Northern Spain is known as the ‘Way’ of which saint?", "expected_answer": "Saint James", "source": "triviaqa:qb_275"}
+{"index": 715, "topic": "Peter O’Sullevan was a BBC commentator for which sport?", "expected_answer": "Horse racing", "source": "triviaqa:qb_280"}
+{"index": 716, "topic": "Who was the first Hanover King of England?", "expected_answer": "George I", "source": "triviaqa:qb_292"}
+{"index": 717, "topic": "Which group released an album in 1986 entitled ‘The Queen is Dead’?", "expected_answer": "The Smiths", "source": "triviaqa:qb_299"}
+{"index": 718, "topic": "Which British Prime Minister said of Downing Street ‘One of the most precious jewels in the national heritage’?", "expected_answer": "Margaret Thatcher", "source": "triviaqa:qb_304"}
+{"index": 719, "topic": "Antigonus is a character in which Shakespeare play?", "expected_answer": "The Winter’s Tale", "source": "triviaqa:qb_306"}
+{"index": 720, "topic": "Which British monarch famously said ‘I don’t wish to open windows into men’s souls’?", "expected_answer": "Queen Elizabeth I", "source": "triviaqa:qb_345"}
+{"index": 721, "topic": "Which bodily fluid is collected in a lachrymatory?", "expected_answer": "Tears", "source": "triviaqa:qb_354"}
+{"index": 722, "topic": "Which British singer played Jareth the Goblin King in the 1986 film ‘Labyrinth’?", "expected_answer": "David Bowie", "source": "triviaqa:qb_355"}
+{"index": 723, "topic": "Golfer Ernie Els was born in which country?", "expected_answer": "South Africa", "source": "triviaqa:qb_361"}
+{"index": 724, "topic": "Aconcagua is the highest mountain in which mountain range?", "expected_answer": "Andes", "source": "triviaqa:qb_365"}
+{"index": 725, "topic": "The 1987 film ‘Cry Freedom’ is a biographical drama about which South African civil rights leader?", "expected_answer": "Steve Biko", "source": "triviaqa:qb_370"}
+{"index": 726, "topic": "Which British actress played Valerie in the 1997 film ‘Nil By Mouth’?", "expected_answer": "Kathy Burke", "source": "triviaqa:qb_382"}
+{"index": 727, "topic": "What was the name of the Brazilian player who won the Women’s Singles Finals at Wimbledon in 1959, 1960 and 1964?", "expected_answer": "Maria Bueno", "source": "triviaqa:qb_388"}
+{"index": 728, "topic": "Apart from English, what is the official language of Canada?", "expected_answer": "French", "source": "triviaqa:qb_403"}
+{"index": 729, "topic": "What is the name of the steam locomotive which set the world speed record in July 1938 by reaching 126 mph on the East Coast Mainline  in England?", "expected_answer": "Mallard", "source": "triviaqa:qb_404"}
+{"index": 730, "topic": "Singer and musician Bono called which venue ‘Rock and roll’s great cathedral’?", "expected_answer": "Madison Square Garden", "source": "triviaqa:qb_406"}
+{"index": 731, "topic": "What type of creature is a bufflehead?", "expected_answer": "Duck", "source": "triviaqa:qb_417"}
+{"index": 732, "topic": "The 1950’s Mau Mau uprising was against the British occupation of which country?", "expected_answer": "Kenya", "source": "triviaqa:qb_446"}
+{"index": 733, "topic": "What is a positively charged ion called?", "expected_answer": "Cation", "source": "triviaqa:qb_468"}
+{"index": 734, "topic": "Which 5th/6th Century Buddhist monk is described in Chinese texts as ‘The Blue-Eyed Barbarian’?", "expected_answer": "Bodhidharma", "source": "triviaqa:qb_470"}
+{"index": 735, "topic": "In which part of the human body is the limbic system?", "expected_answer": "Brain", "source": "triviaqa:qb_482"}
+{"index": 736, "topic": "Which year saw the only hijacking of a British commercial flight?", "expected_answer": "1970", "source": "triviaqa:qb_483"}
+{"index": 737, "topic": "What was the name of the Cunard ocean liner which was launched on 20th September 1906?", "expected_answer": "Mauretania", "source": "triviaqa:qb_495"}
+{"index": 738, "topic": "Which European city had the world’s first birth control clinic?", "expected_answer": "Amsterdam", "source": "triviaqa:qb_497"}
+{"index": 739, "topic": "In which James Bond film does actress Jane Seymour play Solitaire?", "expected_answer": "Live and Let Die", "source": "triviaqa:qb_498"}
+{"index": 740, "topic": "What type of creature is a tanager?", "expected_answer": "Bird", "source": "triviaqa:qb_503"}
+{"index": 741, "topic": "In ‘Follow That Camel’, the fourteenth Carry On film, Sid James was replaced by which US actor?", "expected_answer": "Phil Silvers", "source": "triviaqa:qb_511"}
+{"index": 742, "topic": "A mahout is a person who works, tends and rides which animal?", "expected_answer": "Elephant", "source": "triviaqa:qb_525"}
+{"index": 743, "topic": "How many medals did the United States win at the 2010 Winter Olympics?", "expected_answer": "37", "source": "triviaqa:qb_532"}
+{"index": 744, "topic": "‘The Weeping Woman’ is the work of which artist?", "expected_answer": "Pablo Picasso", "source": "triviaqa:qb_547"}
+{"index": 745, "topic": "The Koppen System is a classification system for what?", "expected_answer": "Climate", "source": "triviaqa:qb_558"}
+{"index": 746, "topic": "In humans, a hemispherectomy is the removal of half of the what?", "expected_answer": "Brain", "source": "triviaqa:qb_565"}
+{"index": 747, "topic": "In Greek mythology, Tiresias disclosed the crimes of who?", "expected_answer": "Oedipus", "source": "triviaqa:qb_571"}
+{"index": 748, "topic": "The United Nations University is based in which Asian city?", "expected_answer": "Tokyo", "source": "triviaqa:qb_574"}
+{"index": 749, "topic": "What is the name of the iron hook which is attached to the pole used by fisherman to land a heavy fish?", "expected_answer": "Gaff", "source": "triviaqa:qb_578"}
+{"index": 750, "topic": "Which English singer/songwriter/musician wrote the Tremeloes hit ‘Here Comes My Baby’ at the age of eighteen?", "expected_answer": "Cat Stevens", "source": "triviaqa:qb_590"}
+{"index": 751, "topic": "Mearth was the name of the child of which US tv characters?", "expected_answer": "Mork and Mindy", "source": "triviaqa:qb_599"}
+{"index": 752, "topic": "In which state of the US is it illegal to mis-pronounce the name of the state?", "expected_answer": "Arkansas", "source": "triviaqa:qb_602"}
+{"index": 753, "topic": "The Strawberry Museum in the town of Wepion is in which country?", "expected_answer": "Belgium", "source": "triviaqa:qb_603"}
+{"index": 754, "topic": "The Hotel Matignon is the official residence of the Prime Minister of which European country?", "expected_answer": "France", "source": "triviaqa:qb_606"}
+{"index": 755, "topic": "Which British politician became Member of Parliament for Epping in October 1924?", "expected_answer": "Winston Churchill", "source": "triviaqa:qb_622"}
+{"index": 756, "topic": "‘The Crafty Cockney’ was the nickname of which British darts player?", "expected_answer": "Eric Bristow", "source": "triviaqa:qb_628"}
+{"index": 757, "topic": "Which famous jewellers makes the Super Bowl Trophy?", "expected_answer": "Tiffany & Co.", "source": "triviaqa:qb_637"}
+{"index": 758, "topic": "Bedloe’s Island in New York Harbour, is the former name of which island?", "expected_answer": "Liberty Island", "source": "triviaqa:qb_640"}
+{"index": 759, "topic": "What is the name of the Jewish spring festival which celebrates the exodus of the Israelites from Egypt?", "expected_answer": "Passover", "source": "triviaqa:qb_650"}
+{"index": 760, "topic": "Sadler’s Wells Ballet and the Vic-Wells Ballet were the previous names of which British ballet company?", "expected_answer": "The Royal Ballet", "source": "triviaqa:qb_669"}
+{"index": 761, "topic": "The roller coaster ride called Rita is located at which English theme park?", "expected_answer": "Alton Towers", "source": "triviaqa:qb_688"}
+{"index": 762, "topic": "Which is the first written single word number in which the letter ‘A’ appears?", "expected_answer": "Thousand", "source": "triviaqa:qb_698"}
+{"index": 763, "topic": "In which year did Margaret Thatcher become British Prime Minister?", "expected_answer": "1979", "source": "triviaqa:qb_711"}
+{"index": 764, "topic": "In January 1957, Russell Endean became the first batsman to be dismissed from a test cricket match for doing what?", "expected_answer": "Handling the ball", "source": "triviaqa:qb_712"}
+{"index": 765, "topic": "What type of animal is a dik-dik?", "expected_answer": "Antelope", "source": "triviaqa:qb_720"}
+{"index": 766, "topic": "Isoprene, Butyl and Nitrile are all types of which substance?", "expected_answer": "Rubber", "source": "triviaqa:qb_722"}
+{"index": 767, "topic": "Taka is the basic monetary unit of which country?", "expected_answer": "Bangladesh", "source": "triviaqa:qb_723"}
+{"index": 768, "topic": "Who does Emilio Estevez play in the 1988 film ‘Young Guns’?", "expected_answer": "Billy the Kid", "source": "triviaqa:qb_727"}
+{"index": 769, "topic": "Which Mediterranean island gained independence in 1959 under the presidency of Archbishop Makarios?", "expected_answer": "Cyprus", "source": "triviaqa:qb_733"}
+{"index": 770, "topic": "In medicine, chromotopsia is the term for abnormally coloured what?", "expected_answer": "Vision", "source": "triviaqa:qb_744"}
+{"index": 771, "topic": "Wanlockhead is the highest village in which European country?", "expected_answer": "Scotland", "source": "triviaqa:qb_748"}
+{"index": 772, "topic": "Which European country hosted the 1956 Winter Olympic Games?", "expected_answer": "Italy", "source": "triviaqa:qb_765"}
+{"index": 773, "topic": "‘Lofsongur’ is the national anthem of which country?", "expected_answer": "Iceland", "source": "triviaqa:qb_766"}
+{"index": 774, "topic": "In Roman mythology, what was the name of the brother slain by Romulus?", "expected_answer": "Remus", "source": "triviaqa:qb_770"}
+{"index": 775, "topic": "In 1951, which European country saw the abdication of King Leopold lll in favour of his son Baudouin?", "expected_answer": "Belgium", "source": "triviaqa:qb_777"}
+{"index": 776, "topic": "In medicine the MMR vaccination gives protection against which diseases?", "expected_answer": "Measles, Mumps and Rubella", "source": "triviaqa:qb_779"}
+{"index": 777, "topic": "A saluki is which type of animal?", "expected_answer": "Dog", "source": "triviaqa:qb_801"}
+{"index": 778, "topic": "What disease was Robert the Bruce, King of Scotland, said to have died of in 1329?", "expected_answer": "Leprosy", "source": "triviaqa:qb_804"}
+{"index": 779, "topic": "‘Divine Wind’ is the English translation of which Japanese word?", "expected_answer": "Kamikaze", "source": "triviaqa:qb_811"}
+{"index": 780, "topic": "Which Flemish Baroque painter’s Antwerp home is now a museum?", "expected_answer": "Peter Paul Rubens", "source": "triviaqa:qb_815"}
+{"index": 781, "topic": "In medicine, epiphora affects which part of the human body?", "expected_answer": "Eye", "source": "triviaqa:qb_816"}
+{"index": 782, "topic": "What nationality was 19th Century author Hans Christian Anderson?", "expected_answer": "Danish", "source": "triviaqa:qb_817"}
+{"index": 783, "topic": "Umberto ll was the last king of which European country?", "expected_answer": "Italy", "source": "triviaqa:qb_853"}
+{"index": 784, "topic": "Which US singing duo started out under the names Caesar and Cleo?", "expected_answer": "Sonny and Cher", "source": "triviaqa:qb_866"}
+{"index": 785, "topic": "Fidel Castro, former President of Cuba, ordered which board game to be destroyed when he took power?", "expected_answer": "Monopoly", "source": "triviaqa:qb_870"}
+{"index": 786, "topic": "Which creature features on the label of a Bacardi rum bottle?", "expected_answer": "Bat", "source": "triviaqa:qb_883"}
+{"index": 787, "topic": "According to the Bible, who was the only apostle to witness the crucifixion of Jesus?", "expected_answer": "John", "source": "triviaqa:qb_891"}
+{"index": 788, "topic": "Who played the role of Caligula in the 1976 UK tv series ‘I, Claudius’?", "expected_answer": "John Hurt", "source": "triviaqa:qb_907"}
+{"index": 789, "topic": "What colour is the cross on the national flag of Denmark?", "expected_answer": "White", "source": "triviaqa:qb_915"}
+{"index": 790, "topic": "Who wrote the 1963 novel ‘The Spy Who Came in From the Cold’?", "expected_answer": "John Le Carre", "source": "triviaqa:qb_916"}
+{"index": 791, "topic": "Composite, Shield and Cinder Cone are all types of what?", "expected_answer": "Volcano", "source": "triviaqa:qb_919"}
+{"index": 792, "topic": "Mouldwarp is an old name for which creature?", "expected_answer": "Mole", "source": "triviaqa:qb_921"}
+{"index": 793, "topic": "What is the name of Humphrey Bogart’s character in the film ‘Casablanca’?", "expected_answer": "Rick Blaine", "source": "triviaqa:qb_925"}
+{"index": 794, "topic": "What is the US state capital of Louisiana?", "expected_answer": "Baton Rouge", "source": "triviaqa:qb_930"}
+{"index": 795, "topic": "What is the title of the 1996 Oscar-winning documentary about the Muhammad Ali and George Foreman 1974 ‘Rumble in the Jungle’ fight in Zaire?", "expected_answer": "When We Were Kings", "source": "triviaqa:qb_936"}
+{"index": 796, "topic": "The Battle of Vimy Ridge took place in which country during World War l?", "expected_answer": "France", "source": "triviaqa:qb_941"}
+{"index": 797, "topic": "What colour is ‘Mr Man’ Mr Strong’s hat?", "expected_answer": "Green", "source": "triviaqa:qb_950"}
+{"index": 798, "topic": "What are the first names of art duo Proesch and Passmore?", "expected_answer": "Gilbert and George", "source": "triviaqa:qb_956"}
+{"index": 799, "topic": "What was is the name of Penelope Pitstop’s car in the children’s tv cartoon series ‘Wacky Races’?", "expected_answer": "Compact Pussycat", "source": "triviaqa:qb_966"}
+{"index": 800, "topic": "The Wang River is in which Asian country?", "expected_answer": "Thailand", "source": "triviaqa:qb_980"}
+{"index": 801, "topic": "Which tennis player was known as the Rockhampton Rocket?", "expected_answer": "Rod Laver", "source": "triviaqa:qb_1009"}
+{"index": 802, "topic": "The ports of Puck and Jastarnia are in which European country?", "expected_answer": "Poland", "source": "triviaqa:qb_1010"}
+{"index": 803, "topic": "Which famous racehorse won Australia’s Melbourne Cup in 1930?", "expected_answer": "Phar Lap", "source": "triviaqa:qb_1030"}
+{"index": 804, "topic": "Amr Shabana from Egypt is famous for playing which sport?", "expected_answer": "Squash", "source": "triviaqa:qb_1032"}
+{"index": 805, "topic": "How many pounds are in a UK (long) ton?", "expected_answer": "2240", "source": "triviaqa:qb_1036"}
+{"index": 806, "topic": "Cobweb is a fairy in which Shakespeare play?", "expected_answer": "A Midsummer Night’s Dream", "source": "triviaqa:qb_1050"}
+{"index": 807, "topic": "Apimania is an obsession with which creatures?", "expected_answer": "Bees", "source": "triviaqa:qb_1068"}
+{"index": 808, "topic": "In 1216, English monarch King John was said to have lost the crown jewels while crossing which body of water?", "expected_answer": "The Wash", "source": "triviaqa:qb_1147"}
+{"index": 809, "topic": "Which British playwright was killed with a hammer by his lover Keith Haliwell in 1967?", "expected_answer": "Joe Orton", "source": "triviaqa:qb_1166"}
+{"index": 810, "topic": "What is the nickname of baseball star Jimmie Foxx?", "expected_answer": "Double X", "source": "triviaqa:qb_1167"}
+{"index": 811, "topic": "The Free Officers Movement was composed of young junior army officers committed to unseating the monarchy of which African country?", "expected_answer": "Egypt", "source": "triviaqa:qb_1172"}
+{"index": 812, "topic": "In which year was the storming of the Bastille, which started the French Revolution?", "expected_answer": "1789", "source": "triviaqa:qb_1175"}
+{"index": 813, "topic": "Who was the first poet to be buried at Poet’s Corner in London’s Westminster Abbey?", "expected_answer": "Geoffrey Chaucer", "source": "triviaqa:qb_1179"}
+{"index": 814, "topic": "‘The Night of the Long Knives’ refers to which leader eliminating many of his political enemies?", "expected_answer": "Adolph Hitler", "source": "triviaqa:qb_1191"}
+{"index": 815, "topic": "Hans Holbein the Younger was court painter to which English monarch?", "expected_answer": "Henry VIII", "source": "triviaqa:qb_1204"}
+{"index": 816, "topic": "Who was the illustrator for most of Roald Dahl’s stories for children?", "expected_answer": "Quentin Blake", "source": "triviaqa:qb_1209"}
+{"index": 817, "topic": "The 1958 film ‘Gigi’ was based on the novel by which French author?", "expected_answer": "Colette", "source": "triviaqa:qb_1227"}
+{"index": 818, "topic": "‘Back to Bedlam’ was the debut album for which British singer?", "expected_answer": "James Blunt", "source": "triviaqa:qb_1235"}
+{"index": 819, "topic": "Which US gangster was released from Alcatraz prison in November 1939?", "expected_answer": "Al Capone", "source": "triviaqa:qb_1253"}
+{"index": 820, "topic": "The fictional characters William Dobbin and Rawdon Crawley appear in which novel?", "expected_answer": "Vanity Fair", "source": "triviaqa:qb_1261"}
+{"index": 821, "topic": "Who does the commentary in the UK tv programme ‘Come Dine With Me’?", "expected_answer": "Dave Lamb", "source": "triviaqa:qb_1285"}
+{"index": 822, "topic": "Hidrosis is the medical term for which bodily function?", "expected_answer": "Sweating", "source": "triviaqa:qb_1294"}
+{"index": 823, "topic": "The town of Honiton in Devon is famous for producing what?", "expected_answer": "Lace", "source": "triviaqa:qb_1299"}
+{"index": 824, "topic": "Which two colours make up the national flag of Greenland?", "expected_answer": "White and red", "source": "triviaqa:qb_1329"}
+{"index": 825, "topic": "Which national team beat Hungary 4-2 to win the 1938 FIFA World Cup?", "expected_answer": "Italy", "source": "triviaqa:qb_1340"}
+{"index": 826, "topic": "Yellow-pine, Uinta and Lodgepole are all types of which animal?", "expected_answer": "Chipmunk", "source": "triviaqa:qb_1367"}
+{"index": 827, "topic": "Who plays Daphne in the 2002 film ‘Scooby-Doo’?", "expected_answer": "Sarah Michelle Gellar", "source": "triviaqa:qb_1373"}
+{"index": 828, "topic": "The Euro is divided into how many cents?", "expected_answer": "100", "source": "triviaqa:qb_1379"}
+{"index": 829, "topic": "In the NATO phonetic alphabet which word represents the letter ‘C’?", "expected_answer": "Charlie", "source": "triviaqa:qb_1383"}
+{"index": 830, "topic": "Which former RAF pilot wrote the novel ‘Airport’?", "expected_answer": "Arthur Hailey", "source": "triviaqa:qb_1400"}
+{"index": 831, "topic": "A creance is the name of the long fine cord used in which sport?", "expected_answer": "Falconry", "source": "triviaqa:qb_1414"}
+{"index": 832, "topic": "In the UK tv series ‘Mr Bean’, what model car does Mr Bean drive?", "expected_answer": "Mini 1000", "source": "triviaqa:qb_1415"}
+{"index": 833, "topic": "Rodolfo and Mimi are the main characters in which opera by Giacomo Puccini?", "expected_answer": "La Boheme", "source": "triviaqa:qb_1429"}
+{"index": 834, "topic": "In which year did it become compulsory to wear seat belts in front seats of cars in the UK?", "expected_answer": "1983", "source": "triviaqa:qb_1431"}
+{"index": 835, "topic": "Which country was invaded by Iraq in 1990?", "expected_answer": "Kuwait", "source": "triviaqa:qb_1435"}
+{"index": 836, "topic": "The Oroville Dam is in which US state?", "expected_answer": "California", "source": "triviaqa:qb_1438"}
+{"index": 837, "topic": "What was the name of the Prime Minister of Egypt who was assassinated in 1910?", "expected_answer": "Boutros Ghali", "source": "triviaqa:qb_1448"}
+{"index": 838, "topic": "The OK Corral is in which US town?", "expected_answer": "Tombstone", "source": "triviaqa:qb_1455"}
+{"index": 839, "topic": "In Greek mythology, Amphitrite, queen of the sea, was the wife of which god?", "expected_answer": "Poseidon", "source": "triviaqa:qb_1456"}
+{"index": 840, "topic": "On which part of the body would a mukluk be worn?", "expected_answer": "Foot", "source": "triviaqa:qb_1462"}
+{"index": 841, "topic": "Sandygate Road football and cricket stadium is in which English city?", "expected_answer": "Sheffield", "source": "triviaqa:qb_1494"}
+{"index": 842, "topic": "How many hundredweight are in a UK ton?", "expected_answer": "20", "source": "triviaqa:qb_1495"}
+{"index": 843, "topic": "Smoky, Leaf-nosed and Vesper are all species of which creature?", "expected_answer": "Bat", "source": "triviaqa:qb_1502"}
+{"index": 844, "topic": "‘Make Them Wait’ is rhyming slang for which Bingo number?", "expected_answer": "58", "source": "triviaqa:qb_1515"}
+{"index": 845, "topic": "How many stars are on the national flag of Liberia?", "expected_answer": "One", "source": "triviaqa:qb_1522"}
+{"index": 846, "topic": "What is the US state capital of Idaho?", "expected_answer": "Boise", "source": "triviaqa:qb_1538"}
+{"index": 847, "topic": "In the children’s tv cartoon series, who is Inspector Gadget’s arch enemy?", "expected_answer": "Dr Claw", "source": "triviaqa:qb_1541"}
+{"index": 848, "topic": "Astrakhan is the curly hair of which young animal?", "expected_answer": "Lamb", "source": "triviaqa:qb_1556"}
+{"index": 849, "topic": "Nguyen Tan Dung became Prime Minister of which country in June 2006?", "expected_answer": "Vietnam", "source": "triviaqa:qb_1557"}
+{"index": 850, "topic": "Boll weevil cause damage to which crop?", "expected_answer": "Cotton", "source": "triviaqa:qb_1569"}
+{"index": 851, "topic": "What type of creature is a Dog Face?", "expected_answer": "Butterfly", "source": "triviaqa:qb_1574"}
+{"index": 852, "topic": "Which city hosted the 1992 Summer Olympic Games?", "expected_answer": "Barcelona", "source": "triviaqa:qb_1580"}
+{"index": 853, "topic": "Steve Martin and which other actor hosted the 2010 Academy Awards?", "expected_answer": "Alec Baldwin", "source": "triviaqa:qb_1647"}
+{"index": 854, "topic": "Which British monarch founded the Yeomen of the Guard, originally as a royal bodyguard?", "expected_answer": "Henry VII", "source": "triviaqa:qb_1652"}
+{"index": 855, "topic": "Which member of the British royal family married on the 29th April 2011?", "expected_answer": "Prince William", "source": "triviaqa:qb_1683"}
+{"index": 856, "topic": "Which Italian fashion designer launched the first virtual online museum in December 2011?", "expected_answer": "Valentino", "source": "triviaqa:qb_1688"}
+{"index": 857, "topic": "In Greek mythology, who was the first wife of Aegeus?", "expected_answer": "Meta", "source": "triviaqa:qb_1750"}
+{"index": 858, "topic": "Which breed of dog is Marley in the 2008 film ‘Marley and Me’?", "expected_answer": "Labrador Retriever", "source": "triviaqa:qb_1751"}
+{"index": 859, "topic": "‘Giovedi’ is the Italian word for which day of the week?", "expected_answer": "Thursday", "source": "triviaqa:qb_1752"}
+{"index": 860, "topic": "How many stars are on the national flag of New Zealand?", "expected_answer": "Four", "source": "triviaqa:qb_1757"}
+{"index": 861, "topic": "Scatology is the scientific study of what?", "expected_answer": "Excrement", "source": "triviaqa:qb_1762"}
+{"index": 862, "topic": "La Paz is the administrative capital of which South American country?", "expected_answer": "Bolivia", "source": "triviaqa:qb_1767"}
+{"index": 863, "topic": "In the game of Bingo, ‘Get up and run’ represents which number?", "expected_answer": "31", "source": "triviaqa:qb_1768"}
+{"index": 864, "topic": "In February 1938, Roberto M. Ortiz became President of which South American country?", "expected_answer": "Argentina", "source": "triviaqa:qb_1812"}
+{"index": 865, "topic": "Which poet wrote ‘The Lake Isle of Innisfree’?", "expected_answer": "William Butler Yeats", "source": "triviaqa:qb_1825"}
+{"index": 866, "topic": "In September 2006 the government of Prime Minister Thaksin Shinawatra was overthrown in which Asian country?", "expected_answer": "Thailand", "source": "triviaqa:qb_1830"}
+{"index": 867, "topic": "Who wrote the 1930’s novel ‘Tender is the Night’?", "expected_answer": "F. Scott Fitzgerald", "source": "triviaqa:qb_1850"}
+{"index": 868, "topic": "Maria Fitzherbert was ‘married’ to which British monarch?", "expected_answer": "George IV", "source": "triviaqa:qb_1861"}
+{"index": 869, "topic": "Amarelo is Portuguese for which colour?", "expected_answer": "Yellow", "source": "triviaqa:qb_1901"}
+{"index": 870, "topic": "On a standard dartboard, which number lies opposite number 4?", "expected_answer": "16", "source": "triviaqa:qb_1912"}
+{"index": 871, "topic": "Mount Chimborazo is in which South American country?", "expected_answer": "Ecuador", "source": "triviaqa:qb_1944"}
+{"index": 872, "topic": "What is the basic monetary unit of Israel?", "expected_answer": "Shekel", "source": "triviaqa:qb_1945"}
+{"index": 873, "topic": "In which European country is Lake Ree?", "expected_answer": "Ireland", "source": "triviaqa:qb_1953"}
+{"index": 874, "topic": "Who wrote the poem ‘The Lady of the Lake’?", "expected_answer": "Sir Walter Scott", "source": "triviaqa:qb_1993"}
+{"index": 875, "topic": "Henry Blake, Charles Winchester and Father Mulcahy are all characters in which US tv series?", "expected_answer": "M*A*S*H", "source": "triviaqa:qb_2016"}
+{"index": 876, "topic": "‘Obey your thirst’ is the advertising slogan for which soft drink?", "expected_answer": "Sprite", "source": "triviaqa:qb_2019"}
+{"index": 877, "topic": "Selenology is the scientific study of which celestial body?", "expected_answer": "The moon", "source": "triviaqa:qb_2020"}
+{"index": 878, "topic": "‘A crutch and a duck’ is the term for which bingo number?", "expected_answer": "72", "source": "triviaqa:qb_2037"}
+{"index": 879, "topic": "Spud, Shot and Hand are all types of what?", "expected_answer": "Gun", "source": "triviaqa:qb_2038"}
+{"index": 880, "topic": "In the game ‘Metal Gear Solid’,who is the twin brother of Solid Snake?", "expected_answer": "Liquid Snake", "source": "triviaqa:qb_2047"}
+{"index": 881, "topic": "What did fictional detective Sherlock Holmes keep in the toe of his Persian slipper?", "expected_answer": "Tobacco", "source": "triviaqa:qb_2071"}
+{"index": 882, "topic": "Which creatures are used as croquet balls in the novel ‘Alice’s Adventures in Wonderland’?", "expected_answer": "Hedgehogs", "source": "triviaqa:qb_2091"}
+{"index": 883, "topic": "Which Spanish artist painted the series known as ‘Fantasy and Invention’ in the 18th century?", "expected_answer": "Francisco Goya", "source": "triviaqa:qb_2096"}
+{"index": 884, "topic": "‘Mucke’ is the Serbo-Croatian name for which UK tv series?", "expected_answer": "Only Fools and Horses", "source": "triviaqa:qb_2101"}
+{"index": 885, "topic": "Comedian, actor and director Melvin Kaminsky is better known by what name?", "expected_answer": "Mel Brooks", "source": "triviaqa:qb_2105"}
+{"index": 886, "topic": "The Belgian beer ‘Kriek’ is flavoured with which fruit?", "expected_answer": "Cherry", "source": "triviaqa:qb_2122"}
+{"index": 887, "topic": "The Forest of Arden is in which English county?", "expected_answer": "Warwickshire", "source": "triviaqa:qb_2123"}
+{"index": 888, "topic": "Louis Reard created which two-piece item of clothing in 1946?", "expected_answer": "Bikini", "source": "triviaqa:qb_2148"}
+{"index": 889, "topic": "What colour are the flowers of a hawkbit plant?", "expected_answer": "Yellow", "source": "triviaqa:qb_2151"}
+{"index": 890, "topic": "In which British city is the Jewry Wall Museum?", "expected_answer": "Leicester", "source": "triviaqa:qb_2169"}
+{"index": 891, "topic": "What is the main ingredient of borscht soup?", "expected_answer": "Beetroot", "source": "triviaqa:qb_2184"}
+{"index": 892, "topic": "Thanatology is the scientific study of what?", "expected_answer": "Death", "source": "triviaqa:qb_2199"}
+{"index": 893, "topic": "Which author wrote ‘I came form Des Moines. Somebody had to.’ in their book ‘The Lost Continent’?", "expected_answer": "Bill Bryson", "source": "triviaqa:qb_2202"}
+{"index": 894, "topic": "Which actor succeeded Marlon Brando as head of the Corleone family in the Godfather films?", "expected_answer": "Al Pacino", "source": "triviaqa:qb_2215"}
+{"index": 895, "topic": "Brown, American Rainbow and Cutthroat are all types of which fish?", "expected_answer": "Trout", "source": "triviaqa:qb_2221"}
+{"index": 896, "topic": "Who designed St Paul’s Cathedral in London?", "expected_answer": "Christopher Wren", "source": "triviaqa:qb_2234"}
+{"index": 897, "topic": "What colour is the liqueur ‘Parfait d’Amour’?", "expected_answer": "Purple", "source": "triviaqa:qb_2271"}
+{"index": 898, "topic": "What is the name of the clarified butter used in Indian cookery?", "expected_answer": "Ghee", "source": "triviaqa:qb_2279"}
+{"index": 899, "topic": "In the 2005 Julian Barnes novel ‘Arthur and George’, who is Arthur?", "expected_answer": "Arthur Conan Doyle", "source": "triviaqa:qb_2308"}
+{"index": 900, "topic": "In humans, epicondylitis affects which part of the body?", "expected_answer": "Elbow", "source": "triviaqa:qb_2329"}
+{"index": 901, "topic": "The UEFA (Union of European Football Associations) was founded in which European country in 1954?", "expected_answer": "Switzerland", "source": "triviaqa:qb_2344"}
+{"index": 902, "topic": "From which 1968 film did English band Duran Duran take their name?", "expected_answer": "Barbarella", "source": "triviaqa:qb_2350"}
+{"index": 903, "topic": "The ‘La Scala Opera House’ is in which European city?", "expected_answer": "Milan", "source": "triviaqa:qb_2359"}
+{"index": 904, "topic": "Who is the lead singer of the English band ‘The Specials’?", "expected_answer": "Terry Hall", "source": "triviaqa:qb_2363"}
+{"index": 905, "topic": "Elvis Presley’s manager, Andreas Cornelis van Kujik, was better known by what name?", "expected_answer": "Colonel Tom Parker", "source": "triviaqa:qb_2364"}
+{"index": 906, "topic": "The Transandine Railway runs between which two South American countries?", "expected_answer": "Chile and Argentina", "source": "triviaqa:qb_2370"}
+{"index": 907, "topic": "Sinology is the study of the language, history and culture of which country?", "expected_answer": "China", "source": "triviaqa:qb_2377"}
+{"index": 908, "topic": "On the human body, a keloid is a type of what?", "expected_answer": "Scar", "source": "triviaqa:qb_2381"}
+{"index": 909, "topic": "In the British military, a bombadier is equivalent to which other rank?", "expected_answer": "Corporal", "source": "triviaqa:qb_2393"}
+{"index": 910, "topic": "What type of animal is Baloo in the novel ‘The Jungle Book’ by Rudyard Kipling?", "expected_answer": "Bear", "source": "triviaqa:qb_2397"}
+{"index": 911, "topic": "Tirana is the capital of which European country?", "expected_answer": "Albania", "source": "triviaqa:qb_2428"}
+{"index": 912, "topic": "In our solar system, which is the sixth planet from the sun?", "expected_answer": "Saturn", "source": "triviaqa:qb_2456"}
+{"index": 913, "topic": "Composer Giacomo Puccini died leaving which opera unfinished?", "expected_answer": "Turandot", "source": "triviaqa:qb_2457"}
+{"index": 914, "topic": "King Louie, Akela and Ziggy are all characters in which Disney film?", "expected_answer": "The Jungle Book", "source": "triviaqa:qb_2461"}
+{"index": 915, "topic": "‘Impossible is nothing’ is the motto of which sportswear company?", "expected_answer": "Adidas", "source": "triviaqa:qb_2476"}
+{"index": 916, "topic": "Who wrote the play ‘The Iceman Cometh’?", "expected_answer": "Eugene O’Neill", "source": "triviaqa:qb_2483"}
+{"index": 917, "topic": "Which children’s playground game is sometimes called ‘Fivestones’, ‘Knucklebones’ or ‘Snobs’?", "expected_answer": "Jacks", "source": "triviaqa:qb_2496"}
+{"index": 918, "topic": "Mr and Mrs Potato Head appear in which film franchise?", "expected_answer": "Toy Story", "source": "triviaqa:qb_2497"}
+{"index": 919, "topic": "How many square stickers are on each face of a classic Rubik’s Cube?", "expected_answer": "Nine", "source": "triviaqa:qb_2498"}
+{"index": 920, "topic": "Who composed the ballet ‘Swan Lake’?", "expected_answer": "Pyotr Tchaikovsky", "source": "triviaqa:qb_2514"}
+{"index": 921, "topic": "In 1818, British obstetrician James Blundell performed the first successful human what?", "expected_answer": "Blood transfusion", "source": "triviaqa:qb_2537"}
+{"index": 922, "topic": "In cooking, 190 degrees Celsius is the equivalent to which Gas Mark?", "expected_answer": "5", "source": "triviaqa:qb_2545"}
+{"index": 923, "topic": "What do the interior angles of a hexagon add up to in degrees?", "expected_answer": "720", "source": "triviaqa:qb_2546"}
+{"index": 924, "topic": "The roe of lumpfish is used as a substitute for which delicacy?", "expected_answer": "Caviar", "source": "triviaqa:qb_2551"}
+{"index": 925, "topic": "In Vermont, USA, there is an old law stating that it is illegal for women to wear what without their husbands written consent?", "expected_answer": "False teeth", "source": "triviaqa:qb_2556"}
+{"index": 926, "topic": "In medicine, algology is the study of what?", "expected_answer": "Pain", "source": "triviaqa:qb_2563"}
+{"index": 927, "topic": "How many imperial gallons are in a firkin?", "expected_answer": "Nine", "source": "triviaqa:qb_2577"}
+{"index": 928, "topic": "The meibomian gland is found in which part of the human body?", "expected_answer": "Eyelid", "source": "triviaqa:qb_2589"}
+{"index": 929, "topic": "The Manuel M.Torres Dam is the largest hydro plant in which country?", "expected_answer": "Mexico", "source": "triviaqa:qb_2601"}
+{"index": 930, "topic": "Which British swimmer won Olympic Gold Medals in 2008 in the 400 and 800 m freestyle?", "expected_answer": "Rebecca Adlington", "source": "triviaqa:qb_2604"}
+{"index": 931, "topic": "In the NATO phonetic alphabet, which word represents the letter I?", "expected_answer": "India", "source": "triviaqa:qb_2621"}
+{"index": 932, "topic": "Which US author wrote ‘The Naked and the Dead’, based on his military service in World War II?", "expected_answer": "Norman Mailer", "source": "triviaqa:qb_2640"}
+{"index": 933, "topic": "Which Brooklyn-born author had parents named Malachy and Angela?", "expected_answer": "Frank McCourt", "source": "triviaqa:qb_2642"}
+{"index": 934, "topic": "What is the title of the 1944 film starring Barbara Stanwyck as the wife who seduces an insurance salesman into killing her husband?", "expected_answer": "Double Indemnity", "source": "triviaqa:qb_2647"}
+{"index": 935, "topic": "What is the nickname of Thierry Guetta, the French-born street-artist?", "expected_answer": "Mr Brainwash", "source": "triviaqa:qb_2687"}
+{"index": 936, "topic": "Wolf Mankowitz wrote the 1953 novel ‘A Kid For Two….’what’?", "expected_answer": "Farthings", "source": "triviaqa:qb_2689"}
+{"index": 937, "topic": "What is the name of a triangle which has sides unequal in length?", "expected_answer": "Scalene", "source": "triviaqa:qb_2701"}
+{"index": 938, "topic": "‘Quicksilver’ is another name for which metallic element?", "expected_answer": "Mercury", "source": "triviaqa:qb_2710"}
+{"index": 939, "topic": "What is the name of the Japanese dish of bite-sized pieces of raw fish served with dipping sauces, vegetables and wasabi?", "expected_answer": "Sashimi", "source": "triviaqa:qb_2712"}
+{"index": 940, "topic": "Who is recognised as Britain’s first Prime Minister?", "expected_answer": "Robert Walpole", "source": "triviaqa:qb_2743"}
+{"index": 941, "topic": "In the human body, which bone connects the humerus with the calvicle?", "expected_answer": "Scapula (shoulder blade)", "source": "triviaqa:qb_2760"}
+{"index": 942, "topic": "The Cuatro Torres Business Area is in which European city?", "expected_answer": "Madrid", "source": "triviaqa:qb_2764"}
+{"index": 943, "topic": "The first issue of which British children’s comic was published in April 1950?", "expected_answer": "Eagle", "source": "triviaqa:qb_2774"}
+{"index": 944, "topic": "The 1951 ‘Treaty of Peace With Japan’ which served to officially end World War II, is commonly known as what?", "expected_answer": "San Francisco Peace Treaty", "source": "triviaqa:qb_2782"}
+{"index": 945, "topic": "The Tumut Hydroelectric Power Station is in which Australian state?", "expected_answer": "New South Wales", "source": "triviaqa:qb_2805"}
+{"index": 946, "topic": "Who always holds the title of the Supreme Governor of the Church of England?", "expected_answer": "The British monarch", "source": "triviaqa:qb_2823"}
+{"index": 947, "topic": "How many players are on the field in a baseball team?", "expected_answer": "Nine", "source": "triviaqa:qb_2833"}
+{"index": 948, "topic": "In the poem ‘Monday’s Child’, what is Wednesday’s child full of?", "expected_answer": "Woe", "source": "triviaqa:qb_2848"}
+{"index": 949, "topic": "In London in 1788, the ‘Daily Universal Register’ was relaunched as which newspaper?", "expected_answer": "The Times", "source": "triviaqa:qb_2850"}
+{"index": 950, "topic": "Which clothing chain was founded by brothers Clemens and August Brenninkmeijer in 1841?", "expected_answer": "C&A", "source": "triviaqa:qb_2853"}
+{"index": 951, "topic": "Falange was the name given to several political movements and parties dating from the 1930’s in which European country?", "expected_answer": "Spain", "source": "triviaqa:qb_2854"}
+{"index": 952, "topic": "In the novel ‘Jane Eyre’ by Charlotte Bronte, what is the name of Mr Rochester’s first wife?", "expected_answer": "Bertha Mason", "source": "triviaqa:qb_2869"}
+{"index": 953, "topic": "Which fictional character is the subject of George Frampton’s bronze statue in Kensington Gardens, London?", "expected_answer": "Peter Pan", "source": "triviaqa:qb_2870"}
+{"index": 954, "topic": "Who wrote the novel ‘The Prime of Miss Jean Brodie’?", "expected_answer": "Muriel Spark", "source": "triviaqa:qb_2880"}
+{"index": 955, "topic": "Sindh is a province of which Asian country?", "expected_answer": "Pakistan", "source": "triviaqa:qb_2893"}
+{"index": 956, "topic": "Madame de Pompadour and Madame du Barry were mistresses of which French King?", "expected_answer": "Louis XV", "source": "triviaqa:qb_2899"}
+{"index": 957, "topic": "Odontology is the scientific study of what?", "expected_answer": "Teeth", "source": "triviaqa:qb_2901"}
+{"index": 958, "topic": "The wine ‘Bull’s Blood’ of Eger is produced in which country?", "expected_answer": "Hungary", "source": "triviaqa:qb_2902"}
+{"index": 959, "topic": "The 1932 film ‘The Mask of Fu Manchu’ revolves around Fu Manchu’s quest for the sword and mask of which historical figure?", "expected_answer": "Genghis Khan", "source": "triviaqa:qb_2909"}
+{"index": 960, "topic": "The mask worn in the 1996 film ‘Scream’ is based on a painting by which artist?", "expected_answer": "Edvard Munch", "source": "triviaqa:qb_2922"}
+{"index": 961, "topic": "Which US athlete won a gold medal for the high jump in the 1968 Summer Olympics?", "expected_answer": "Dick Fosbury", "source": "triviaqa:qb_2925"}
+{"index": 962, "topic": "In which London street does fictional character Sweeney Todd have his barber shop?", "expected_answer": "Fleet Street", "source": "triviaqa:qb_2926"}
+{"index": 963, "topic": "The Nullarbor Plain is in which country?", "expected_answer": "Australia", "source": "triviaqa:qb_2928"}
+{"index": 964, "topic": "What is the official language of Nicaragua?", "expected_answer": "Spanish", "source": "triviaqa:qb_2932"}
+{"index": 965, "topic": "Who wrote the plays ‘The Cocktail Party’ and ‘The Family Reunion’?", "expected_answer": "T.S.Eliot", "source": "triviaqa:qb_2934"}
+{"index": 966, "topic": "Used in cooking, agar-agar is a gelatin made from what?", "expected_answer": "Seaweed", "source": "triviaqa:qb_2935"}
+{"index": 967, "topic": "The fictional character ‘Disco Stu’ appears in which US cartoon tv Series?", "expected_answer": "The Simpsons", "source": "triviaqa:qb_2957"}
+{"index": 968, "topic": "Marie Antoinette, Queen of France and Navarre, was born in which country?", "expected_answer": "Austria", "source": "triviaqa:qb_2975"}
+{"index": 969, "topic": "The song ‘Seventy Six Trombones’ is from which musical show?", "expected_answer": "The Music Man", "source": "triviaqa:qb_2981"}
+{"index": 970, "topic": "Which US President was given the nickname the ‘Great Engineer’?", "expected_answer": "Herbert Hoover", "source": "triviaqa:qb_2990"}
+{"index": 971, "topic": "In the human body, what is stored in adipose tissue?", "expected_answer": "Fat", "source": "triviaqa:qb_3003"}
+{"index": 972, "topic": "A craniotomy is the surgical removal of a portion of which part of the human body?", "expected_answer": "Skull", "source": "triviaqa:qb_3029"}
+{"index": 973, "topic": "Which country will host the 2014 FIFA World Cup?", "expected_answer": "Brazil", "source": "triviaqa:qb_3042"}
+{"index": 974, "topic": "Which country has the internet domain .de?", "expected_answer": "Germany", "source": "triviaqa:qb_3045"}
+{"index": 975, "topic": "A sequicentenary is an anniversary of how many years?", "expected_answer": "150", "source": "triviaqa:qb_3056"}
+{"index": 976, "topic": "What is the International Vehicle Registration for Cambodia?", "expected_answer": "K", "source": "triviaqa:qb_3065"}
+{"index": 977, "topic": "Opera singer Leyla Gencer was born in which European country?", "expected_answer": "Turkey", "source": "triviaqa:qb_3068"}
+{"index": 978, "topic": "In which South American country does Angostura Bitters originally come from?", "expected_answer": "Venezuela", "source": "triviaqa:qb_3073"}
+{"index": 979, "topic": "The Hel Peninsula is part of which European country?", "expected_answer": "Poland", "source": "triviaqa:qb_3078"}
+{"index": 980, "topic": "Which US singer released a 2010 album entitled ‘The Lady Killer’?", "expected_answer": "Cee Lo Green", "source": "triviaqa:qb_3085"}
+{"index": 981, "topic": "How many months is the gestation period for an elephant?", "expected_answer": "22", "source": "triviaqa:qb_3092"}
+{"index": 982, "topic": "Raclette, Tilsit and Sbrinz are all types of which foodstuff?", "expected_answer": "Cheese", "source": "triviaqa:qb_3093"}
+{"index": 983, "topic": "Adam Richman takes on food challenges in which US television series?", "expected_answer": "Man v. Food", "source": "triviaqa:qb_3103"}
+{"index": 984, "topic": "Creme Anglaise is the French version of which English dessert item?", "expected_answer": "Custard", "source": "triviaqa:qb_3129"}
+{"index": 985, "topic": "Who was known as the ‘Waltz King’ of Vienna?", "expected_answer": "Johann Strauss II", "source": "triviaqa:qb_3137"}
+{"index": 986, "topic": "Erotology is the study of what?", "expected_answer": "Sex", "source": "triviaqa:qb_3145"}
+{"index": 987, "topic": "‘The King of Barataria’ is the subtitle of which Gilbert and Sullivan operetta?", "expected_answer": "The Gondoliers", "source": "triviaqa:qb_3147"}
+{"index": 988, "topic": "Sufferers, Locksmen and Dreads are followers of which religion?", "expected_answer": "Rastafarian", "source": "triviaqa:qb_3160"}
+{"index": 989, "topic": "The 1965 film ‘The Heroes of Telemark’ is set in which European country?", "expected_answer": "Norway", "source": "triviaqa:qb_3168"}
+{"index": 990, "topic": "What colour are the two stars on the national flag of Syria?", "expected_answer": "Green", "source": "triviaqa:qb_3180"}
+{"index": 991, "topic": "In humans, Duane Syndrome affects which part of the body?", "expected_answer": "Eye", "source": "triviaqa:qb_3183"}
+{"index": 992, "topic": "Taphephobia is the abnormal fear of being what?", "expected_answer": "Buried alive", "source": "triviaqa:qb_3191"}
+{"index": 993, "topic": "What relation was Louis XV of France to Louis XIV of France?", "expected_answer": "Great-grandson", "source": "triviaqa:qb_3192"}
+{"index": 994, "topic": "What type of leaves does a koala feed on?", "expected_answer": "Eucalyptus", "source": "triviaqa:qb_3200"}
+{"index": 995, "topic": "What is the name of the village druid in the comic strip ‘Asterix’?", "expected_answer": "Getafix", "source": "triviaqa:qb_3225"}
+{"index": 996, "topic": "In which English county was former British Prime minister Margaret Thatcher born?", "expected_answer": "Lincolnshire", "source": "triviaqa:qb_3248"}
+{"index": 997, "topic": "In the British monarchy, who succeeded Queen Anne to the throne?", "expected_answer": "King George I", "source": "triviaqa:qb_3296"}
+{"index": 998, "topic": "Who directed the 1941 film ‘The Maltese Falcon’?", "expected_answer": "John Huston", "source": "triviaqa:qb_3300"}
+{"index": 999, "topic": "The 1981 film ‘Chariots of Fire’ was based on the stories of which two British athletes?", "expected_answer": "Harold Abrahams and Eric Liddell", "source": "triviaqa:qb_3320"}
