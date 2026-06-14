@@ -67,7 +67,7 @@ ignore = ["E501"]
 
 [tool.pytest.ini_options]
 asyncio_mode = "auto"
-testpaths = ["packages/*/tests"]
+testpaths = ["packages/*/tests", "benchmark/tests"]
 addopts = "--import-mode=importlib"
 
 [tool.mypy]

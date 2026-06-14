@@ -1,0 +1,11 @@
+{
+  "format_version": 1,
+  "source_db": "traces.db",
+  "original_db_size_bytes": 14356480,
+  "row_counts": {
+    "runs": 617,
+    "spans": 3410,
+    "branches": 117
+  },
+  "note": "Canonical published benchmark run (OpenRouter Llama-3.3-70B + 3.1-8B). Per-span prompt/completion text stripped; metrics use only token/timing/attrs columns. Regenerate with export_fixture.py."
+}
