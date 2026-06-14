@@ -30,8 +30,10 @@ import logging
 import os
 import sqlite3
 import sys
+import threading
 import time
 import uuid
+from contextlib import contextmanager
 from pathlib import Path
 from typing import TypedDict
 
@@ -80,6 +82,49 @@ _LATENCY_N2 = 0.001 if _FAST else 3.0        # retrieve
 _LATENCY_ANALYZE = 0.001 if _FAST else 9.5   # analyze (cost-dominant, was synthesize)
 _LATENCY_N3 = 0.001 if _FAST else 2.0        # synthesize (now a cheap formatter)
 _LATENCY_N4 = 0.001 if _FAST else 5.0        # cite_check
+
+# ---------------------------------------------------------------------------
+# HTTP cassettes (model-free replay). When HUSK_RECORD_CASSETTE=1 the LLM HTTP
+# calls of a run are recorded under ~/.husk/cassettes/<thread_id>/. When
+# HUSK_REPLAY_CASSETTE=1 a replay is served from the parent's cassette instead of
+# calling the provider — free, deterministic, byte-identical (cache miss on a
+# changed request falls through to the real provider and is recorded). The httpx
+# monkeypatch is process-global, so a lock serialises cassette sessions; recording
+# is therefore meant for the sequential replay path or a single-worker run.
+# ---------------------------------------------------------------------------
+
+_cassette_lock = threading.Lock()
+
+
+def _cassette_dir(thread_id: str) -> str:
+    home = Path(os.environ.get("HUSK_HOME", str(Path.home() / ".husk")))
+    return str(home / "cassettes" / thread_id)
+
+
+@contextmanager
+def _cassette_session(thread_id: str, *, record: bool, replay: bool):
+    if not (record or replay):
+        yield
+        return
+    from husk_sandbox import cassette  # lazy: keep the graph importable without the sandbox
+
+    with _cassette_lock:
+        cm = (
+            cassette.replaying(_cassette_dir(thread_id))
+            if replay
+            else cassette.recording(_cassette_dir(thread_id))
+        )
+        with cm:
+            yield
+
+
+def _want_record() -> bool:
+    return os.environ.get("HUSK_RECORD_CASSETTE") == "1"
+
+
+def _want_replay_cassette() -> bool:
+    return os.environ.get("HUSK_REPLAY_CASSETTE") == "1"
+
 
 # ---------------------------------------------------------------------------
 # LLM provider: Cerebras (preferred when CEREBRAS_API_KEY is set) or Groq.
@@ -619,7 +664,8 @@ def invoke(state: dict, thread_id: str | None = None) -> dict:
         root.set_attribute("husk.benchmark.real_llm", _use_llm())
         if state.get("failure_mode"):
             root.set_attribute("benchmark.failure_mode", state["failure_mode"])
-        result = graph.invoke(state, config=config)
+        with _cassette_session(tid, record=_want_record(), replay=False):
+            result = graph.invoke(state, config=config)
         root.set_attribute("benchmark.status", result.get("status", "ok"))
         if result.get("status") == "error":
             root.set_status(
@@ -696,9 +742,11 @@ def replay_from(
         # share a thread_id, so thread_id alone is ambiguous).
         root.set_attribute("husk.replay.child_id", child_id)
         root.set_attribute("husk.replay.fork_node", fork_node)
+        root.set_attribute("husk.replay.cassette", _want_replay_cassette())
 
         new_cfg = graph.update_state(cfg, values, as_node=as_node)
-        result = graph.invoke(None, config=new_cfg)
+        with _cassette_session(parent_thread_id, record=False, replay=_want_replay_cassette()):
+            result = graph.invoke(None, config=new_cfg)
 
         root.set_attribute("benchmark.status", result.get("status", "ok"))
         if result.get("status") == "error":

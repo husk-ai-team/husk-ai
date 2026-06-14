@@ -1,28 +1,21 @@
-"""HTTP virtualization layer (record/replay).
+"""HTTP virtualization (record/replay) — thin façade over `cassette`.
 
-Stub for M1 — full implementation in M2 (week 7). The structure is:
+Kept as the stable, documented entry point. The real implementation lives in
+`husk_sandbox.cassette`; these helpers monkeypatch httpx so any SDK that builds
+its own client is captured/served transparently.
 
-* `record_mode()` — monkey-patches httpx.Client.send and httpx.AsyncClient.send to
-  capture HAR-like cassettes keyed by sha256(normalized_request).
-* `replay_mode(cassette_dir)` — same patch, but responses are looked up by hash
-  and returned without hitting the network.
-
-Cross-cutting concerns deferred to M2:
-  - SSE / streaming response capture (OpenAI streams)
-  - Header normalization (drop Authorization, Date, x-request-id, etc. from hash)
-  - Cassette storage layout (one JSON per request, indexed by request_hash)
+    install_record_mode(dir)   # record every sync httpx request to `dir`
+    install_replay_mode(dir)   # serve from `dir`; cache-miss falls through to net
+    uninstall()                # restore httpx
 """
 
 from __future__ import annotations
 
-import logging
+from husk_sandbox.cassette import (
+    CassetteStore,
+    install_record_mode,
+    install_replay_mode,
+    uninstall,
+)
 
-log = logging.getLogger(__name__)
-
-
-def install_record_mode() -> None:
-    log.debug("install_record_mode — stub, wired in M2 week 7.")
-
-
-def install_replay_mode(cassette_dir: str) -> None:
-    log.debug("install_replay_mode(%s) — stub, wired in M2 week 7.", cassette_dir)
+__all__ = ["CassetteStore", "install_record_mode", "install_replay_mode", "uninstall"]
