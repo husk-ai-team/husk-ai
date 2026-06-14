@@ -47,6 +47,38 @@ your agent data never leaves it.
   read traces, analyze cost, and replay checkpoints from inside the assistant.
   See [Connect to AI coding tools](#connect-to-ai-coding-tools-mcp).
 
+## The numbers — and how to reproduce them
+
+Husk's replay engine resumes a recorded run at the failing node and re-executes
+**only that node and its successors**, deterministically skipping the upstream
+work. On a committed 500-run benchmark (OpenRouter Llama-3.3-70B + 3.1-8B, 117
+replays of a Plan-then-Execute research agent):
+
+| Metric | Value (95% CI) |
+|---|---|
+| Mean token bypass | **42.9%** [36.4, 49.4]  (token-weighted 55.2%) |
+| Replay wall-time speed-up | **median 6.5×**  (mean 16.8× [13.1, 22.2], right-skewed) |
+| Replay success | **100%** (117/117), Wilson [96.8, 100] |
+| Max single-replay bypass | **89.4%** |
+
+Regenerate every figure **offline from committed data — no API key, no network**:
+
+```bash
+uv run python benchmark/reproduce.py
+```
+
+It rebuilds a SQLite DB from `benchmark/fixtures/canonical_run/` and asserts the
+numbers match `benchmark/hero_metrics.json`. Full methodology and confidence
+intervals: the [technical report](pitch/HUSK_REPLAY_PAPER.md) and the
+[benchmark README](benchmark/README.md).
+
+> **Model-free replay.** With cassettes enabled, a replay serves its LLM calls
+> from the parent run's recorded HTTP responses — deterministic, byte-identical,
+> and $0 (a *changed* request falls through to the real provider and is
+> recorded). Toggle **Model-free** in the Studio's replay view, or set
+> `HUSK_REPLAY_CASSETTE=1`. Without it, a replay re-runs the downstream nodes
+> against the live model — still bypassing the upstream token cost.
+
 ## Quick install
 
 For the impatient. Prerequisites: [git](https://git-scm.com/) and
@@ -766,11 +798,15 @@ uv run husk-ai start                       # backend on :7654 (serves the Studio
 corepack pnpm dev:studio                   # optional: Studio HMR on :5174 (proxies /api → 7654)
 ```
 
-Run the checks before opening a PR:
+Run the checks before opening a PR (this is what CI runs):
 
 ```bash
-uv run pytest -q
-uv run ruff check .
+uv run ruff check .                       # lint
+uv run mypy                               # strict types, package surface
+uv run python -m pytest -q                # tests (incl. determinism + model-free replay)
+uv run python benchmark/reproduce.py      # hero numbers, offline, no API key
+corepack pnpm --filter studio check       # Studio typecheck (UI work only)
+corepack pnpm --filter studio test        # Studio unit tests (UI work only)
 ```
 
 ## Contributing

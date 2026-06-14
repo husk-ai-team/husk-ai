@@ -83,22 +83,24 @@ uv run husk-ai start
 
 **Methodology, declared explicitly.** No Monte-Carlo, no canned LLMs.
 
-- **250 real LangGraph runs** of a 4-node research agent
-  (`query_expansion -> retrieve -> synthesize -> cite_check`).
-- **247 runs with real Groq LLM calls** -- llama-3.1-8b-instant +
-  llama-3.3-70b-versatile. Tokens, costs, latencies measured by the
-  provider, not by us. Total spend: **$0.068** (~7 US cents).
+- **500 real LangGraph runs** of a 5-node research agent
+  (`query_expansion -> retrieve -> analyze -> synthesize -> cite_check`), the
+  Plan-then-Execute shape where the costly `analyze` step is upstream.
+- **Real LLM calls on OpenRouter** -- `meta-llama/llama-3.3-70b-instruct`
+  (analyze) + `meta-llama/llama-3.1-8b-instruct` (the rest). Tokens and
+  latencies from the provider. Live billing ≈ **$2.95 / €2.73** (routing +
+  retries); list-price cost of the recorded tokens ≈ **$0.59**.
 - **Real-world queries** from the **TriviaQA dataset** (Allen AI, ACL 2017).
   Industry-standard QA benchmark, 96k human-authored questions.
 - **20% failure rate injected** -- validated as *conservative* against MAST
   taxonomy (41-86% failure rate measured in the 2025 multi-agent literature).
-  Per-mode breakdown matched expectations within ±5%.
-- **48 real replays** via the same `replay_graph` engine that Husk's
-  `/api/langgraph/replay` exposes -- each child run hits Groq for real;
-  spans land in `~/.husk/traces.db` via the standard OTel ingest path.
+- **117 real replays** via the same `replay_graph` engine that Husk's
+  `/api/langgraph/replay` exposes -- one per failed parent; spans land in
+  `~/.husk/traces.db` via the standard OTel ingest path.
 - **Bootstrap BCa CI 95%** (Efron-Tibshirani 1993) on 10,000 resamples,
-  pure-Python implementation (no scipy dependency), self-validated against
-  the canonical GPA example.
+  pure-Python (no scipy), self-validated against the canonical GPA example.
+- **Reproduce offline in seconds, no API key:** `uv run python
+  benchmark/reproduce.py` regenerates every figure from a committed fixture.
 
 ---
 
@@ -115,11 +117,11 @@ uv run husk-ai start
 
 | # | Metric | Value (CI 95%) | Note |
 |---|---|---|---|
-| H1a | **Token Bypass Rate** | **42.9% mean** [36.5, 49.5], n=117 | was **1.23%** before the fix; **max 89.4%** |
-| H1b | **Replay Wall-Time Speed-up** | **16.8× faster** [13.1, 22.2], n=117 | was **0.56×** before; wall-time noisy¹ |
+| H1a | **Token Bypass Rate** | **42.9% mean** [36.4, 49.4], n=117 | was **1.23%** before the fix; **max 89.4%** |
+| H1b | **Replay Wall-Time Speed-up** | **median 6.5×** (mean 16.8× [13.1, 22.2]), n=117 | was **0.56×** before; wall-time noisy¹ |
 | H1c | **Replay Success Rate** | **100%** (117/117), Wilson 95% CI **[96.8%, 100%]** | every replay produced a valid child run |
-| H2 | **Husk Ingest Overhead** | **~0.1 ms** | Langfuse 0.1 ms / **LangSmith 132 ms (cloud RTT)** |
-| H3 | **Storage Efficiency** | **~16 KB / trace** | Datadog $0.10/GB + $1.70/M events |
+| H2 | **Husk Ingest Overhead** | **0.65 ms** (p50 0, p95 5) | Langfuse 0.1 ms / **LangSmith 132 ms (cloud RTT)** |
+| H3 | **Storage Efficiency** | **~23 KB / trace** | Datadog $0.10/GB + $1.70/M events |
 
 **Bypass scales with failure depth (D2, measured).** A replay skips every node
 *upstream* of the fix point, so the saving depends on where the failure is:
@@ -159,7 +161,7 @@ Public pricing pages, vendor blog posts, customer case studies -- not made up.
 | Helicone | proxy gateway | $79/mo | proxy hop | 1-10 GB | "386h saved via cache" |
 | Datadog LLM | cloud APM | $8/10k req + APM | std | 15 d | (multi-product tax) |
 | Replay.io | JS time-travel | $299/mo | record | n/a | MTTR 2-8h -> <30 min |
-| **Husk** | **local state replay** | **$0 OSS** | **0.2 ms (660x faster than LangSmith)** | **infinite (local)** | **34.7% Token Bypass Rate [25.8, 43.2]** |
+| **Husk** | **local state replay** | **$0 OSS** | **0.65 ms (~200x faster than LangSmith)** | **infinite (local)** | **42.9% Token Bypass Rate [36.4, 49.4]** |
 
 (Full sources: `benchmark/competitor_matrix.md`.)
 
@@ -186,12 +188,15 @@ Public pricing pages, vendor blog posts, customer case studies -- not made up.
 - 4 engineers, full-stack -- Python/FastAPI backend, React/TS frontend,
   TypeScript IDE bridges (Cursor, VS Code).
 - **Built in 3 months pre-seed**: working MVP, OSS published, benchmark
-  reproducible end-to-end on a laptop in 30 minutes.
+  reproducible **offline in seconds** (committed fixture, `reproduce.py`) or
+  end-to-end with real LLM calls in ~30 minutes.
 
 **Roadmap**:
-- M1 (today) -- visual timeline + LangGraph state replay
-- M2 -- HTTP cassette + generic state snapshot for output determinism
-- M3 -- branching/diff UI; Husk Cloud (opt-in)
+- M1 -- visual timeline + LangGraph state replay
+- M2 (**shipped**) -- HTTP cassette → model-free, byte-identical replay (zero
+  provider calls); offline-reproducible benchmark; versioned recordings
+- M3 (in progress) -- branching/diff UI (lineage + token-bypass already live);
+  generic state snapshot beyond LangGraph; Husk Cloud (opt-in)
 
 ---
 
@@ -199,8 +204,8 @@ Public pricing pages, vendor blog posts, customer case studies -- not made up.
 
 Looking for **pre-seed funding** to:
 
-1. Land the M2 milestone (HTTP cassette → full deterministic replay across
-   any framework, not just LangGraph).
+1. Extend model-free replay (HTTP cassettes, shipped for LangGraph) across
+   any framework — generic state snapshot + cassette capture beyond LangGraph.
 2. **Run the empirical study** (within-subjects crossover, N=15-20 engineers,
    paired T-test on MTTR) -- protocol is already coded in
    `benchmark/empirical_study/`. Roughly €1.500 + 30 h researcher time.

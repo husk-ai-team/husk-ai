@@ -101,7 +101,65 @@ are earlier/other runs and are **not** the published dataset.
 
 ---
 
-## After (updated as hardening lands)
+## After
 
-*To be filled in as workstreams complete — before/after numbers, what is now true that wasn't, and what
-was deliberately left undone with the reason.*
+### Gap → resolution
+
+| # | Before | After |
+|---|---|---|
+| 1 | Numbers needed a live API key + uncommitted DB | `uv run python benchmark/reproduce.py` regenerates and asserts them offline from a committed fixture; CI smoke-checks it |
+| 2 | No determinism test | Structural test (exact fork+successors, zero variance) + model-free SDK test (zero network, byte-identical) — both red on drift |
+| 3 | Recording format unversioned, silent-load risk | `RECORDING_FORMAT_VERSION` stamped in `PRAGMA user_version`; loud-fail on newer, migrate-or-fail on older |
+| 4 | `mypy --strict` never ran | Runs clean on the package surface (51 files); enforced in CI |
+| 5 | In-DB cost `$0` | Pricing includes OpenRouter IDs; cost computed from per-span tokens (≈ $0.59 list-price; ≈ $2.95 billed, both labelled) |
+| 6 | Dead `replay/engine.py` | Deleted |
+| 7 | "replay without re-calling the model" was aspirational | Real via HTTP cassettes (`HUSK_REPLAY_CASSETTE` / Studio toggle), guarded by a test |
+| 8 | UI: 2 dead buttons; lineage + bypass invisible; UI replays unrecorded | Dead buttons gone; lineage + token/cost bypass + diff shown; replay endpoint records branches |
+| 9 | Docs contradicted each other and the measured run | README, paper, benchmark README, and pitch deck reconciled to one canonical table |
+
+### Baseline → final (this machine)
+
+| Check | Before | After |
+|---|---|---|
+| `ruff check .` | pass | pass |
+| `mypy` | **aborted** (duplicate module) | **0 issues, 51 files** |
+| `python -m pytest -q` | 20 passed | **47 passed** (+ determinism, cassette, reproduce, branches/diff, recording-version) |
+| Offline number repro | not possible | `reproduce.py` PASS — D5 42.87 / D1 16.78 (med 6.53) / D4 100 / D3 89.39, no API key |
+| Studio | builds | builds + `tsc` + 5 vitest tests; lineage/diff/cassette verified live against the canonical DB |
+
+The hero **point estimates are unchanged**; only their volume/cost reporting got
+more accurate and their CI bounds became byte-reproducible (a ≤0.13 shift from
+making the bootstrap order-independent). Backend endpoints verified end-to-end on
+the real run: 117 branches, top bypass 89.39%, diff showing 5 parent nodes vs 1
+replay node.
+
+### What is now true that wasn't
+
+- The published numbers regenerate from committed data with one command and no key.
+- Replay can be genuinely model-free (zero provider calls, byte-identical), and a
+  test fails the instant that or the structural skip drifts.
+- Recordings carry a version and refuse to be misread.
+- The Studio shows the actual value (tokens/cost bypassed, lineage, diff).
+- One set of numbers across every document; CI guards lint, types, tests, and the
+  numbers themselves.
+
+### What I deliberately did not do (and why)
+
+- **Generic (non-LangGraph) cassette capture / state snapshot.** The cassette
+  engine is generic at the httpx layer and tested through the OpenAI SDK, but
+  auto-recording across arbitrary frameworks (the M3 "generic snapshot") is left
+  as future work — it is a genuine milestone, not a hardening fix, and the brief
+  warned against piling on features.
+- **A clean broken-vs-fixed engine A/B on one graph.** The before-fix figures
+  (1.23% / 0.56×) came from an earlier graph; a single controlled A/B remains
+  future work (already flagged in the paper §7.1).
+- **Human-subjects MTTR study.** Infrastructure-only by design (`empirical_study/`);
+  out of scope and unfunded.
+- **Deeper Inspector tool-call rendering.** The inspector already has
+  conversation/attrs/raw tabs; richer tool-arg rendering is a nice-to-have I
+  skipped to keep the UI change focused on the product story (lineage + bypass).
+- **A committed UI screenshot.** The preview renderer hangs on the Monaco/canvas
+  content on this Windows host; the change was instead verified via the
+  accessibility/innerText snapshot against the live canonical data (the brief's
+  preferred verification), which confirmed the lineage, bypass, diff, and
+  model-free toggle render correctly.

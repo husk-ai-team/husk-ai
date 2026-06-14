@@ -22,7 +22,7 @@ parent runs and 117 replays** on OpenRouter (Llama-3.3-70B + Llama-3.1-8B), with
 BCa-bootstrap / Wilson confidence intervals.
 
 **Headline measured results (n=117 replays):** mean per-replay **token bypass 42.9%** (95% CI
-[36.5, 49.5]; token-weighted aggregate **55.2%**, 184,473 of 334,393 LLM tokens); **replay success
+[36.4, 49.4]; token-weighted aggregate **55.2%**, 184,473 of 334,393 LLM tokens); **replay success
 100%** (Wilson 95% CI [96.8%, 100%]); **wall-time speed-up median 6.5×** (mean 16.8× but
 right-skewed — see §10). Bypass scales with failure depth: **87.9%** for failures downstream of the
 costly node (N4), **43.1%** mid-graph (N3), and **~0%** for failures at or before it (N1/N2) — the
@@ -198,9 +198,11 @@ parent has a complete checkpoint history. Topics are 1,000 real TriviaQA questio
   apples-to-apples ratio (see §10 for the residual caveat).
 - **Client:** OpenAI SDK pointed at OpenRouter's base URL, with bounded retries and a 30 s timeout so
   a rate-limited call fails fast rather than blocking.
-- **Volume/tokens:** 1,500,488 input + 478,284 output tokens (~1.98 M total). Real provider spend
-  ≈ **$2.95**. (The in-DB `total_cost_usd` reads 0 because Husk's pricing table does not yet include
-  these OpenRouter model IDs; the $2.95 is the provider-reported figure.)
+- **Volume/tokens:** 1,500,488 input + 478,284 output tokens (~1.98 M total). Real provider billing
+  ≈ **$2.95 / €2.73** (routing premium + retries across the whole campaign). Husk's pricing table now
+  includes these OpenRouter model IDs, so the in-DB `total_cost_usd` computes the **list-price cost of
+  the recorded tokens ≈ $0.59**; it differs from the billed figure because list price ≠ live routing
+  price and the billed total spans retried/earlier calls not present in this DB.
 
 ---
 
@@ -210,7 +212,7 @@ parent has a complete checkpoint history. Topics are 1,000 real TriviaQA questio
 
 | Metric | Value (95% CI) | Before the fix |
 |--------|----------------|----------------|
-| **D5 — Mean token bypass** | **42.87%** [36.47, 49.53] | 1.23% |
+| **D5 — Mean token bypass** | **42.87%** [36.44, 49.40] | 1.23% |
 | **D5 — Token-weighted bypass** | **55.2%** (184,473 / 334,393 tokens) | — |
 | **D1 — Wall-time speed-up (median)** | **6.53×** (mean 16.78× [13.05, 22.17]; right-skewed) | 0.56× |
 | **D4 — Replay success (Wilson)** | **100%** (117/117), [96.82%, 100%] | — |
@@ -313,7 +315,12 @@ We state these plainly; a sophisticated reviewer should weight the numbers accor
    (`update_state`, fork, `invoke(None)`). Husk's contribution is (a) productizing it as a visual
    debugger, (b) the local OTel ingest + storage layer, and (c) **measuring** its efficiency — which,
    to our knowledge, no one has published. "LangGraph already does this" is a fair challenge; our
-   answer is the debugger + measurement layer, not the resume mechanic itself.
+   answer is the debugger + measurement layer, not the resume mechanic itself. **Beyond the
+   resume mechanic, Husk now adds *model-free* replay via HTTP cassettes** — it records the provider
+   responses and, on replay, serves them byte-identically with zero API calls (a changed request
+   falls through to the live model and is recorded). That is output determinism layered on top of
+   LangGraph's state resume, which LangGraph's time-travel does not provide; it is Husk's own and is
+   guarded by a determinism test (`test_cassette_sdk.py`).
 2. **Single topology.** Bypass depends on where cost sits. We chose a Plan-then-Execute shape (cost
    upstream) and disclose it. We have **not** yet measured the adversarial case (expensive node
    *downstream* of the fork), which would show low bypass; reporting a bypass *range* across
@@ -332,9 +339,10 @@ We state these plainly; a sophisticated reviewer should weight the numbers accor
    (structural), so the thin n is low-risk, but a balanced-failure run would tighten them.
 7. **Pooled vs. per-mode framing.** The pooled 42.9% can read as either generous or weak depending on
    the assumed production failure distribution. We present per-mode results so readers can re-weight.
-8. **Counting quirk.** The metric tool reports `n_parents = 617` because replay children also have a
-   null `parent_run_id`; there are **500 distinct parent runs** plus 117 children. Branch-level
-   metrics (D1–D5) are unaffected; only the volume count is inflated.
+8. **Counting quirk (fixed).** The metric tool used to report `n_parents = 617` because replay children
+   also have a null `parent_run_id`; there are **500 distinct parent runs** plus 117 children. Branch-level
+   metrics (D1–D5) were always unaffected. `hero_report.py` now excludes branch children from the parent
+   count (reporting 500 parents and 617 total recorded traces); bytes-per-trace uses the 617 total.
 9. **Earlier runs were rate-limited.** Prior attempts on free-tier providers (Groq daily-token cap;
    Cerebras per-minute/hour request quotas) produced corrupted, tiny-n data; the run reported here is
    the clean one. We mention this for transparency about the measurement history.
@@ -372,8 +380,20 @@ and the cheapest credibility move available.
 
 ## 11. Reproducibility
 
-The benchmark, replay engine, and metrics are scripted. End to end (PowerShell shown; the `$KEY` is a
-provider key supplied via environment variable only — never committed):
+**Offline, no API key (seconds).** The canonical run is frozen into a committed, version-stamped fixture
+(`benchmark/fixtures/canonical_run/`). A single command rebuilds a SQLite DB from it and recomputes
+D1–D5, asserting they match `benchmark/hero_metrics.json`:
+
+```bash
+uv run python benchmark/reproduce.py
+```
+
+The metric pipeline sorts samples before its seeded BCa bootstrap, so the figures (including CI bounds)
+are byte-reproducible from the fixture. This is also a CI job, so a drift in the published numbers fails
+the build.
+
+**End to end with real LLM calls** (PowerShell shown; the `$KEY` is a provider key supplied via
+environment variable only — never committed):
 
 ```powershell
 # 0. clean slate

@@ -1,11 +1,40 @@
-# Husk benchmark — 500-run industrial case study (Groq + TriviaQA)
+# Husk benchmark — 500-run case study (OpenRouter Llama + TriviaQA)
 
-A **fully reproducible** benchmark that drives ~500 invocations of a 4-node
-LangGraph "Research Synthesizer" through Husk using **real LLM calls** to
-Groq and **real-world queries** from the TriviaQA dataset (Allen AI, ACL 2017).
+A **fully reproducible** benchmark that drives ~500 invocations of a 5-node
+LangGraph "Research Synthesizer" through Husk using **real LLM calls** and
+**real-world queries** from the TriviaQA dataset (Allen AI, ACL 2017).
 
 Every hero metric carries a **Bootstrap BCa 95% CI** computed in pure Python
 (`benchmark/bootstrap.py`, self-validated against Efron-Tibshirani 1993).
+
+> ## Canonical run + one-command offline reproduction
+>
+> The published numbers come from **`hero_report.py`** over a **5-node** graph
+> (`query_expansion → retrieve → analyze → synthesize → cite_check`, the costly
+> `analyze` upstream), **500 parent runs / 117 replays** on **OpenRouter**
+> (Llama-3.3-70B + 3.1-8B). They are frozen into a committed fixture so anyone
+> can regenerate them **without an API key**:
+>
+> ```bash
+> uv run python benchmark/reproduce.py     # rebuilds a DB from
+> ```                                       # benchmark/fixtures/canonical_run/
+>                                            # and asserts hero_metrics.json
+>
+> | Metric | Value (95% CI) |
+> |---|---|
+> | D5 mean token bypass | **42.9%** [36.4, 49.4]  (token-weighted 55.2%) |
+> | D1 wall-time speed-up | **median 6.5×** (mean 16.8× [13.1, 22.2]) |
+> | D4 replay success | **100%** (117/117), Wilson [96.8, 100] |
+> | D3 max bypass | **89.4%** |
+>
+> Provider billing for the live run was ≈ **$2.95 / €2.73** (routing + retries
+> across the campaign); the list-price cost of the *recorded* tokens computes to
+> ≈ **$0.59** (`hero_report.py` from per-span tokens).
+>
+> **Historical note.** Sections below that describe a *4-node* graph, a *10k-run*
+> sweep, or `metrics.sql` (DHV/DCS/MRTT) as "the pitch source" predate the
+> current pipeline and are kept for context only. The live pitch numbers are the
+> D1–D5 table above, from `hero_report.py`.
 
 Pipeline:
 ```
