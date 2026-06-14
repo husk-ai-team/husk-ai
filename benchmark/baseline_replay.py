@@ -4,10 +4,8 @@ WARNING: this script produces simulated numbers calibrated against anecdotal
 engineering reports. Its output is suitable for "what range of debug times
 would Husk plausibly affect?" exploration, NOT for the pitch deck.
 
-For real, defensible MTTR claims, run the empirical study in
-`benchmark/empirical_study/` (within-subjects crossover, paired T-test,
-CI 95%). The hero metrics in the pitch come from `metrics.sql`
-(DHV / DCS / MRTT) — those are extracted from the live SQLite database.
+The defensible hero metrics come from `hero_report.py` (D1–D5 over the live
+SQLite trace DB), not from this simulator.
 
 Measures debug time WITHOUT Husk.
 
@@ -76,8 +74,7 @@ def main() -> int:
     p = argparse.ArgumentParser(
         description=(
             "Illustrative Monte-Carlo for baseline MTTR (no Husk). "
-            "NOT a hero metric source -- see benchmark/empirical_study/ "
-            "for the real protocol."
+            "NOT a hero metric source -- the hero metrics come from hero_report.py."
         )
     )
     p.add_argument(

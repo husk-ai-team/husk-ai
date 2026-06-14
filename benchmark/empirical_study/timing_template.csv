@@ -1,9 +1,0 @@
-engineer_id,group,task_id,modality,modality_order,t_identify_min,t_edit_min,t_verify_min,t_total_min,outcome,notes
-E01,A,T1,baseline,1,,,,,,
-E01,A,T2,baseline,1,,,,,,
-E01,A,T3,husk,2,,,,,,
-E01,A,T4,husk,2,,,,,,
-E02,B,T1,husk,1,,,,,,
-E02,B,T2,husk,1,,,,,,
-E02,B,T3,baseline,2,,,,,,
-E02,B,T4,baseline,2,,,,,,

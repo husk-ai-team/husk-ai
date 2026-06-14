@@ -69,8 +69,7 @@ uv run python benchmark/reproduce.py
 
 It rebuilds a SQLite DB from `benchmark/fixtures/canonical_run/` and asserts the
 numbers match `benchmark/hero_metrics.json`. Full methodology and confidence
-intervals: the [technical report](pitch/HUSK_REPLAY_PAPER.md) and the
-[benchmark README](benchmark/README.md).
+intervals: the [benchmark README](benchmark/README.md).
 
 > **Model-free replay.** With cassettes enabled, a replay serves its LLM calls
 > from the parent run's recorded HTTP responses — deterministic, byte-identical,

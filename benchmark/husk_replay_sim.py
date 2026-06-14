@@ -4,10 +4,8 @@ WARNING: this script produces simulated numbers calibrated against expected
 per-step latencies of the Husk Studio UI. Its output is suitable for
 sanity-checking the order of magnitude, NOT for the pitch deck.
 
-For real, defensible MTTR claims, run the empirical study in
-`benchmark/empirical_study/` (within-subjects crossover, paired T-test,
-CI 95%). The hero metrics in the pitch come from `metrics.sql`
-(DHV / DCS / MRTT) — those are extracted from the live SQLite database.
+The defensible hero metrics come from `hero_report.py` (D1–D5 over the live
+SQLite trace DB), not from this simulator.
 
 Measures debug time WITH Husk's replay engine.
 
@@ -75,8 +73,7 @@ def main() -> int:
     p = argparse.ArgumentParser(
         description=(
             "Illustrative Monte-Carlo for Husk-assisted MTTR. "
-            "NOT a hero metric source -- see benchmark/empirical_study/ "
-            "for the real protocol."
+            "NOT a hero metric source -- the hero metrics come from hero_report.py."
         )
     )
     p.add_argument("-n", "--failures", type=int, default=2_000)

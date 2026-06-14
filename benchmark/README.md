@@ -95,34 +95,26 @@ hero metrics directly reflect product capability.
 benchmark/
 ├── research_agent/
 │   ├── __init__.py
-│   ├── graph.py            ← 4-node LangGraph, OTel-instrumented, canned LLM
+│   ├── graph.py            ← 5-node LangGraph, OTel-instrumented (canned w/o key)
 │   ├── mock_retrieve.py    ← deterministic mock for the retrieve tool call
 │   └── prompts.py          ← system + user prompt templates
-├── generate_topics.py      ← deterministic synthesis of 10k topic strings
 ├── inject_failures.py      ← controlled 20% failure schedule
-├── run_benchmark.py        ← orchestrator (parallel ThreadPool)
-├── metrics.sql             ← HERO metrics (DHV / DCS / MRTT) + supporting
+├── run_benchmark.py        ← orchestrator: parent runs (parallel ThreadPool)
+├── real_replays.py         ← one real replay per failed parent → branches
+├── hero_report.py          ← D1–D5 hero metrics + BCa CIs (the pitch source)
+├── bootstrap.py            ← pure-Python BCa + Wilson CIs (self-tested)
+├── export_fixture.py       ← freeze a run into fixtures/canonical_run/
+├── reproduce.py            ← regenerate the numbers OFFLINE (no API key)
+├── fixtures/canonical_run/ ← committed slim recording of the published run
 │
 ├── baseline_replay.py      ← (illustrative-only) Monte-Carlo MTTR baseline
-├── husk_replay_sim.py      ← (illustrative-only) Monte-Carlo MTTR Husk
-│
-└── empirical_study/        ← infrastructure-only, NOT in current pitch
-    ├── protocol.md         #   (within-subjects crossover spec, ready
-    ├── task_kit/           #    when post-funding budget allows
-    ├── timing_template.csv #    recruiting 12-20 engineers — see the
-    └── analysis.py         #    STATUS banner in protocol.md)
+└── husk_replay_sim.py      ← (illustrative-only) Monte-Carlo MTTR Husk
 ```
 
-> **Current pitch evidence is SQL-only.** The hero metrics in the pitch
-> come exclusively from `metrics.sql` (DHV / DCS / MRTT) extracted from
-> the live SQLite database. Those numbers are objective COUNT/SUM
-> aggregations on tables populated by the 10k-run benchmark — verifiable
-> in 30 seconds by any technical reviewer.
->
-> The two `*_replay*.py` scripts at the top level are **illustrative
-> Monte-Carlo simulators**, not hero metric sources. The
-> `empirical_study/` subtree is **infrastructure-ready but not yet
-> conducted** (post-funding work).
+> **The hero metrics come from `hero_report.py`** (D1–D5 + BCa CIs over the live
+> SQLite), not from `metrics.sql` (a legacy DHV/DCS/MRTT suite kept for
+> reference). The two `*_replay*.py` scripts are **illustrative Monte-Carlo
+> simulators**, not hero-metric sources.
 
 ---
 
@@ -175,15 +167,6 @@ uv run python benchmark/husk_replay_sim.py -n 200
 # like without spending Groq tokens.
 uv run python benchmark/generate_topics.py -n 10000
 uv run python benchmark/run_benchmark.py --runs 10000
-```
-
-### Future work (post-funding)
-
-```bash
-# Run the within-subjects MTTR empirical study (requires 12-20 engineers
-# + €1.500 honoraria + 30h researcher time -- infrastructure ready in
-# benchmark/empirical_study/).
-uv run python benchmark/empirical_study/analysis.py
 ```
 
 ### Timing modes
@@ -334,14 +317,10 @@ pipelines ~50 times/day across dev + staging. Realistic, not inflated.
    hallucinations and imperfect retrievals (aligned with the 66 % SO 2025
    frustration figure). It is **not** unhandled exceptions or production
    crashes.
-5. **No human MTTR claim in this pitch.** The Monte-Carlo simulators
-   (`baseline_replay.py`, `husk_replay_sim.py`) are kept for sanity-
-   checking ranges only — they are **not pitch sources**. A real
-   within-subjects MTTR study (full protocol in `empirical_study/`)
-   would require recruiting 12-20 external engineers, which is outside
-   the pre-seed in-house budget. The current pitch makes **zero claims
-   about human time saved** and stays exclusively on the three
-   SQL-objective hero metrics.
+5. **No human MTTR claim.** The Monte-Carlo simulators (`baseline_replay.py`,
+   `husk_replay_sim.py`) are kept for sanity-checking ranges only — they are
+   **not metric sources**. The benchmark makes **zero claims about human time
+   saved**; it stays on the SQL-objective hero metrics (D1–D5).
 
 ---
 
@@ -349,13 +328,12 @@ pipelines ~50 times/day across dev + staging. Realistic, not inflated.
 
 After a full run you have:
 
-- `topics.jsonl` — 10k input topics
 - `failure_schedule.jsonl` — per-index failure mode
 - `results_run.jsonl` — per-run summary (status, error_node, thread_id)
-- `~/.husk/traces.db` — the canonical record (consulted by `metrics.sql`)
-- `results.txt` — output of `metrics.sql` (the pitch source)
+- `~/.husk/traces.db` — the canonical record (consulted by `hero_report.py`)
+- `HERO_METRICS.md` + `hero_metrics.json` — the hero metrics (from `hero_report.py`)
+- `COST_MATRIX.md` — cross-provider cost equivalence (from `cost_matrix.py`)
 - Optional: `baseline_mttr.jsonl`, `husk_mttr.jsonl` — illustrative MC samples
-- Empirical study: `empirical_study/results/` — paired T-test + CI 95% data
 
-Every hero number on the pitch deck must trace back to a column in
-`results.txt` (from `metrics.sql`) or to the empirical study's analysis.
+Every hero number traces back to `hero_metrics.json` (from `hero_report.py`) and
+is regenerable offline, with no API key, via `reproduce.py`.

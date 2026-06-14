@@ -16,7 +16,7 @@ Anthropic, and Groq SDKs all ride on, so one mechanism covers every provider.
 
 Limitations (documented, not hidden): streaming/SSE responses are recorded as
 their fully-read body; non-deterministic *non-HTTP* effects (wall-clock, RNG,
-local file/db writes) are out of scope — see AUDIT.md §6.
+local file/db writes) are out of scope.
 """
 
 from __future__ import annotations

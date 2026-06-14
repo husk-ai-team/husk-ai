@@ -1,8 +1,7 @@
 # Changelog
 
 All notable changes from the audit, refactor, and hardening pass. Grouped by
-theme; newest first. See [AUDIT.md](AUDIT.md) for the findings behind each change
-and [PLAN.md](PLAN.md) for the prioritized plan.
+theme; newest first.
 
 ## [Unreleased] — hardening pass
 
@@ -75,7 +74,7 @@ and [PLAN.md](PLAN.md) for the prioritized plan.
   so the determinism/model-free tests actually run.
 - Added the missing `.pre-commit-config.yaml`.
 - Pricing table gained the OpenRouter `meta-llama/*` IDs the benchmark used.
-- Reconciled every doc — README, the technical report, the benchmark README, and
-  the pitch deck — to the single canonical measured run. Added `AUDIT.md`,
-  `PLAN.md`, and this changelog; committed the previously-untracked `benchmark/`
-  and `pitch/` trees.
+- Reconciled the public docs (README, benchmark README) to the single canonical
+  measured run, and added this changelog; committed the previously-untracked
+  `benchmark/` harness. (Internal working notes and pitch/DD materials are kept
+  out of the public tree.)
