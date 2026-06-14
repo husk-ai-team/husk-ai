@@ -1,10 +1,12 @@
 from __future__ import annotations
 
-from collections.abc import AsyncIterator, Iterator
+import sqlite3
+from collections.abc import AsyncIterator, Callable, Iterator
 from contextlib import asynccontextmanager, contextmanager
+from pathlib import Path
 
 from sqlalchemy import create_engine, event
-from sqlalchemy.engine import Engine
+from sqlalchemy.engine import Connection, Engine
 from sqlalchemy.ext.asyncio import (
     AsyncEngine,
     AsyncSession,
@@ -13,6 +15,7 @@ from sqlalchemy.ext.asyncio import (
 )
 from sqlalchemy.orm import Session, sessionmaker
 
+from husk_shared import RECORDING_FORMAT_VERSION, RecordingFormatError, check_format_version
 from husk_studio_backend.config import db_url, sync_db_url
 
 _async_engine: AsyncEngine | None = None
@@ -71,10 +74,83 @@ def sync_session() -> Iterator[Session]:
         yield s
 
 
+# ---------------------------------------------------------------------------
+# Recording format versioning
+#
+# Every trace DB is stamped with the recording format version in SQLite's
+# `PRAGMA user_version`. On open we refuse to silently read a DB written by a
+# newer/incompatible Husk (loud failure) and migrate forward an older one. The
+# schema is still created with create_all; these stepwise migrations cover shape
+# changes that create_all cannot express (column renames, data backfills).
+#
+# Register a v(N) -> v(N+1) migration here when bumping RECORDING_FORMAT_VERSION.
+# ---------------------------------------------------------------------------
+
+_MIGRATIONS: dict[int, Callable[[Connection], None]] = {}
+
+
+def _migration_steps(
+    found: int,
+    current: int = RECORDING_FORMAT_VERSION,
+    available: dict[int, Callable[[Connection], None]] | None = None,
+) -> list[int]:
+    """Ordered `from`-versions to apply to bring `found` up to `current`.
+
+    Returns [] when already current/newer. Raises RecordingFormatError if a step
+    in the chain has no registered migration (so an upgrade can't silently skip).
+    """
+    avail = _MIGRATIONS if available is None else available
+    if found >= current:
+        return []
+    steps: list[int] = []
+    v = found
+    while v < current:
+        if v not in avail:
+            raise RecordingFormatError(
+                f"trace DB is recording format v{found}; no migration step from "
+                f"v{v} to v{v + 1} (cannot upgrade to v{current})."
+            )
+        steps.append(v)
+        v += 1
+    return steps
+
+
+def _ensure_recording_version(conn: Connection) -> None:
+    """Validate, migrate if needed, and (re)stamp the DB's recording version."""
+    found = int(conn.exec_driver_sql("PRAGMA user_version").scalar() or 0)
+    if found > RECORDING_FORMAT_VERSION:
+        # check_format_version raises a clear RecordingFormatError here.
+        check_format_version(found, source="trace DB")
+    elif 0 < found < RECORDING_FORMAT_VERSION:
+        for v in _migration_steps(found):
+            _MIGRATIONS[v](conn)
+    # found == 0 (fresh or legacy-unstamped) or == current: just (re)stamp.
+    conn.exec_driver_sql(f"PRAGMA user_version = {RECORDING_FORMAT_VERSION}")
+
+
+def verify_recording_version(db_path: Path) -> int:
+    """Read-only guard: confirm a trace DB on disk is readable by this build.
+
+    Returns the effective recording version, or raises RecordingFormatError if
+    the DB was written by a newer Husk. An unstamped DB (user_version 0) is
+    treated as the current version (legacy DBs predate stamping but share the
+    v1 shape). Used by `husk-ai doctor` and tests.
+    """
+    con = sqlite3.connect(str(db_path))
+    try:
+        found = int(con.execute("PRAGMA user_version").fetchone()[0] or 0)
+    finally:
+        con.close()
+    if found == 0:
+        return RECORDING_FORMAT_VERSION
+    return check_format_version(found, source=f"trace DB {Path(db_path).name}")
+
+
 async def init_db() -> None:
-    """Create tables. For MVP we use create_all; Alembic migrations land in M2."""
+    """Create tables and stamp/verify the recording format version."""
     from husk_studio_backend.db.models import Base
 
     engine = async_engine()
     async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.create_all)
+        await conn.run_sync(_ensure_recording_version)
