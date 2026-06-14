@@ -14,6 +14,7 @@ Hooks captured in M1:
 from __future__ import annotations
 
 import logging
+from contextvars import ContextVar
 from typing import Any
 from uuid import UUID
 
@@ -23,16 +24,21 @@ from husk_shared import SpanKind, SpanStatus
 
 log = logging.getLogger(__name__)
 
+# LangChain appends the *value* of each registered ContextVar to every Runnable's
+# inheritable callbacks. So we register a var and point it at our handler — the
+# supported pattern for LC >= 0.3. (Passing a handler directly is wrong: the first
+# argument to register_configure_hook must be a ContextVar, and doing so would
+# crash at runtime when LangChain builds a callback manager.)
+_husk_handler_var: ContextVar[Any | None] = ContextVar("husk_lc_handler", default=None)
+
 
 def install() -> None:
     """Register HuskCallbackHandler as a LangChain global handler."""
     # Lazy import: avoid forcing langchain at module load time.
     from langchain_core.tracers.context import register_configure_hook
 
-    handler = HuskCallbackHandler()
-    # `register_configure_hook` ensures the handler is appended to every Runnable's
-    # callbacks unless explicitly disabled. This is the supported way for LC>=0.3.
-    register_configure_hook(handler, inheritable=True)
+    register_configure_hook(_husk_handler_var, inheritable=True)
+    _husk_handler_var.set(HuskCallbackHandler())
     log.info("Husk LangChain callback handler installed.")
 
 
