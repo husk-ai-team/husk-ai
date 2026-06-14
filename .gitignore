@@ -70,6 +70,15 @@ husk.db
 husk.db-journal
 husk.db-wal
 husk.db-shm
+# Stray SQLite from a benchmark/agent run rooted in the repo (the committed
+# fixture is JSONL, so these patterns never touch it).
+*.sqlite
+*.sqlite-shm
+*.sqlite-wal
+/benchmark_research.sqlite
+/traces.db
+/traces.db-shm
+/traces.db-wal
 
 # Logs
 logs/
