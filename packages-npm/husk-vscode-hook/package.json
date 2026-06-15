@@ -1,7 +1,7 @@
 {
   "name": "husk-vscode-hook",
   "displayName": "Husk for VS Code",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Stream every terminal command your AI agent runs into the Husk Studio. Works with VS Code, Cursor's Continue/Cline/Roo, and Google's Antigravity (which is a VS Code fork).",
   "license": "BUSL-1.1",
   "publisher": "husk",

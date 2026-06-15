@@ -35,9 +35,10 @@ your agent data never leaves it.
 - **One timeline for every step.** LLM calls, tool calls, and IDE events from
   any framework land in a single activity feed with prompts, completions,
   token counts, and cost — instead of a wall of logs.
-- **Time-travel / modify-and-replay.** For LangGraph runs, jump into any
-  checkpoint, edit the state, and branch a new run from there to see how the
-  agent reacts. Stop guessing why it did that — replay it.
+- **Time-travel / modify-and-replay.** Jump into any recorded checkpoint, edit
+  the state, and branch a new run from there to see how the agent reacts —
+  powered by Husk's own checkpoint/replay engine. Stop guessing why it did
+  that — replay it.
 - **IDE activity capture.** File edits and stop signals from Cursor and
   VS Code stream into your timeline alongside agent spans so you see
   everything your agent did, end-to-end. Observability-only — Husk never
@@ -51,20 +52,18 @@ your agent data never leaves it.
 
 Husk's replay engine resumes a recorded run at the failing node and re-executes
 **only that node and its successors**, deterministically skipping the upstream
-work. The resume substrate is now Husk's own checkpoint/replay engine
+work. It is Husk's own checkpoint/replay engine
 ([`husk_shared.engine`](packages/husk-shared/src/husk_shared/engine.py)): a small
-linear executor plus a local SQLite snapshot store. Earlier versions relied on
-LangGraph's time-travel (`update_state` + `invoke(None)`) for this; LangGraph is
-still supported as an example/integration but is **no longer required for the
-primitive**. On a committed 500-run benchmark (OpenRouter Llama-3.3-70B + 3.1-8B,
-117 replays of a Plan-then-Execute research agent):
+linear executor plus a local SQLite snapshot store, owned end to end. On a
+committed 500-run benchmark (OpenRouter Llama-3.3-70B + 3.1-8B, 118 replays of a
+Plan-then-Execute research agent):
 
 | Metric | Value (95% CI) |
 |---|---|
-| Mean token bypass | **42.9%** [36.4, 49.4]  (token-weighted 55.2%) |
-| Replay wall-time speed-up | **median 6.5×**  (mean 16.8× [13.1, 22.2], right-skewed) |
-| Replay success | **100%** (117/117), Wilson [96.8, 100] |
-| Max single-replay bypass | **89.4%** |
+| Mean token bypass | **42.1%** [35.7, 48.8]  (token-weighted 55.0%) |
+| Replay wall-time speed-up | **median 6.9×**  (right-skewed; mean 47.9×) |
+| Replay success | **100%** (118/118), Wilson [96.9, 100] |
+| Max single-replay bypass | **90.7%** |
 
 Regenerate every figure **offline from committed data — no API key, no network**:
 
@@ -108,7 +107,7 @@ everything step by step.
 
 Husk ships an [MCP](https://modelcontextprotocol.io) server, so coding agents —
 **Claude Code, Cursor, Claude Desktop, Windsurf, Lovable** — can read your runs,
-inspect traces, analyze cost, and (opt-in) replay LangGraph runs without leaving
+inspect traces, analyze cost, and (opt-in) replay recorded runs without leaving
 the assistant. Ask *"which of my last runs failed, and why?"* and the agent reads
 the answer straight from Husk.
 
@@ -150,9 +149,8 @@ husk-ai mcp install --client lovable     # prints the full tunnel walkthrough
 **Tools exposed:** `list_runs`, `get_run`, `get_trace`, `get_span`, `list_errors`,
 `cost_breakdown`, `dashboard_summary`, `list_cursor_events`.
 
-> **Replay is off by default.** `replay_run` re-invokes your LangGraph and runs
-> your agent code, so it is gated behind an explicit flag and intended for local
-> use only:
+> **Replay is off by default.** `replay_run` re-invokes your agent and runs your
+> code, so it is gated behind an explicit flag and intended for local use only:
 >
 > ```bash
 > husk-ai mcp --enable-replay            # or: HUSK_MCP_ENABLE_REPLAY=1
@@ -211,7 +209,7 @@ By the end of this guide you'll have:
 - ✓ The Husk backend running on `http://localhost:7654` with the Studio loaded in your browser.
 - ✓ (Optional) Cursor wired so file edits and stop signals from its agent stream into your Studio timeline.
 - ✓ Your own agent (or one of the bundled examples) streaming OpenTelemetry traces into Husk in real time.
-- ✓ A LangGraph run you can *Modify & replay* — change a value mid-trace, branch the agent from that point.
+- ✓ A run you can *Modify & replay* — change a value mid-trace and branch the agent from that point, on Husk's own engine.
 
 > **The two parts you'll touch:** the **backend** (Python, started by `uv run husk-ai start`) which exposes the API and serves the Studio, and the **Studio** (the React UI, served from the same backend at `/`). On a fresh clone the backend auto-builds the Studio bundle for you the first time. You rarely need to do anything Studio-related yourself unless you're modifying its source code — see [Develop the Studio](#build-the-studio--run-a-dev-server).
 
@@ -481,12 +479,13 @@ You already have these if you followed the Quickstart — they're in the
 `examples/` folder of the husk-ai repo:
 
 ```bash
-uv run --group examples python examples/langgraph_thread.py
+uv run --group examples python examples/husk_thread.py
 uv run --group examples python examples/otel-autogen.py
 ```
 
-Open Husk Studio after each run — the trace lands in real time under `/runs`. The
-LangGraph one supports Modify & replay so you can see time-travel.
+Open Husk Studio after each run — the trace lands in real time under `/runs`.
+`husk_thread.py` runs on Husk's own engine, so you can **Modify & replay** it:
+resume from any node and only that node and its successors re-run.
 
 > These bundled examples emit **canned** responses — no real LLM call, no API key needed. They're for verifying Husk's trace pipeline works on your machine. For real LLM calls, use Path B or C.
 
@@ -494,9 +493,9 @@ LangGraph one supports Modify & replay so you can see time-travel.
 
 Three popular open-source repos with working agent examples:
 
-- **[langgraph (examples/)](https://github.com/langchain-ai/langgraph/tree/main/examples)** — the LangChain team's own LangGraph examples.
 - **[openai-agents-python (examples/)](https://github.com/openai/openai-agents-python/tree/main/examples)** — OpenAI's official Agents SDK examples.
 - **[anthropic-cookbook](https://github.com/anthropics/anthropic-cookbook)** — Anthropic's recipes (tool use, code generation, multi-turn).
+- **[CrewAI examples](https://github.com/crewAIInc/crewAI-examples)** — multi-agent crews you can trace end-to-end.
 
 For each, add one env var when you run their script to send traces to Husk:
 
@@ -510,24 +509,24 @@ If you use an AI coding tool, paste the prompt below and the tool will scaffold 
 working agent for you.
 
 ```text
-Build me a minimal LangGraph agent in a single Python file called my_agent.py.
+Build me a minimal agent in a single Python file called my_agent.py.
 
 Requirements:
-1. Two nodes: "planner" (writes a 3-step plan from a 'topic') and "answerer"
-   (writes the answer from the plan). Use OpenAI's gpt-4o-mini for both.
-2. State is a TypedDict with fields: topic, plan, answer.
-3. Instrument with OpenTelemetry — install opentelemetry-sdk and
+1. Two steps: "planner" (writes a 3-step plan from a 'topic') and "answerer"
+   (writes the answer from the plan). Use OpenAI's gpt-4o-mini for both. Run them
+   in order, threading a plain dict state with fields topic, plan, answer.
+2. Instrument with OpenTelemetry — install opentelemetry-sdk and
    opentelemetry-exporter-otlp-proto-http. Export via OTLPSpanExporter to
    http://localhost:7654/v1/traces. Resource service.name = "my-first-agent".
-4. On each LLM call, set GenAI v1.36 attributes: gen_ai.system="openai",
+3. On each LLM call, set GenAI v1.36 attributes: gen_ai.system="openai",
    gen_ai.request.model, gen_ai.usage.input_tokens, gen_ai.usage.output_tokens.
    Emit "gen_ai.user.message" and "gen_ai.choice" events with the actual
-   prompt and completion strings.
-5. Use langgraph's SqliteSaver checkpointer at ~/.husk/my_agent.sqlite so
-   the run can be replayed in Husk Studio. Set husk.graph_module on the
-   root span to "/abs/path/my_agent.py:graph" so replay can find it.
-6. Read OPENAI_API_KEY from the environment.
-7. When run as __main__, invoke with topic="Rome" and print the final answer.
+   prompt and completion strings. Tag each step span with husk.node.
+4. Wrap the run in a root "agent.run" span; set husk.thread_id and
+   husk.graph_module = "/abs/path/my_agent.py:graph", and expose an
+   invoke(state, thread_id=None) function so Husk Studio can replay it.
+5. Read OPENAI_API_KEY from the environment.
+6. When run as __main__, invoke with topic="Rome" and print the final answer.
 
 Only output the file content, no explanation, no markdown fences.
 ```
@@ -535,8 +534,12 @@ Only output the file content, no explanation, no markdown fences.
 After the tool writes the file, install its dependencies:
 
 ```bash
-pip install langchain langgraph langchain-openai langgraph-checkpoint-sqlite opentelemetry-sdk opentelemetry-exporter-otlp-proto-http
+pip install openai opentelemetry-sdk opentelemetry-exporter-otlp-proto-http
 ```
+
+> Want **checkpoint-resume** replay (skip the upstream nodes, not just a full
+> re-run)? Follow [`examples/husk_thread.py`](examples/husk_thread.py) — it runs
+> on Husk's own engine (`husk_shared.engine`) and exposes `replay_from`.
 
 Set your OpenAI API key (next subsection), then:
 
@@ -588,7 +591,7 @@ the box or with a one-line config.
 **Frameworks Husk understands today**
 
 - **[LangChain](https://python.langchain.com)** — chains LLM calls into apps. Has an OTel integration.
-- **[LangGraph](https://langchain-ai.github.io/langgraph/)** — LangChain's stateful graph framework. Supports checkpointers — that's how Husk does time-travel replay specifically on LangGraph runs.
+- **[LangGraph](https://langchain-ai.github.io/langgraph/)** — LangChain's stateful graph framework. Husk traces its runs like any other.
 - **[OpenAI Agents SDK](https://github.com/openai/openai-agents-python)** — OpenAI's official Python agent framework.
 - **[AutoGen](https://microsoft.github.io/autogen/)** — Microsoft's multi-agent framework.
 - **[CrewAI](https://crewai.com)** — multi-agent orchestration.
@@ -625,18 +628,21 @@ Each run appears in Husk Studio's Dashboard within ~2 seconds. Click into a run 
 see the timeline of every LLM call and tool call, with prompts, completions,
 tokens, and cost.
 
-**Bonus — LangGraph time-travel.** Run the bundled LangGraph example (with the
-Husk terminal still running, open a new terminal and `cd` into `husk-ai`):
+**Bonus — modify-and-replay on Husk's own engine.** Run the bundled native
+example (with the Husk terminal still running, open a new terminal and `cd` into
+`husk-ai`):
 
 ```bash
-uv run --group examples python examples/langgraph_thread.py
+uv run --group examples python examples/husk_thread.py
 ```
 
-This runs a 2-node graph (*planner → answerer*) about "Rome". Open Husk Studio,
-click into the new run, click **Modify and replay**. The Monaco editor opens with
-the state JSON. Change `"topic": "Rome"` to `"topic": "Tokyo"`. Click **Run from
-here**. A new run appears with the Tokyo answer — Husk re-invokes your graph from
-that exact checkpoint, preserving the original.
+This runs a 2-node graph (*planner → answerer*) about "Rome" on Husk's own engine
+(`husk_shared.engine`). Open Husk Studio, click into the new run, click **Modify
+and replay**. The Monaco editor opens with the state JSON. Change `"topic":
+"Rome"` to `"topic": "Tokyo"`, then click **Run from here** on the `answerer`
+node. A new run appears with the Tokyo answer — Husk resumes from the snapshot
+before `answerer`, so only `answerer` re-runs and the upstream `planner` is
+skipped, preserving the original.
 
 ### Build the Studio & run a dev server
 
@@ -708,7 +714,7 @@ agent** (your agent or Cursor bridge is misbehaving).
 | `ModuleNotFoundError: No module named 'opentelemetry'` (your agent) | `pip install opentelemetry-sdk opentelemetry-exporter-otlp-proto-http` |
 | Run appears in /runs but the timeline is empty | Agent didn't open a root span. Wrap your top-level loop: `with tracer.start_as_current_span("agent.run"):` |
 | Run appears but prompts / completions are missing | Agent didn't emit `gen_ai.*` events. Add `span.add_event("gen_ai.user.message", {"content": prompt})` and `span.add_event("gen_ai.choice", {"message.content": completion})` on each LLM span. |
-| 'Modify and replay' button is disabled | Root span lacks `husk.graph_module` attribute. Set `root.set_attribute("husk.graph_module", f"{__file__}:graph")`. Only LangGraph runs support replay today. |
+| 'Modify and replay' button is disabled | Root span lacks `husk.graph_module` attribute. Set `root.set_attribute("husk.graph_module", f"{__file__}:graph")`. Only runs that expose a graph module support replay. |
 
 ### Where files live
 
@@ -765,8 +771,8 @@ break.
 - **Cursor** — AI code editor (a VS Code fork) with a built-in agent. Husk subscribes to its observability hooks so file edits and stop signals appear on the timeline.
 - **Span** — One unit of work in OTel — e.g. a single LLM call, a single tool call, a single agent decision.
 - **Hook** — A function that fires at a specific moment in another program. Cursor's fire-and-forget hooks let Husk capture file edits and stop signals as the agent works.
-- **Checkpointer** — A LangGraph concept: a state-snapshot store. Husk reads it to enable time-travel and replay.
-- **Studio** — The React UI served by the backend at `/`. Where you view traces, click into runs, inspect spans, and time-travel through LangGraph checkpoints.
+- **Checkpointer** — a state-snapshot store. Husk's own engine writes a snapshot after every node so a run can be resumed (modify-and-replay) from any point.
+- **Studio** — The React UI served by the backend at `/`. Where you view traces, click into runs, inspect spans, and time-travel through recorded checkpoints.
 
 > Stuck on something not covered? Open an issue on [GitHub](https://github.com/husk-ai-team/husk-ai/issues).
 
@@ -786,7 +792,7 @@ husk/
 ├── packages-npm/
 │   ├── husk-cursor-hook/       Cursor SDK Hooks bridge (npm CLI)
 │   └── husk-vscode-hook/       VS Code / Antigravity extension
-└── examples/                   langchain_agent.py · langgraph_thread.py · otel-autogen.py
+└── examples/                   husk_thread.py · langchain_agent.py · otel-autogen.py
 ```
 
 ## Development

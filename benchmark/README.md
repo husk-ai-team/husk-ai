@@ -1,8 +1,8 @@
 # Husk benchmark — 500-run case study (OpenRouter Llama + TriviaQA)
 
 A **fully reproducible** benchmark that drives ~500 invocations of a 5-node
-LangGraph "Research Synthesizer" through Husk using **real LLM calls** and
-**real-world queries** from the TriviaQA dataset (Allen AI, ACL 2017).
+"Research Synthesizer" agent — running on Husk's own engine — using **real LLM
+calls** and **real-world queries** from the TriviaQA dataset (Allen AI, ACL 2017).
 
 Every hero metric carries a **Bootstrap BCa 95% CI** computed in pure Python
 (`benchmark/bootstrap.py`, self-validated against Efron-Tibshirani 1993).
@@ -11,9 +11,9 @@ Every hero metric carries a **Bootstrap BCa 95% CI** computed in pure Python
 >
 > The published numbers come from **`hero_report.py`** over a **5-node** graph
 > (`query_expansion → retrieve → analyze → synthesize → cite_check`, the costly
-> `analyze` upstream), **500 parent runs / 117 replays** on **OpenRouter**
-> (Llama-3.3-70B + 3.1-8B). They are frozen into a committed fixture so anyone
-> can regenerate them **without an API key**:
+> `analyze` upstream) running on **Husk's own engine**, **500 parent runs / 118
+> replays** on **OpenRouter** (Llama-3.3-70B + 3.1-8B). They are frozen into a
+> committed fixture so anyone can regenerate them **without an API key**:
 >
 > ```bash
 > uv run python benchmark/reproduce.py     # rebuilds a DB from
@@ -22,14 +22,14 @@ Every hero metric carries a **Bootstrap BCa 95% CI** computed in pure Python
 >
 > | Metric | Value (95% CI) |
 > |---|---|
-> | D5 mean token bypass | **42.9%** [36.4, 49.4]  (token-weighted 55.2%) |
-> | D1 wall-time speed-up | **median 6.5×** (mean 16.8× [13.1, 22.2]) |
-> | D4 replay success | **100%** (117/117), Wilson [96.8, 100] |
-> | D3 max bypass | **89.4%** |
+> | D5 mean token bypass | **42.07%** [35.65, 48.81]  (token-weighted 55.0%) |
+> | D1 wall-time speed-up | **median 6.9×** (right-skewed; mean 47.9×) |
+> | D4 replay success | **100%** (118/118), Wilson [96.9, 100] |
+> | D3 max bypass | **90.7%** |
 >
-> Provider billing for the live run was ≈ **$2.95 / €2.73** (routing + retries
-> across the campaign); the list-price cost of the *recorded* tokens computes to
-> ≈ **$0.59** (`hero_report.py` from per-span tokens).
+> The list-price cost of the *recorded* tokens computes to ≈ **$0.58**
+> (`hero_report.py` from per-span tokens); real provider spend for the run was
+> ≈ **$0.6**.
 >
 > **Historical note.** Sections below that describe a *4-node* graph, a *10k-run*
 > sweep, or `metrics.sql` (DHV/DCS/MRTT) as "the pitch source" predate the
@@ -38,19 +38,19 @@ Every hero metric carries a **Bootstrap BCa 95% CI** computed in pure Python
 
 Pipeline:
 ```
-TriviaQA (500 queries)  →  research_agent (LangGraph 4-node)  →  Groq llama-3.x
+TriviaQA (500 queries)  →  research_agent (5-node, Husk engine)  →  OpenRouter Llama
                                        ↓
                               Husk SQLite + spans
                                        ↓
-                       real_replays.py → /api/langgraph/replay
+                       real_replays.py → /api/replay
                                        ↓
                          hero_report.py + cost_matrix.py + bootstrap.py
                                        ↓
                               HERO_METRICS.md + COST_MATRIX.md
 ```
 
-Cost on Groq free/paid tier: **~$2-5 total**. Wall-time: ~40-60 min depending
-on Groq rate-limit.
+Cost on OpenRouter: **~$0.6 total**. Wall-time: ~20-40 min depending on
+provider rate-limit.
 
 ---
 
@@ -78,14 +78,15 @@ time travel), different language ecosystem.
 
 ## Why this scenario
 
-A 4-node LangGraph pipeline (`query_expansion → retrieve → synthesize →
+A 5-node pipeline (`query_expansion → retrieve → analyze → synthesize →
 cite_check`) is the smallest realistic *deep-research agent* pattern and one
 of the most common architectures in the wild (Perplexity, You.com, OpenAI
 Deep Research clones, internal research bots).
 
-LangGraph is also the only framework where Husk's modify-and-replay works
-natively in M1 (checkpointer + `husk.graph_module`), so the benchmark's
-hero metrics directly reflect product capability.
+The graph runs on Husk's own engine — it persists a state snapshot after every
+node, so modify-and-replay (resume at a node, re-run only it and its successors)
+works natively, and the benchmark's hero metrics directly reflect product
+capability.
 
 ---
 
@@ -95,7 +96,7 @@ hero metrics directly reflect product capability.
 benchmark/
 ├── research_agent/
 │   ├── __init__.py
-│   ├── graph.py            ← 5-node LangGraph, OTel-instrumented (canned w/o key)
+│   ├── graph.py            ← 5-node graph on Husk's engine, OTel-instrumented (canned w/o key)
 │   ├── mock_retrieve.py    ← deterministic mock for the retrieve tool call
 │   └── prompts.py          ← system + user prompt templates
 ├── inject_failures.py      ← controlled 20% failure schedule
@@ -123,7 +124,7 @@ benchmark/
 ### Prereqs
 
 - Husk backend running locally (`uv run husk-ai start`)
-- `uv sync --all-packages --group examples` (langgraph + OTel deps)
+- `uv sync --all-packages --group examples` (OTel + provider SDK deps)
 
 ### Steps (current canonical pipeline)
 
@@ -143,7 +144,7 @@ $env:GROQ_API_KEY = '<your-key>'  # PowerShell
 BENCH_FAST=1 uv run --group examples python benchmark/run_benchmark.py \
     --runs 500 --topics benchmark/queries_500.jsonl --concurrency 4
 
-# 5. Trigger REAL replays via Husk's /api/langgraph/replay API
+# 5. Trigger REAL replays via Husk's /api/replay API
 #    (one replay per failed parent run; honest DHV = 1.0, no inflation)
 uv run python benchmark/real_replays.py
 
@@ -296,20 +297,20 @@ The 10k-run benchmark looks bloated only when miscontextualised. Calibrated:
 | Mid-size company | 50-100 | 50.000 - 100.000+ | 10.000 - 30.000 |
 | Enterprise (e.g. Arize public scale) | 100+ | 1.000.000+ | tracked via CI/evals |
 
-10k runs ≈ **one month for a 10-engineer dev team** running RAG/LangGraph
-pipelines ~50 times/day across dev + staging. Realistic, not inflated.
+10k runs ≈ **one month for a 10-engineer dev team** running RAG / multi-step
+agent pipelines ~50 times/day across dev + staging. Realistic, not inflated.
 
 ---
 
 ## Methodological caveats (the pitch states these explicitly)
 
-1. **State replay ≠ output determinism.** M1 guarantees perfect restore of
-   the LangGraph state JSON at a checkpoint. The LLM at the next node remains
+1. **State replay ≠ output determinism.** Husk's engine guarantees perfect
+   restore of the state JSON at a checkpoint. The LLM at the next node remains
    stochastic. Full output determinism (HTTP cassette + provider mocking) is
-   on the M2 roadmap.
+   available via the model-free replay path.
 2. **Sequential graphs ≠ concurrent multi-agent systems.** The visual
-   timeline excels on directed graphs (LangGraph, RAG chains). Truly async
-   MAS with messaging race conditions are out of scope for the MVP.
+   timeline excels on directed graphs (RAG chains, multi-step agents). Truly
+   async MAS with messaging race conditions are out of scope for the MVP.
 3. **API cost saved ≠ total cost of ownership saved.** DCS measures tokens
    bypassed at OpenAI/Anthropic. It does not include local compute, network
    latency, or self-hosted vector DB costs.

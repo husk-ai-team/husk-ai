@@ -1,6 +1,6 @@
 [project]
 name = "husk-sandbox"
-version = "0.1.0"
+version = "0.2.0"
 description = "Husk sandbox engine — tracer hooks, HTTP virtualization, state capture"
 requires-python = ">=3.11"
 license = { text = "BUSL-1.1" }

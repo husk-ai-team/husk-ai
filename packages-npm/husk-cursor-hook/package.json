@@ -1,6 +1,6 @@
 {
   "name": "husk-cursor-hook",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Cursor observability bridge for Husk — streams file edits and stop signals into the local Studio.",
   "license": "BUSL-1.1",
   "bin": {
