@@ -1,6 +1,13 @@
-"""Research Synthesizer -- 4-node LangGraph pipeline.
+"""Research Synthesizer -- 5-node pipeline on Husk's own linear engine.
 
-LLM nodes call Groq for real when GROQ_API_KEY is set, otherwise emit canned
+Resume substrate: this graph used to run on LangGraph (a ``StateGraph`` with a
+``SqliteSaver`` checkpointer) and its time-travel for modify-and-replay. It now
+runs on Husk's own engine (``husk_shared.engine``): a linear executor plus a
+local SQLite snapshot store. The node functions, prompts, models, and OTel spans
+are unchanged -- only the execution substrate and the checkpoint store moved from
+LangGraph to Husk. LangGraph is no longer required for the primitive.
+
+LLM nodes call the provider for real when a key is set, otherwise emit canned
 spans. The benchmark's failure injection (N1-N4) overrides the output of the
 LLM call to produce a controlled failure, but the LLM call still happens
 so the token/cost numbers in the spans are real.
@@ -28,7 +35,6 @@ from __future__ import annotations
 import json
 import logging
 import os
-import sqlite3
 import sys
 import threading
 import time
@@ -37,8 +43,6 @@ from contextlib import contextmanager
 from pathlib import Path
 from typing import TypedDict
 
-from langgraph.checkpoint.sqlite import SqliteSaver
-from langgraph.graph import END, START, StateGraph
 from opentelemetry import trace
 from opentelemetry.exporter.otlp.proto.http.trace_exporter import OTLPSpanExporter
 from opentelemetry.sdk.resources import Resource
@@ -61,6 +65,7 @@ from benchmark.research_agent.mock_retrieve import (  # noqa: E402
 from benchmark.research_agent.mock_retrieve import (  # noqa: E402
     retrieve as mock_retrieve,
 )
+from husk_shared.engine import LinearExecutor, LinearGraph, SnapshotStore  # noqa: E402
 from husk_shared.pricing import cost_usd  # noqa: E402
 
 log = logging.getLogger(__name__)
@@ -622,50 +627,66 @@ def cite_check(state: State) -> dict:
 # ---------------------------------------------------------------------------
 
 
-def _db_path() -> str:
+def _snapshot_db_path() -> str:
     home = Path(os.environ.get("HUSK_HOME", str(Path.home() / ".husk")))
     home.mkdir(parents=True, exist_ok=True)
-    return str(home / "benchmark_research.sqlite")
+    # Husk's own checkpoint store, replacing LangGraph's SqliteSaver
+    # (benchmark_research.sqlite). Local-first; nothing leaves the machine.
+    return str(home / "husk_snapshots.sqlite")
 
 
-def _build_graph_with_saver() -> tuple[object, SqliteSaver, sqlite3.Connection]:
-    builder = StateGraph(State)
-    builder.add_node("query_expansion", query_expansion)
-    builder.add_node("retrieve", retrieve)
-    builder.add_node("analyze", analyze)
-    builder.add_node("synthesize", synthesize)
-    builder.add_node("cite_check", cite_check)
+def _build_graph() -> LinearGraph:
+    """Husk's own linear graph: add_node order is the execution order.
 
-    builder.add_edge(START, "query_expansion")
-    builder.add_edge("query_expansion", "retrieve")
-    builder.add_edge("retrieve", "analyze")
-    builder.add_edge("analyze", "synthesize")
-    builder.add_edge("synthesize", "cite_check")
-    builder.add_edge("cite_check", END)
-
-    conn = sqlite3.connect(_db_path(), check_same_thread=False)
-    saver = SqliteSaver(conn=conn)
-    return builder.compile(checkpointer=saver), saver, conn
+    Linear chain (was a LangGraph StateGraph):
+        query_expansion -> retrieve -> analyze -> synthesize -> cite_check
+    """
+    g = LinearGraph()
+    g.add_node("query_expansion", query_expansion)
+    g.add_node("retrieve", retrieve)
+    g.add_node("analyze", analyze)
+    g.add_node("synthesize", synthesize)
+    g.add_node("cite_check", cite_check)
+    return g
 
 
-graph, _saver, _conn = _build_graph_with_saver()
+graph = _build_graph()
+
+_store: SnapshotStore | None = None
+_store_lock = threading.Lock()
+
+
+def _get_store() -> SnapshotStore:
+    """Lazily open the snapshot store (HUSK_HOME may be set after import)."""
+    global _store
+    with _store_lock:
+        if _store is None:
+            _store = SnapshotStore(_snapshot_db_path())
+        return _store
 
 
 def invoke(state: dict, thread_id: str | None = None) -> dict:
     tracer = _get_tracer()
     tid = thread_id or str(uuid.uuid4())
-    config = {"configurable": {"thread_id": tid}}
+    executor = LinearExecutor(graph, _get_store())
 
     with tracer.start_as_current_span("agent.run") as root:
         root.set_attribute("service.name", "research-synthesizer")
         root.set_attribute("gen_ai.system", "langgraph")
         root.set_attribute("langgraph.thread_id", tid)
         root.set_attribute("husk.graph_module", f"{GRAPH_FILE}:graph")
+        # Honest marker: the resume substrate is now Husk's own engine, not
+        # LangGraph's time-travel. (The langgraph.* attrs above are kept as the
+        # thread/node identity the studio backend and real_replays read.)
+        root.set_attribute("husk.replay.engine", "husk-native")
         root.set_attribute("husk.benchmark.real_llm", _use_llm())
         if state.get("failure_mode"):
             root.set_attribute("benchmark.failure_mode", state["failure_mode"])
         with _cassette_session(tid, record=_want_record(), replay=False):
-            result = graph.invoke(state, config=config)
+            # Husk's executor runs each node in order inside this span context,
+            # so the nodes' own spans nest under agent.run exactly as before, and
+            # a snapshot of the merged state is persisted after every node.
+            result = executor.run_full(tid, state)
         root.set_attribute("benchmark.status", result.get("status", "ok"))
         if result.get("status") == "error":
             root.set_status(
@@ -683,60 +704,58 @@ def invoke(state: dict, thread_id: str | None = None) -> dict:
 
 
 # ---------------------------------------------------------------------------
-# Checkpoint resume (modify-and-replay) -- the real primitive
+# Checkpoint resume (modify-and-replay) -- the real primitive, now Husk's own
 # ---------------------------------------------------------------------------
 #
-# `invoke` above is a full run from scratch. `replay_from` resumes an EXISTING
-# thread from its SqliteSaver checkpoint, applies a state patch, and re-executes
-# ONLY the fork node + its successors. The upstream nodes are not re-run, so they
-# emit no spans and consume no tokens -- that bypass is the whole point of Husk.
+# `invoke` above is a full run from scratch that snapshots after every node.
+# `replay_from` resumes an EXISTING thread from Husk's snapshot store, applies a
+# state patch, and re-executes ONLY the fork node + its successors. The upstream
+# nodes are not re-run, so they emit no spans and consume no tokens -- that bypass
+# is the whole point of Husk.
 #
-# Mechanic (LangGraph "time travel"): update_state(cfg, values, as_node=N) writes
-# `values` to the channels as if node N produced them, which sets `next` to N's
-# successors; invoke(None, cfg) then resumes from there. To RE-RUN node X we must
-# therefore pass X's PREDECESSOR as `as_node` (passing X itself would skip X).
-# update_state runs only the node's channel writers, not its Python function, so
-# the predecessor is not re-executed either.
-
-_PREDECESSOR = {
-    "query_expansion": START,  # START is a real (hidden) node -> full re-run (N1)
-    "retrieve": "query_expansion",
-    "analyze": "retrieve",
-    "synthesize": "analyze",
-    "cite_check": "synthesize",
-}
+# Mechanic (Husk's own engine, in husk_shared.engine): to RE-RUN node X we load
+# the snapshot taken after X's PREDECESSOR (the state that was about to enter X in
+# the parent run), apply the patch, and run from X onward. The off-by-one is the
+# same one LangGraph's `update_state(as_node=predecessor)` produced; Husk now owns
+# it. For the first node the predecessor is START, so there is no upstream
+# snapshot and the patch seeds a full re-run -- the deliberate negative control.
 
 
 def replay_from(
     *, state_override: dict, parent_thread_id: str, fork_node: str
 ) -> dict:
-    """Resume `parent_thread_id` from its checkpoint and re-run `fork_node` onward.
+    """Resume `parent_thread_id` from Husk's snapshot store and re-run `fork_node`
+    onward.
 
     Applies `state_override` (plus a reset of the stale failure channels) at the
-    fork point so the re-run is clean, then resumes. Returns the child's thread_id
-    (same as the parent -- checkpoints live under one thread), a unique `child_id`
-    used to locate the resulting run, and the final state.
+    fork point so the re-run is clean, then resumes via Husk's executor. Returns
+    the parent's thread_id (the lineage key the studio backend reads), a unique
+    `child_id` used to locate the resulting run, and the final state.
     """
     tracer = _get_tracer()
-    as_node = _PREDECESSOR.get(fork_node, START)
-    cfg = {"configurable": {"thread_id": parent_thread_id}}
+    executor = LinearExecutor(graph, _get_store())
 
     # Clear the parent's stale failure channels. Without this, cite_check's
     # `elif upstream_status == "error"` branch would re-flag the fixed child as
-    # an error. Writing None filters the key out of the materialised state.
-    values = {
+    # an error. (None reads as falsy in the nodes' `.get(...)` checks, exactly as
+    # LangGraph's "write None to filter the channel" did.)
+    patch = {
         **state_override,
         "failure_mode": None,
         "status": None,
         "error_node": None,
     }
     child_id = str(uuid.uuid4())
+    # Child snapshots live under a distinct thread so the parent's stay intact
+    # (and can be re-forked); the run is still located via husk.replay.child_id.
+    child_thread_id = f"{parent_thread_id}::replay::{child_id}"
 
     with tracer.start_as_current_span("agent.run") as root:
         root.set_attribute("service.name", "research-synthesizer")
         root.set_attribute("gen_ai.system", "langgraph")
         root.set_attribute("langgraph.thread_id", parent_thread_id)
         root.set_attribute("husk.graph_module", f"{GRAPH_FILE}:graph")
+        root.set_attribute("husk.replay.engine", "husk-native")
         root.set_attribute("husk.benchmark.real_llm", _use_llm())
         # Unique marker so the caller can find THIS child run (parent and child
         # share a thread_id, so thread_id alone is ambiguous).
@@ -744,9 +763,13 @@ def replay_from(
         root.set_attribute("husk.replay.fork_node", fork_node)
         root.set_attribute("husk.replay.cassette", _want_replay_cassette())
 
-        new_cfg = graph.update_state(cfg, values, as_node=as_node)
         with _cassette_session(parent_thread_id, record=False, replay=_want_replay_cassette()):
-            result = graph.invoke(None, config=new_cfg)
+            result = executor.resume(
+                parent_thread_id=parent_thread_id,
+                child_thread_id=child_thread_id,
+                fork_node=fork_node,
+                patch=patch,
+            )
 
         root.set_attribute("benchmark.status", result.get("status", "ok"))
         if result.get("status") == "error":
