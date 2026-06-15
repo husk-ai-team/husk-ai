@@ -51,8 +51,13 @@ your agent data never leaves it.
 
 Husk's replay engine resumes a recorded run at the failing node and re-executes
 **only that node and its successors**, deterministically skipping the upstream
-work. On a committed 500-run benchmark (OpenRouter Llama-3.3-70B + 3.1-8B, 117
-replays of a Plan-then-Execute research agent):
+work. The resume substrate is now Husk's own checkpoint/replay engine
+([`husk_shared.engine`](packages/husk-shared/src/husk_shared/engine.py)): a small
+linear executor plus a local SQLite snapshot store. Earlier versions relied on
+LangGraph's time-travel (`update_state` + `invoke(None)`) for this; LangGraph is
+still supported as an example/integration but is **no longer required for the
+primitive**. On a committed 500-run benchmark (OpenRouter Llama-3.3-70B + 3.1-8B,
+117 replays of a Plan-then-Execute research agent):
 
 | Metric | Value (95% CI) |
 |---|---|
