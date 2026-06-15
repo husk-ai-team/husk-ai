@@ -312,10 +312,10 @@ export default function Replay() {
 
 function pickInitialState(spans: Span[]): string | null {
   const root = spans.find(
-    (s) => s.kind === "chain" && (s.attrs as any)?.["langgraph.thread_id"],
+    (s) => s.kind === "chain" && (s.attrs as any)?.["husk.thread_id"],
   );
   if (root) {
-    const final = (root.attrs as any)?.["langgraph.final_state"];
+    const final = (root.attrs as any)?.["husk.final_state"];
     if (typeof final === "string") {
       try {
         return JSON.stringify(JSON.parse(final.replace(/'/g, '"')), null, 2);

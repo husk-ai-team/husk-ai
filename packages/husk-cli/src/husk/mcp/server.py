@@ -9,7 +9,7 @@ local-only by design.
 
 Serializers mirror the backend's REST output shape (see api/runs.py, api/spans.py)
 rather than the strict `husk_shared.schemas` models — the stored `framework`/
-`kind`/`status` strings are free-form (e.g. "otel/langgraph") and would trip the
+`kind`/`status` strings are free-form (e.g. "otel/openai") and would trip the
 schemas' enums, and SQLAlchemy's declarative `.metadata` collides with the Run
 schema's `metadata` field. Building dicts directly keeps reads robust.
 """
@@ -44,7 +44,7 @@ Typical flow:
   - `get_trace(run_id)` to see what the agent did, step by step (the span tree).
   - `get_span(run_id, span_id)` for the full, untruncated input/output of one step.
   - `cost_breakdown` for token and USD usage by model.
-  - `replay_run(run_id, state_override=...)` to re-run a LangGraph from its
+  - `replay_run(run_id, state_override=...)` to re-run a recorded graph from its
     checkpoint with modified state (only available when the operator enabled it).
 
 A "run" is one agent execution; a "span" is one step within it (an LLM call, a
@@ -165,7 +165,7 @@ def build_server(
         """List recent agent runs, newest first.
 
         Optionally filter by `status` (pending|running|success|error|aborted) or
-        `framework` (e.g. "langgraph", "unknown").
+        `framework` (e.g. "otel/openai", "unknown").
         """
         async with async_session() as s:
             q = select(RunRow).order_by(RunRow.started_at.desc())
@@ -373,7 +373,7 @@ def build_server(
             fork_node: str | None = None,
             parent_thread_id: str | None = None,
         ) -> dict[str, Any]:
-            """Re-invoke a LangGraph run from its checkpoint with modified state.
+            """Re-invoke a recorded graph run from its checkpoint with modified state.
 
             Requires the Husk backend to be running (`husk-ai start`). Executes
             your agent code locally. `state_override` is the new initial state
@@ -391,7 +391,7 @@ def build_server(
                 "fork_node": fork_node,
                 "parent_thread_id": parent_thread_id,
             }
-            url = f"{husk_url()}/api/langgraph/replay"
+            url = f"{husk_url()}/api/replay"
             try:
                 async with httpx.AsyncClient(timeout=120.0) as client:
                     resp = await client.post(url, json=body)

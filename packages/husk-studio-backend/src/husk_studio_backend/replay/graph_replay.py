@@ -1,9 +1,11 @@
-"""Dynamic LangGraph replay.
+"""Husk's dynamic graph replay dispatcher.
 
-The example writes `husk.graph_module = "/abs/path/file.py:graph"` on the run's
-root span. The replay endpoint reads that attribute, imports the file fresh,
-and invokes `graph` (or a callable named `invoke`) with the user's state
-override.
+An instrumented run writes `husk.graph_module = "/abs/path/file.py:graph"` on the
+run's root span. The replay endpoint reads that attribute, imports the file
+fresh, and either resumes it from a Husk checkpoint (`replay_from`) or re-invokes
+it (`invoke`) with the user's state override. The resume/replay itself is owned
+by Husk's own engine (`husk_shared.engine`); this module only locates and drives
+the user's graph module.
 
 Security note: this dynamically imports user code by path. Local-only MVP.
 DO NOT expose this endpoint over a non-localhost interface.
@@ -25,9 +27,9 @@ _import_lock = threading.Lock()
 _module_cache: dict[str, Any] = {}
 
 # Serialises checkpoint-resume replays. The cached graph module shares a single
-# compiled graph + SqliteSaver connection, so concurrent resumes on the same
-# thread (possible via the HTTP endpoint's asyncio.to_thread) could interleave
-# update_state/put and corrupt the resume. The benchmark CLI is sequential.
+# snapshot-store connection, so concurrent resumes on the same thread (possible
+# via the HTTP endpoint's asyncio.to_thread) could interleave snapshot reads and
+# writes and corrupt the resume. The benchmark CLI is sequential.
 _replay_lock = threading.Lock()
 
 
@@ -68,17 +70,18 @@ def replay_graph(
     parent_thread_id: str | None = None,
     fork_node: str | None = None,
 ) -> dict[str, Any]:
-    """Invoke a LangGraph defined in `graph_module` with `state_override`.
+    """Drive the graph in `graph_module` with `state_override`.
 
     `graph_module` is "<abs_path_to_file>:<symbol>" — typically ":graph" or
     ":invoke". If the symbol is callable, it's called with state_override.
-    If it's a compiled graph, we call `.invoke(state_override, config={...})`.
+    If it's a graph object exposing `.invoke`, we call
+    `.invoke(state_override, config={...})`.
 
-    TRUE checkpoint resume: when both `parent_thread_id` and `fork_node` are
-    given and the module exposes `replay_from`, we resume that thread from its
-    checkpoint and re-run only `fork_node` onward (the upstream nodes are
-    bypassed). Otherwise we fall back to a full re-run with a fresh thread, which
-    is the original behaviour and keeps the endpoint backward compatible.
+    TRUE checkpoint resume (Husk's own engine): when both `parent_thread_id` and
+    `fork_node` are given and the module exposes `replay_from`, we resume that
+    thread from its Husk snapshot and re-run only `fork_node` onward (the upstream
+    nodes are bypassed). Otherwise we fall back to a full re-run with a fresh
+    thread, which keeps the endpoint backward compatible.
     """
     # Split on the LAST colon so Windows drive letters (C:\...) survive.
     path, _, symbol = graph_module.rpartition(":")
@@ -112,7 +115,7 @@ def replay_graph(
         invoked: dict[str, Any] = fn(state_override, thread_id=tid)
         return invoked
 
-    # Otherwise treat the symbol as a compiled LangGraph.
+    # Otherwise treat the symbol as a graph object exposing `.invoke`.
     if hasattr(target, "invoke"):
         config = {"configurable": {"thread_id": tid}}
         result = target.invoke(state_override, config=config)
@@ -122,5 +125,5 @@ def replay_graph(
         return {"thread_id": tid, "state": target(state_override)}
 
     raise TypeError(
-        f"{symbol!r} is not invokable: expected a LangGraph or callable, got {type(target).__name__}"
+        f"{symbol!r} is not invokable: expected a graph or callable, got {type(target).__name__}"
     )

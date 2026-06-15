@@ -2,7 +2,7 @@
 modify-and-replay activity following a benchmark run.
 
 In real product usage, every branch row is created by the user clicking
-"Modify & replay" in the Studio (which POSTs to /api/langgraph/replay and the
+"Modify & replay" in the Studio (which POSTs to /api/replay and the
 backend records the branch). For the 10k-run synthetic benchmark we don't
 have a real human, so this script writes branch rows directly into the
 SQLite database with realistic distributions:
@@ -151,7 +151,7 @@ def simulate(db_path: Path, seed: int = 42) -> dict:
                     fork_span_id,
                     parent["script_path"] or "replay",
                     json.dumps([]),
-                    parent["framework"] or "otel/langgraph",
+                    parent["framework"] or "otel/research-synthesizer",
                     child_status,
                     child_started_at,
                     child_finished_at,

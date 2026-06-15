@@ -1,25 +1,22 @@
 """Husk's own checkpoint/replay engine (linear MVP).
 
-This module is the substrate behind Husk's modify-and-replay primitive. Earlier
-versions of Husk delegated resume to LangGraph's time-travel
-(``update_state(..., as_node=predecessor)`` followed by ``invoke(None)``); Husk
-now owns that mechanic with a small, framework-agnostic executor plus a local
-SQLite snapshot store. Nothing here depends on LangGraph, OpenTelemetry, or the
+This module is the substrate behind Husk's modify-and-replay primitive: a small,
+framework-agnostic executor plus a local SQLite snapshot store that Husk owns end
+to end. Nothing here depends on any agent framework, OpenTelemetry, or the
 network: nodes are plain callables and snapshots live in a local file.
 
 Scope (MVP): linear node chains, which is all the benchmark graph needs. A node
 is a callable ``(state) -> delta`` returning a partial-state dict. The executor
-runs nodes in order, merges each delta into a running state dict (last-write-wins,
-matching LangGraph's default non-reducer channels), and writes a snapshot after
-every node. ``resume`` reloads the snapshot taken after a fork node's predecessor,
-applies a patch, and re-executes exactly the fork node and its successors -- the
-upstream nodes are never called, so (when each node emits its own telemetry) they
-produce no spans and consume no tokens. That bypass is what the token metric
-measures; the engine earns it by simply not calling the skipped nodes.
+runs nodes in order, merges each delta into a running state dict (last write
+wins), and writes a snapshot after every node. ``resume`` reloads the snapshot
+taken after a fork node's predecessor, applies a patch, and re-executes exactly
+the fork node and its successors -- the upstream nodes are never called, so (when
+each node emits its own telemetry) they produce no spans and consume no tokens.
+That bypass is what the token metric measures; the engine earns it by simply not
+calling the skipped nodes.
 
-Deliberately deferred (see README / MIGRATION): general-DAG topologies (a
-topological order over explicit edges) and a LangGraph compatibility adapter for
-arbitrary user graphs.
+Deliberately deferred: general-DAG topologies (a topological order over explicit
+edges) and a compatibility adapter for third-party graph frameworks.
 """
 
 from __future__ import annotations
@@ -48,8 +45,8 @@ class _StartSentinel:
 START: Final[_StartSentinel] = _StartSentinel()
 
 #: Reserved node key under which ``run_full`` stores the run's initial state, so a
-#: START resume (full re-run) can inherit the parent's original inputs, exactly as
-#: LangGraph's ``update_state(as_node=START, values)`` merged onto existing channels.
+#: START resume (full re-run) can inherit the parent's original inputs (the patch
+#: is merged on top of this stored initial state).
 _INITIAL_NODE: Final[str] = "__start__"
 
 
@@ -111,8 +108,8 @@ class SnapshotStore:
     """Local SQLite snapshot store, keyed by (thread_id, node).
 
     One row per (thread_id, node): the full merged state after that node ran,
-    serialized as JSON. This is Husk's replacement for LangGraph's SqliteSaver
-    for the primitive. Table shape (the brief's suggested shape):
+    serialized as JSON. This is Husk's snapshot store for the primitive.
+    Table shape:
 
         snapshots(thread_id, seq, node, state_json, created_at)
 
@@ -218,14 +215,13 @@ class LinearExecutor:
         (``fork_node`` is the first node) there is no upstream snapshot and the
         patch alone seeds a full re-run -- the deliberate negative control.
 
-        The off-by-one is preserved exactly: to re-run node X we resume at X's
-        predecessor's snapshot, which is what LangGraph's ``as_node=predecessor``
-        achieved.
+        The off-by-one is deliberate: to re-run node X we resume at X's
+        predecessor's snapshot (the state X consumed in the parent run).
         """
         predecessor = self._graph.predecessor(fork_node)
         if isinstance(predecessor, _StartSentinel):
             # Full re-run: seed from the parent's recorded initial state (if any)
-            # and apply the patch on top, mirroring LangGraph's channel merge.
+            # and apply the patch on top.
             initial = self._store.get(parent_thread_id, _INITIAL_NODE) or {}
             state: dict[str, Any] = {**initial, **patch}
         else:

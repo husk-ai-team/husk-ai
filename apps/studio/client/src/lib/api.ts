@@ -121,7 +121,7 @@ export async function replayRun(body: {
   parent_thread_id?: string | null;
   fork_node?: string | null;
 }): Promise<ReplayResult> {
-  const r = await fetch("/api/langgraph/replay", {
+  const r = await fetch("/api/replay", {
     method: "POST",
     headers: { "content-type": "application/json" },
     body: JSON.stringify(body),

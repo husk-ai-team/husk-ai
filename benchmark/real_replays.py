@@ -1,9 +1,9 @@
 """Trigger REAL replays for every failed parent run in the benchmark, and
 record each as a row in the `branches` table.
 
-We call the same `replay_graph` engine that Husk's /api/langgraph/replay
-endpoint uses, but in-process from this CLI so that GROQ_API_KEY (set as
-env var here) is visible to the re-imported graph module. The child run's
+We call the same `replay_graph` engine that Husk's /api/replay endpoint uses,
+but in-process from this CLI so that the provider API key (set as an env var
+here) is visible to the re-imported graph module. The child run's
 LLM calls hit Groq for real; the spans land in ~/.husk/traces.db via the
 agent's OTel exporter (the same backend the parent runs went to).
 
@@ -124,7 +124,7 @@ def main() -> int:
 
     # Import the Husk replay engine (lives in the backend package).
     try:
-        from husk_studio_backend.replay.langgraph_replay import replay_graph
+        from husk_studio_backend.replay.graph_replay import replay_graph
     except ImportError as e:
         print(f"ERROR: replay engine unavailable: {e}", file=sys.stderr)
         return 2
@@ -176,7 +176,7 @@ def main() -> int:
             except json.JSONDecodeError:
                 attrs = {}
             failure_mode = attrs.get("benchmark.failure_mode")
-            parent_thread_id = attrs.get("langgraph.thread_id")
+            parent_thread_id = attrs.get("husk.thread_id")
 
         # Pick the last LLM span as fork point (closest to the failure).
         last_llm = con.execute(
@@ -243,7 +243,7 @@ def main() -> int:
                         "SELECT s.run_id FROM spans s "
                         "WHERE s.name = 'agent.run' AND s.started_at >= ? "
                         "  AND json_extract(s.attrs, "
-                        "'$.\"langgraph.thread_id\"') = ?",
+                        "'$.\"husk.thread_id\"') = ?",
                         (int(t0 * 1000) - 5000, child_thread_id),
                     ).fetchone()
                 if row:

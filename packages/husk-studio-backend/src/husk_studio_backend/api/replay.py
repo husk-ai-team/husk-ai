@@ -1,10 +1,10 @@
-"""LangGraph integration: replay endpoint + checkpoint state lookup.
+"""Husk modify-and-replay endpoint + checkpoint state lookup.
 
 Replay flow:
   1. UI gets a run id + selected span id.
-  2. UI POSTs {run_id, span_id, state_override} to /api/langgraph/replay.
-  3. Backend resolves `husk.graph_module` from the run's root span attrs
-     (set by the example), then re-invokes the graph with the new state.
+  2. UI POSTs {run_id, span_id, state_override} to /api/replay.
+  3. Backend resolves `husk.graph_module` from the run's root span attrs,
+     then resumes/re-invokes the graph with the new state via Husk's own engine.
   4. The graph's OTel exporter emits new traces which Husk ingests, creating
      a new Run that appears in /runs.
 """
@@ -24,7 +24,7 @@ from husk_studio_backend.db.engine import async_session
 from husk_studio_backend.db.models import RunRow, SpanRow
 
 log = logging.getLogger(__name__)
-router = APIRouter(prefix="/api/langgraph", tags=["langgraph"])
+router = APIRouter(prefix="/api", tags=["replay"])
 
 
 class ReplayRequest(BaseModel):
@@ -49,7 +49,7 @@ class ReplayRequest(BaseModel):
 
 @router.post("/replay")
 async def replay(req: ReplayRequest, request: Request) -> dict[str, Any]:
-    """Re-invoke a LangGraph with a modified initial state.
+    """Resume / re-invoke a graph with a modified initial state.
 
     Returns the new thread_id; the resulting run will appear in /api/v1/runs
     once the OTel exporter flushes (typically within ~1s).
@@ -60,13 +60,13 @@ async def replay(req: ReplayRequest, request: Request) -> dict[str, Any]:
         raise HTTPException(
             status_code=400,
             detail=(
-                "no husk.graph_module attribute on this run — only LangGraph runs "
-                "instrumented by Husk can be replayed"
+                "no husk.graph_module attribute on this run — only Husk-instrumented "
+                "runs that expose their graph module can be replayed"
             ),
         )
 
     try:
-        from husk_studio_backend.replay.langgraph_replay import replay_graph
+        from husk_studio_backend.replay.graph_replay import replay_graph
     except ImportError as e:
         raise HTTPException(
             status_code=503,
@@ -104,10 +104,10 @@ async def replay(req: ReplayRequest, request: Request) -> dict[str, Any]:
         os.environ["HUSK_REPLAY_CASSETTE"] = "1"
 
     # Resolve checkpoint-resume targets: prefer explicit request fields, else
-    # derive them from the run's spans (root span carries langgraph.thread_id;
-    # the selected span carries langgraph.node). This upgrades a plain replay
-    # into a true resume without any client change; if neither is available the
-    # underlying engine falls back to a full re-run.
+    # derive them from the run's spans (root span carries husk.thread_id; the
+    # selected span carries husk.node). This upgrades a plain replay into a true
+    # resume without any client change; if neither is available the underlying
+    # engine falls back to a full re-run.
     parent_thread_id = req.parent_thread_id
     fork_node = req.fork_node
     if parent_thread_id is None or fork_node is None:
@@ -222,9 +222,9 @@ async def _derive_resume_targets(
     """Best-effort resume targets from the run's spans.
 
     Returns (parent_thread_id, fork_node):
-      - parent_thread_id: the `langgraph.thread_id` from any span that carries it
+      - parent_thread_id: the `husk.thread_id` from any span that carries it
         (the root `agent.run` span sets it).
-      - fork_node: the `langgraph.node` of the selected `span_id` (fallback: the
+      - fork_node: the `husk.node` of the selected `span_id` (fallback: the
         span name). This is the node to resume from / re-run.
 
     Either may be None; the caller passes them through to the replay engine,
@@ -240,10 +240,10 @@ async def _derive_resume_targets(
         fork_node: str | None = None
         for r in rows:
             attrs = r.attrs or {}
-            if thread_id is None and attrs.get("langgraph.thread_id"):
-                thread_id = str(attrs["langgraph.thread_id"])
+            if thread_id is None and attrs.get("husk.thread_id"):
+                thread_id = str(attrs["husk.thread_id"])
             if span_id and r.id == span_id:
-                fork_node = str(attrs.get("langgraph.node") or r.name or "") or None
+                fork_node = str(attrs.get("husk.node") or r.name or "") or None
         return thread_id, fork_node
 
 

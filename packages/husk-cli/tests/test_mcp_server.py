@@ -29,12 +29,12 @@ async def _seed() -> None:
 
     await init_db()
     async with async_session() as s:
-        # A successful LangGraph run with a root chain span + one LLM child.
+        # A successful agent run with a root chain span + one LLM child.
         s.add(
             RunRow(
                 id="R_ok",
                 script_path="agent.py",
-                framework="otel/langgraph",
+                framework="otel/openai",
                 status="success",
                 started_at=2000,
                 finished_at=2500,
@@ -152,7 +152,7 @@ async def test_list_runs_newest_first(server: Any) -> None:
     runs = await _call(server, "list_runs")
     assert [r["id"] for r in runs] == ["R_err", "R_ok"]
     ok = next(r for r in runs if r["id"] == "R_ok")
-    assert ok["framework"] == "otel/langgraph"  # free-form string survives
+    assert ok["framework"] == "otel/openai"  # free-form string survives
     assert ok["duration_ms"] == 500
     assert ok["metadata"] == {"husk.graph_module": "agent.py:graph"}
 

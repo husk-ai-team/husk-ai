@@ -24,11 +24,9 @@ from husk_studio_backend.api import (
     diff,
     integrations,
     otel,
+    replay,
     runs,
     spans,
-)
-from husk_studio_backend.api import (
-    langgraph as langgraph_api,
 )
 from husk_studio_backend.config import runs_dir
 from husk_studio_backend.db.engine import init_db
@@ -165,7 +163,7 @@ app.include_router(branches.router)
 app.include_router(diff.router)
 app.include_router(otel.router)
 app.include_router(cursor.router)
-app.include_router(langgraph_api.router)
+app.include_router(replay.router)
 app.include_router(integrations.router)
 app.include_router(dashboard.router)
 app.include_router(auth.router)

@@ -2,9 +2,9 @@
 
 These exercise the engine in isolation (no OTel, no benchmark, no network) so the
 load-bearing property -- "resuming at a fork re-runs exactly the fork node and its
-successors, never anything upstream" -- is proven for Husk's code directly, not
-for LangGraph. The benchmark-level structural test in
-``benchmark/tests/test_determinism.py`` then proves the same end to end.
+successors, never anything upstream" -- is proven for Husk's own engine directly.
+The benchmark-level structural test in ``benchmark/tests/test_determinism.py``
+then proves the same end to end.
 """
 
 from __future__ import annotations
