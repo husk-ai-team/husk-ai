@@ -34,10 +34,10 @@ def test_fixture_reproduces_committed_hero_metrics(tmp_path: Path) -> None:
 def test_fixture_has_expected_shape(tmp_path: Path) -> None:
     db = load_fixture(tmp_path / "fixture.db", fixture_dir=CANONICAL_RUN)
     data = hero_report.collect(db)
-    # 500 true parents (617 total recorded traces) and 117 replays.
+    # 500 true parents (618 total recorded traces) and 118 replays.
     assert data["n_parents"] == 500
-    assert data["n_runs"] == 617
-    assert data["d4_replay_success"]["n_total_branches"] == 117
-    # Headline point estimates, pinned.
-    assert data["d5_mean_bypass"]["mean_pct"] == 42.87
+    assert data["n_runs"] == 618
+    assert data["d4_replay_success"]["n_total_branches"] == 118
+    # Headline point estimates, pinned (Husk-engine run).
+    assert data["d5_mean_bypass"]["mean_pct"] == 42.07
     assert data["d4_replay_success"]["success_pct"] == 100.0
