@@ -272,6 +272,173 @@ export interface CursorEvent {
 export const listCursorEvents = (limit = 50) =>
   fetcher<CursorEvent[]>(`/api/cursor/events?limit=${limit}`);
 
+// --- Per-node graph view (Feature: agent visualization) ---
+
+export interface StateDiff {
+  added: Record<string, unknown>;
+  removed: Record<string, unknown>;
+  changed: Record<string, { from: unknown; to: unknown }>;
+}
+
+export interface GraphModelCall {
+  span_id: string;
+  model: string | null;
+  provider: string | null;
+  tokens_in: number | null;
+  tokens_out: number | null;
+  prompt: unknown;
+  response: unknown;
+  status: string;
+  error: Record<string, unknown> | null;
+}
+
+export interface GraphToolCall {
+  span_id: string;
+  name: string;
+  args: unknown;
+  result: unknown;
+  status: string;
+  error: Record<string, unknown> | null;
+}
+
+export type NodeStatus = "success" | "error" | "skipped" | "running";
+
+export interface GraphNode {
+  id: string;
+  name: string;
+  seq: number;
+  status: NodeStatus;
+  span_id: string | null;
+  started_at: number | null;
+  finished_at: number | null;
+  duration_ms: number | null;
+  tokens_in: number;
+  tokens_out: number;
+  cost_usd: number;
+  is_failure_point: boolean;
+  state_before: unknown;
+  state_after: unknown;
+  state_diff: StateDiff | null;
+  model_calls: GraphModelCall[];
+  tool_calls: GraphToolCall[];
+  error: Record<string, unknown> | null;
+  traceback: string | null;
+}
+
+export interface GraphEdge {
+  from: string;
+  to: string;
+  conditional: boolean;
+  label: string | null;
+}
+
+export interface RunGraph {
+  run_id: string;
+  nodes: GraphNode[];
+  edges: GraphEdge[];
+  executed_path: string[];
+  failure: { node_id: string; seq: number; span_id: string | null; message: string | null } | null;
+  recursion_limit_hit: boolean;
+  run_status: string;
+  run_error: string | null;
+  debug_report: DebugReportRow | null;
+}
+
+export const getRunGraph = (id: string) =>
+  fetcher<RunGraph>(`${BASE}/runs/${id}/graph`);
+
+// --- Automatic debugger (BYOK) ---
+
+export interface DebugReportBody {
+  failure_localization: { node_id: string | null; step_index: number | null; also_implicated: string[] };
+  failure_class: string;
+  root_cause: string;
+  evidence: string[];
+  proposed_fix: { summary: string; diff: string | null; rationale: string };
+  confidence: "high" | "medium" | "low";
+  missing_information: string[];
+}
+
+export interface DebugReportRow {
+  id: string;
+  run_id: string;
+  report: DebugReportBody;
+  provider: string;
+  model: string;
+  failure_node: string | null;
+  failure_class: string | null;
+  confidence: string | null;
+  system_prompt_version: string;
+  trigger: string;
+  applied: boolean;
+  created_at: number;
+}
+
+export interface DebuggerConfig {
+  provider: string;
+  model: string;
+  auto_analyze: boolean;
+  auto_apply: boolean;
+  has_key: boolean;
+}
+
+export interface DebuggerModel {
+  id: string;
+  context_window: number;
+  max_output: number;
+}
+
+export const getDebuggerConfig = () =>
+  fetcher<DebuggerConfig>("/api/debugger/config");
+
+export async function saveDebuggerConfig(body: Partial<DebuggerConfig> & { api_key?: string }): Promise<DebuggerConfig> {
+  const r = await fetch("/api/debugger/config", {
+    method: "PUT",
+    headers: { "content-type": "application/json" },
+    body: JSON.stringify(body),
+  });
+  if (!r.ok) throw new Error(`${r.status}: ${await r.text()}`);
+  return (await r.json()) as DebuggerConfig;
+}
+
+export const getDebuggerModels = (provider?: string) =>
+  fetcher<{ provider: string; models: DebuggerModel[] }>(
+    `/api/debugger/models${provider ? `?provider=${encodeURIComponent(provider)}` : ""}`,
+  );
+
+export async function analyzeRun(
+  runId: string,
+  body: { provider?: string; model?: string } = {},
+): Promise<DebugReportRow> {
+  const r = await fetch(`/api/debugger/runs/${runId}/analyze`, {
+    method: "POST",
+    headers: { "content-type": "application/json" },
+    body: JSON.stringify(body),
+  });
+  if (!r.ok) throw new Error(`${r.status}: ${await r.text()}`);
+  return (await r.json()) as DebugReportRow;
+}
+
+export async function getDebugReport(runId: string): Promise<DebugReportRow | null> {
+  const r = await fetch(`/api/debugger/runs/${runId}/report`);
+  if (r.status === 404) return null;
+  if (!r.ok) throw new Error(`${r.status}: ${await r.text()}`);
+  return (await r.json()) as DebugReportRow;
+}
+
+export async function applyDebugFix(
+  runId: string,
+  reportId: string,
+): Promise<{ applied: boolean; path: string; backup: string }> {
+  const r = await fetch(`/api/debugger/runs/${runId}/apply-fix`, {
+    method: "POST",
+    headers: { "content-type": "application/json" },
+    body: JSON.stringify({ report_id: reportId, confirm: true }),
+  });
+  if (!r.ok) throw new Error(`${r.status}: ${await r.text()}`);
+  return (await r.json()) as { applied: boolean; path: string; backup: string };
+}
+
 export function summarizeCursorEvent(e: CursorEvent): string {
   const p = e.payload as Record<string, unknown>;
   switch (e.hook) {

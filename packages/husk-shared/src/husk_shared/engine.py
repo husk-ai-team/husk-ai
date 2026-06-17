@@ -25,11 +25,26 @@ import json
 import sqlite3
 import time
 from collections.abc import Callable, Mapping
+from contextlib import AbstractContextManager, nullcontext
 from typing import Any, Final
 
 # A node is a step: given the running state, return a partial-state delta. The
 # executor merges that delta into the running state (last write wins).
 Node = Callable[[dict[str, Any]], dict[str, Any]]
+
+# Optional per-node telemetry callback the recorder (e.g. the OTel-instrumented
+# graph wiring) injects. The executor stays framework-agnostic: it merely opens
+# the context manager around each node's execution and, if the manager yields a
+# callable, invokes it with (after_state, delta, error) once the node finishes.
+#
+#   on_node(node_name, seq, before_state) -> context manager yielding a
+#       record(after_state: dict, delta: dict, error: BaseException | None) -> None
+#
+# Making the manager *current* for the duration of the node call is what lets the
+# node's own spans nest under a per-node "graph_node" span. ``None`` (the default)
+# is a true no-op, so every existing caller behaves byte-identically.
+RecordFn = Callable[[dict[str, Any], dict[str, Any], "BaseException | None"], None]
+NodeTelemetry = Callable[[str, int, dict[str, Any]], AbstractContextManager[Any]]
 
 
 class _StartSentinel:
@@ -184,9 +199,16 @@ class LinearExecutor:
     upstream. That is the whole basis of the token-bypass measurement.
     """
 
-    def __init__(self, graph: LinearGraph, store: SnapshotStore) -> None:
+    def __init__(
+        self,
+        graph: LinearGraph,
+        store: SnapshotStore,
+        *,
+        on_node: NodeTelemetry | None = None,
+    ) -> None:
         self._graph = graph
         self._store = store
+        self._on_node = on_node
 
     def run_full(self, thread_id: str, initial_state: Mapping[str, Any]) -> dict[str, Any]:
         """Run the whole chain from the first node, snapshotting after each.
@@ -239,7 +261,22 @@ class LinearExecutor:
     ) -> dict[str, Any]:
         for i in range(start_index, len(self._graph)):
             name, fn = self._graph.node_at(i)
-            delta = fn(state)
-            state.update(delta)
-            self._store.put(thread_id, i, name, state)
+            before = dict(state)
+            cm: AbstractContextManager[Any] = (
+                self._on_node(name, i, before)
+                if self._on_node is not None
+                else nullcontext()
+            )
+            with cm as record:
+                try:
+                    delta = fn(state)
+                except BaseException as exc:
+                    # after == before: the failed node committed no delta.
+                    if callable(record):
+                        record(before, {}, exc)
+                    raise
+                state.update(delta)
+                self._store.put(thread_id, i, name, state)
+                if callable(record):
+                    record(dict(state), delta, None)
         return state

@@ -37,6 +37,7 @@ import os
 import sys
 import threading
 import time
+import traceback
 import uuid
 from contextlib import contextmanager
 from pathlib import Path
@@ -65,6 +66,7 @@ from benchmark.research_agent.mock_retrieve import (  # noqa: E402
 )
 from husk_shared.engine import LinearExecutor, LinearGraph, SnapshotStore  # noqa: E402
 from husk_shared.pricing import cost_usd  # noqa: E402
+from husk_shared.state_diff import diff_states  # noqa: E402
 
 log = logging.getLogger(__name__)
 
@@ -647,6 +649,69 @@ def _build_graph() -> LinearGraph:
     return g
 
 
+# Per-node state attribute cap: keep traces (and the OTLP payload) bounded even
+# when a node's state carries a long analysis string.
+_STATE_ATTR_CAP = 8000
+
+
+def _safe_state_json(obj: object) -> str:
+    s = json.dumps(obj, sort_keys=True, default=str)
+    if len(s) > _STATE_ATTR_CAP:
+        s = s[:_STATE_ATTR_CAP] + f"…[+{len(s) - _STATE_ATTR_CAP} chars]"
+    return s
+
+
+def _make_node_telemetry(tracer):  # type: ignore[no-untyped-def]
+    """Engine telemetry hook: emit a `graph_node` span per node carrying the
+    before/after state and their diff, so per-node state is first-class in the
+    trace (not reconstructed). The node's own LLM/tool span nests under it.
+    """
+
+    @contextmanager
+    def on_node(node: str, seq: int, before: dict):  # type: ignore[no-untyped-def]
+        with tracer.start_as_current_span(f"node:{node}") as span:
+            span.set_attribute("husk.span_kind", "graph_node")
+            span.set_attribute("husk.node", node)
+            span.set_attribute("husk.node_seq", seq)
+            span.set_attribute("husk.state_before", _safe_state_json(before))
+
+            def record(after: dict, delta: dict, error: BaseException | None) -> None:
+                span.set_attribute("husk.state_after", _safe_state_json(after))
+                span.set_attribute(
+                    "husk.state_diff", _safe_state_json(diff_states(before, after))
+                )
+                if error is not None:
+                    span.set_attribute(
+                        "husk.error.traceback",
+                        "".join(
+                            traceback.format_exception(
+                                type(error), error, error.__traceback__
+                            )
+                        ),
+                    )
+                    span.set_status(trace.Status(trace.StatusCode.ERROR, str(error)))
+                elif (after or {}).get("status") == "error":
+                    span.set_status(
+                        trace.Status(trace.StatusCode.ERROR, f"{node} set status=error")
+                    )
+
+            yield record
+
+    return on_node
+
+
+def _set_topology_attrs(root) -> None:  # type: ignore[no-untyped-def]
+    """Record the graph topology on the root span so the studio + debugger see it
+    structurally (not by re-importing the module). Linear graph: edges are the
+    consecutive node pairs; there are no conditional edges to recover here.
+    """
+    names = graph.node_names
+    root.set_attribute("husk.graph.nodes", json.dumps(names))
+    root.set_attribute(
+        "husk.graph.edges", json.dumps([[a, b] for a, b in zip(names, names[1:])])
+    )
+
+
 graph = _build_graph()
 
 _store: SnapshotStore | None = None
@@ -665,7 +730,7 @@ def _get_store() -> SnapshotStore:
 def invoke(state: dict, thread_id: str | None = None) -> dict:
     tracer = _get_tracer()
     tid = thread_id or str(uuid.uuid4())
-    executor = LinearExecutor(graph, _get_store())
+    executor = LinearExecutor(graph, _get_store(), on_node=_make_node_telemetry(tracer))
 
     with tracer.start_as_current_span("agent.run") as root:
         root.set_attribute("service.name", "research-synthesizer")
@@ -673,6 +738,7 @@ def invoke(state: dict, thread_id: str | None = None) -> dict:
         root.set_attribute("husk.graph_module", f"{GRAPH_FILE}:graph")
         root.set_attribute("husk.replay.engine", "husk-native")
         root.set_attribute("husk.benchmark.real_llm", _use_llm())
+        _set_topology_attrs(root)
         if state.get("failure_mode"):
             root.set_attribute("benchmark.failure_mode", state["failure_mode"])
         with _cassette_session(tid, record=_want_record(), replay=False):
@@ -725,7 +791,7 @@ def replay_from(
     `child_id` used to locate the resulting run, and the final state.
     """
     tracer = _get_tracer()
-    executor = LinearExecutor(graph, _get_store())
+    executor = LinearExecutor(graph, _get_store(), on_node=_make_node_telemetry(tracer))
 
     # Clear the parent's stale failure channels. Without this, cite_check's
     # `elif upstream_status == "error"` branch would re-flag the fixed child as
@@ -752,6 +818,7 @@ def replay_from(
         root.set_attribute("husk.replay.child_id", child_id)
         root.set_attribute("husk.replay.fork_node", fork_node)
         root.set_attribute("husk.replay.cassette", _want_replay_cassette())
+        _set_topology_attrs(root)
 
         with _cassette_session(parent_thread_id, record=False, replay=_want_replay_cassette()):
             result = executor.resume(

@@ -3,14 +3,21 @@ import { Link } from "wouter";
 import { toast } from "sonner";
 
 import { Tile } from "@/components/Tile";
+import { Switch } from "@/components/ui/switch";
 import {
   fmtAgo,
+  getDebuggerConfig,
+  getDebuggerModels,
   getIntegrationsStatus,
+  saveDebuggerConfig,
   type AllIntegrationStatus,
+  type DebuggerConfig,
+  type DebuggerModel,
 } from "@/lib/api";
 import { useSession } from "@/lib/auth";
 import {
   ArrowLeft,
+  Bug,
   CheckCircle2,
   CircleDashed,
   Database,
@@ -64,6 +71,17 @@ const TABLES = [
       { name: "fork_span_id", type: "string" },
       { name: "override_payload", type: "json", note: "what changed" },
       { name: "label, notes", type: "text?" },
+    ],
+  },
+  {
+    name: "debug_reports",
+    purpose: "Automatic-debugger analyses of failed runs (no API key stored here).",
+    cols: [
+      { name: "id, run_id", type: "string" },
+      { name: "failure_node, failure_class", type: "string?", note: "where + what" },
+      { name: "report_json", type: "json", note: "full localized diagnosis + proposed fix" },
+      { name: "provider, model, confidence", type: "string" },
+      { name: "trigger, applied", type: "mixed", note: "manual|auto · fix applied?" },
     ],
   },
   {
@@ -212,6 +230,12 @@ export default function Settings() {
         </div>
       </section>
 
+      {/* Automatic debugger (BYOK) */}
+      <section className="mb-10">
+        <H2 icon={<Bug className="size-3.5" />}>Automatic debugger (BYOK)</H2>
+        <DebuggerSettings />
+      </section>
+
       {/* Schema */}
       <section className="mb-10">
         <H2 icon={<Database className="size-3.5" />}>Database schema</H2>
@@ -266,6 +290,183 @@ export default function Settings() {
         </div>
       </section>
     </section>
+  );
+}
+
+const PROVIDERS = ["anthropic", "openai"];
+
+function DebuggerSettings() {
+  const [cfg, setCfg] = useState<DebuggerConfig | null>(null);
+  const [models, setModels] = useState<DebuggerModel[]>([]);
+  const [apiKey, setApiKey] = useState("");
+  const [saving, setSaving] = useState(false);
+
+  useEffect(() => {
+    getDebuggerConfig()
+      .then((c) => {
+        setCfg(c);
+        getDebuggerModels(c.provider)
+          .then((m) => setModels(m.models))
+          .catch(() => {});
+      })
+      .catch(() => {});
+  }, []);
+
+  const patch = (p: Partial<DebuggerConfig>) =>
+    setCfg((c) => (c ? { ...c, ...p } : c));
+
+  const onProviderChange = (provider: string) => {
+    patch({ provider });
+    getDebuggerModels(provider)
+      .then((m) => {
+        setModels(m.models);
+        if (m.models.length) patch({ model: m.models[0].id });
+      })
+      .catch(() => {});
+  };
+
+  const save = async () => {
+    if (!cfg) return;
+    setSaving(true);
+    try {
+      const next = await saveDebuggerConfig({
+        provider: cfg.provider,
+        model: cfg.model,
+        auto_analyze: cfg.auto_analyze,
+        auto_apply: cfg.auto_apply,
+        ...(apiKey ? { api_key: apiKey } : {}),
+      });
+      setCfg(next);
+      setApiKey("");
+      toast.success("Debugger settings saved (key stays on this machine)");
+    } catch (e) {
+      toast.error(`Save failed: ${String(e)}`);
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  if (!cfg) {
+    return (
+      <div className="rounded-xl border border-border/30 bg-secondary/10 p-5 text-sm text-muted-foreground">
+        Loading…
+      </div>
+    );
+  }
+
+  return (
+    <div className="rounded-xl border border-border/30 bg-secondary/10 p-5 md:p-6">
+      <p className="mb-4 text-xs text-muted-foreground">
+        Bring your own key. It is stored locally in{" "}
+        <code className="rounded bg-secondary/40 px-1.5 py-0.5 font-mono text-[11px]">
+          ~/.husk/secrets.json
+        </code>{" "}
+        and sent only from this machine straight to the provider — never to a Husk
+        server, never written into traces or exports.
+      </p>
+
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+        <Labeled label="Provider">
+          <select
+            value={cfg.provider}
+            onChange={(e) => onProviderChange(e.target.value)}
+            className="w-full rounded-md border border-border/40 bg-background/40 px-3 py-2 text-sm focus:border-accent/60 focus:outline-none"
+          >
+            {PROVIDERS.map((p) => (
+              <option key={p} value={p}>
+                {p}
+              </option>
+            ))}
+          </select>
+        </Labeled>
+
+        <Labeled label="Model">
+          <select
+            value={cfg.model}
+            onChange={(e) => patch({ model: e.target.value })}
+            className="w-full rounded-md border border-border/40 bg-background/40 px-3 py-2 font-mono text-sm focus:border-accent/60 focus:outline-none"
+          >
+            {models.length === 0 && <option value={cfg.model}>{cfg.model}</option>}
+            {models.map((m) => (
+              <option key={m.id} value={m.id}>
+                {m.id} ({Math.round(m.context_window / 1000)}K ctx)
+              </option>
+            ))}
+          </select>
+        </Labeled>
+      </div>
+
+      <div className="mt-4">
+        <Labeled label={`API key${cfg.has_key ? " (a key is set)" : ""}`}>
+          <input
+            type="password"
+            value={apiKey}
+            onChange={(e) => setApiKey(e.target.value)}
+            placeholder={cfg.has_key ? "•••••••••• (leave blank to keep)" : "Paste your API key"}
+            autoComplete="off"
+            className="w-full rounded-md border border-border/40 bg-background/40 px-3 py-2 font-mono text-sm focus:border-accent/60 focus:outline-none"
+          />
+        </Labeled>
+      </div>
+
+      <div className="mt-5 space-y-3">
+        <ToggleRow
+          label="Auto-analyze failed runs"
+          hint="Run the debugger automatically when a run finishes in error."
+          checked={cfg.auto_analyze}
+          onChange={(v) => patch({ auto_analyze: v })}
+        />
+        <ToggleRow
+          label="Allow applying fixes"
+          hint="Even on, applying a fix still requires an explicit confirm. Off by default."
+          checked={cfg.auto_apply}
+          onChange={(v) => patch({ auto_apply: v })}
+        />
+      </div>
+
+      <button
+        type="button"
+        onClick={save}
+        disabled={saving}
+        className="mt-5 inline-flex items-center gap-1.5 rounded-md bg-accent px-3 py-1.5 text-sm font-semibold text-white hover:bg-accent/90 disabled:opacity-60"
+      >
+        <Save className="size-3.5" />
+        {saving ? "Saving…" : "Save"}
+      </button>
+    </div>
+  );
+}
+
+function Labeled({ label, children }: { label: string; children: React.ReactNode }) {
+  return (
+    <label className="block">
+      <span className="mb-1.5 block text-xs uppercase tracking-wide text-muted-foreground">
+        {label}
+      </span>
+      {children}
+    </label>
+  );
+}
+
+function ToggleRow({
+  label,
+  hint,
+  checked,
+  onChange,
+}: {
+  label: string;
+  hint: string;
+  checked: boolean;
+  onChange: (v: boolean) => void;
+}) {
+  return (
+    <div className="flex items-start justify-between gap-4">
+      <div className="min-w-0">
+        <div className="text-sm font-medium">{label}</div>
+        <div className="text-[11px] text-muted-foreground">{hint}</div>
+      </div>
+      <Switch checked={checked} onCheckedChange={onChange} />
+    </div>
   );
 }
 

@@ -28,6 +28,10 @@ POLL_INTERVAL_S = 0.05  # 50 ms
 BATCH_FLUSH_S = 0.05
 BATCH_FLUSH_N = 100
 
+# Runs that finished as error during a flush; drained (and optionally auto-debugged)
+# after the transaction commits so we never trigger work mid-write.
+_pending_autostart: set[str] = set()
+
 
 def _path_exists(p: Path) -> bool:
     return p.exists()
@@ -105,6 +109,15 @@ async def _flush(events: list[dict[str, Any]]) -> None:
                 log.exception("Failed to apply event %s: %s", ev.get("type"), e)
         await s.commit()
 
+    # After commit: optional auto-debug for runs that just failed (off by default).
+    if _pending_autostart:
+        from husk_studio_backend.debugger.autostart import maybe_autostart
+
+        drained = list(_pending_autostart)
+        _pending_autostart.clear()
+        for run_id in drained:
+            await maybe_autostart(run_id)
+
 
 async def _apply(session: AsyncSession, ev: dict[str, Any]) -> None:
     etype = ev.get("type")
@@ -133,6 +146,8 @@ async def _apply(session: AsyncSession, ev: dict[str, Any]) -> None:
             row.status = data.get("status") or "success"
             row.finished_at = ts // 1000 or int(time.time() * 1000)
             row.error_message = data.get("error")
+            if row.status == "error":
+                _pending_autostart.add(run_id)
         return
 
     span_id = ev.get("span_id")

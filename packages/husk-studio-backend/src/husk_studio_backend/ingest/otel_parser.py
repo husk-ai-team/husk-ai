@@ -65,13 +65,21 @@ def _nano_to_ms(n: Any) -> int:
         return 0
 
 
+_HUSK_KINDS = {"llm", "tool", "chain", "agent_decision", "graph_node", "state_set"}
+
+
 def _resolve_kind(span_attrs: dict[str, Any]) -> str:
     """Heuristic mapping from GenAI span attributes to Husk span kinds.
 
-    Note: `gen_ai.system` alone is not enough (root agent spans often set
-    just the system tag for context). We require `gen_ai.operation.name` to
+    An explicit `husk.span_kind` (set by Husk's own instrumentation, e.g. the
+    engine telemetry hook's per-node `graph_node` spans) wins over the heuristics.
+    Otherwise: `gen_ai.system` alone is not enough (root agent spans often set
+    just the system tag for context), so we require `gen_ai.operation.name` to
     classify as `llm`.
     """
+    explicit = span_attrs.get("husk.span_kind")
+    if isinstance(explicit, str) and explicit in _HUSK_KINDS:
+        return explicit
     if span_attrs.get("gen_ai.tool.name") or span_attrs.get("gen_ai.tool.type"):
         return "tool"
     if "gen_ai.operation.name" in span_attrs:

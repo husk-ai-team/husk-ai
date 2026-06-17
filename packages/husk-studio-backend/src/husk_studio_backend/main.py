@@ -21,7 +21,9 @@ from husk_studio_backend.api import (
     branches,
     cursor,
     dashboard,
+    debugger,
     diff,
+    graph,
     integrations,
     otel,
     replay,
@@ -167,6 +169,8 @@ app.include_router(replay.router)
 app.include_router(integrations.router)
 app.include_router(dashboard.router)
 app.include_router(auth.router)
+app.include_router(graph.router)
+app.include_router(debugger.router)
 
 
 _LANDING_HTML = """<!doctype html>

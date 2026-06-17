@@ -85,6 +85,12 @@ async def ingest_traces(request: Request) -> Response:
             {"type": "span.created", "run_id": run_id, "span": span_payload},
         )
 
+    # Optional auto-debug for failed runs (off by default; no-op without a key).
+    from husk_studio_backend.debugger.autostart import maybe_autostart
+
+    for run_id in by_run:
+        await maybe_autostart(run_id)
+
     return Response(content=_OK_BODY, media_type="application/json")
 
 

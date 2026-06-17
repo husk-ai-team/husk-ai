@@ -1,6 +1,9 @@
 import { useEffect, useState } from "react";
 import { Link, useRoute } from "wouter";
 
+import { DebugReportCard } from "@/components/debugger/DebugReportCard";
+import { findNode, GraphView } from "@/components/graph/GraphView";
+import { NodeContextPanel } from "@/components/graph/NodeContextPanel";
 import { Inspector } from "@/components/inspector/Inspector";
 import { FrameworkBadge, StatusPill } from "@/components/StatusPill";
 import { Timeline } from "@/components/timeline/Timeline";
@@ -14,16 +17,20 @@ import {
   fmtDuration,
   fmtPct,
   fmtTokens,
+  getDebuggerConfig,
   getDiff,
   getRun,
+  getRunGraph,
   getSpans,
   listBranches,
   shortId,
   subscribeRun,
   type Branch,
+  type DebuggerConfig,
   type Run,
   type RunDiff,
   type RunEvent,
+  type RunGraph,
   type Span,
 } from "@/lib/api";
 import {
@@ -31,7 +38,9 @@ import {
   ArrowRight,
   GitBranch,
   GitCompare,
+  Network,
   PencilLine,
+  Rows3,
   Wifi,
   WifiOff,
   X,
@@ -50,6 +59,17 @@ export default function RunDetail() {
   const [childBranches, setChildBranches] = useState<Branch[]>([]);
   const [parentBranch, setParentBranch] = useState<Branch | null>(null);
   const [compare, setCompare] = useState<{ a: string; b: string } | null>(null);
+  const [tab, setTab] = useState<"graph" | "timeline">("graph");
+  const [graph, setGraph] = useState<RunGraph | null>(null);
+  const [selectedNodeId, setSelectedNodeId] = useState<string | null>(null);
+  const [dbgConfig, setDbgConfig] = useState<DebuggerConfig | null>(null);
+
+  const refreshGraph = () => {
+    if (!runId) return;
+    getRunGraph(runId)
+      .then(setGraph)
+      .catch(() => {});
+  };
 
   useEffect(() => {
     if (!runId) return;
@@ -61,6 +81,8 @@ export default function RunDetail() {
     setChildBranches([]);
     setParentBranch(null);
     setCompare(null);
+    setGraph(null);
+    setSelectedNodeId(null);
 
     Promise.all([getRun(runId), getSpans(runId)])
       .then(([r, s]) => {
@@ -70,6 +92,19 @@ export default function RunDetail() {
         if (s.length) setSelectedId(s[0].id);
       })
       .catch((e) => alive && setError(String(e)));
+
+    getRunGraph(runId)
+      .then((g) => {
+        if (!alive) return;
+        setGraph(g);
+        if (g.nodes.length) {
+          setSelectedNodeId(g.failure?.node_id ?? g.nodes[0].id);
+        }
+      })
+      .catch(() => {});
+    getDebuggerConfig()
+      .then((c) => alive && setDbgConfig(c))
+      .catch(() => {});
 
     // Lineage: replays produced from this run (as parent) and, if this run is
     // itself a replay, the branch that produced it (as child).
@@ -107,6 +142,7 @@ export default function RunDetail() {
   }
 
   const selected = spans.find((s) => s.id === selectedId) ?? null;
+  const selectedNode = graph ? findNode(graph, selectedNodeId) : null;
   const duration =
     run?.finished_at && run?.started_at ? run.finished_at - run.started_at : null;
   const totalTokens = (run?.total_tokens_in || 0) + (run?.total_tokens_out || 0);
@@ -152,19 +188,50 @@ export default function RunDetail() {
 
       <div className="h-[calc(100vh-260px)] min-h-[480px] overflow-hidden rounded-xl border border-border/30 bg-secondary/10">
         <ResizablePanelGroup direction="horizontal">
-          <ResizablePanel defaultSize={42} minSize={28}>
-            <Panel title={`Timeline · ${spans.length}`}>
-              <Timeline
-                spans={spans}
-                selectedId={selectedId}
-                onSelect={setSelectedId}
-              />
-            </Panel>
+          <ResizablePanel defaultSize={44} minSize={28}>
+            <div className="flex h-full flex-col">
+              <div className="flex items-center justify-between border-b border-border/30 bg-secondary/30 px-3 py-2">
+                <div className="inline-flex rounded-md border border-border/40 bg-background/40 p-0.5">
+                  <TabButton active={tab === "graph"} onClick={() => setTab("graph")}>
+                    <Network className="size-3.5" /> Graph
+                  </TabButton>
+                  <TabButton active={tab === "timeline"} onClick={() => setTab("timeline")}>
+                    <Rows3 className="size-3.5" /> Timeline · {spans.length}
+                  </TabButton>
+                </div>
+                {graph?.recursion_limit_hit && (
+                  <span className="rounded bg-destructive/15 px-1.5 py-0.5 text-[10px] text-destructive">
+                    recursion limit
+                  </span>
+                )}
+              </div>
+              <div className="flex-1 overflow-hidden">
+                {tab === "graph" ? (
+                  graph ? (
+                    <GraphView
+                      graph={graph}
+                      selectedId={selectedNodeId}
+                      onSelect={setSelectedNodeId}
+                    />
+                  ) : (
+                    <div className="flex h-full items-center justify-center text-sm text-muted-foreground">
+                      Building graph…
+                    </div>
+                  )
+                ) : (
+                  <Timeline spans={spans} selectedId={selectedId} onSelect={setSelectedId} />
+                )}
+              </div>
+            </div>
           </ResizablePanel>
           <ResizableHandle withHandle />
-          <ResizablePanel defaultSize={38} minSize={28}>
-            <Panel title="Inspector">
-              <Inspector span={selected} />
+          <ResizablePanel defaultSize={36} minSize={26}>
+            <Panel title={tab === "graph" ? "Node context" : "Inspector"}>
+              {tab === "graph" ? (
+                <NodeContextPanel node={selectedNode} />
+              ) : (
+                <Inspector span={selected} />
+              )}
             </Panel>
           </ResizablePanel>
           <ResizableHandle withHandle />
@@ -175,6 +242,9 @@ export default function RunDetail() {
               childBranches={childBranches}
               parentBranch={parentBranch}
               onCompare={setCompare}
+              report={graph?.debug_report ?? null}
+              hasKey={!!dbgConfig?.has_key}
+              onDebugChanged={refreshGraph}
             />
           </ResizablePanel>
         </ResizablePanelGroup>
@@ -254,18 +324,48 @@ function LiveBadge({ on }: { on: boolean }) {
   );
 }
 
+function TabButton({
+  active,
+  onClick,
+  children,
+}: {
+  active: boolean;
+  onClick: () => void;
+  children: React.ReactNode;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className={`inline-flex items-center gap-1.5 rounded px-2.5 py-1 text-[11px] font-semibold transition-colors ${
+        active
+          ? "bg-accent text-white"
+          : "text-muted-foreground hover:text-foreground"
+      }`}
+    >
+      {children}
+    </button>
+  );
+}
+
 function Actions({
   span,
   runId,
   childBranches,
   parentBranch,
   onCompare,
+  report,
+  hasKey,
+  onDebugChanged,
 }: {
   span: Span | null;
   runId: string;
   childBranches: Branch[];
   parentBranch: Branch | null;
   onCompare: (c: { a: string; b: string }) => void;
+  report: import("@/lib/api").DebugReportRow | null;
+  hasKey: boolean;
+  onDebugChanged: () => void;
 }) {
   return (
     <div className="flex h-full flex-col">
@@ -273,6 +373,12 @@ function Actions({
         Actions
       </div>
       <div className="flex flex-1 flex-col gap-2.5 overflow-auto p-4">
+        <DebugReportCard
+          runId={runId}
+          report={report}
+          hasKey={hasKey}
+          onChanged={onDebugChanged}
+        />
         <Link
           href={span ? `/runs/${runId}/replay` : "#"}
           onClick={(e) => {

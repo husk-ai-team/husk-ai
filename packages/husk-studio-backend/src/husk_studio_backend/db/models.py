@@ -5,6 +5,7 @@ from typing import Any
 from sqlalchemy import (
     JSON,
     BigInteger,
+    Boolean,
     Float,
     ForeignKey,
     Index,
@@ -132,6 +133,35 @@ class HttpCassetteRow(Base):
     latency_ms: Mapped[int] = mapped_column(Integer, default=0)
 
     __table_args__ = (UniqueConstraint("run_id", "request_hash", name="uq_cassette_run_hash"),)
+
+
+class DebugReportRow(Base):
+    """A persisted automatic-debugger analysis of a (usually failed) run.
+
+    A brand-new table: it does not change the shape of runs/spans/branches, so
+    ``Base.metadata.create_all`` (run every boot in ``init_db``) adds it to
+    existing v1 DBs with no migration, and the recording format version stays 1.
+    The user's API key is NEVER stored here — only the model's analysis.
+    """
+
+    __tablename__ = "debug_reports"
+
+    id: Mapped[str] = mapped_column(String(26), primary_key=True)
+    run_id: Mapped[str] = mapped_column(
+        String(26), ForeignKey("runs.id", ondelete="CASCADE"), index=True
+    )
+    failure_node: Mapped[str | None] = mapped_column(String(128), nullable=True)
+    failure_class: Mapped[str | None] = mapped_column(String(64), nullable=True)
+    report_json: Mapped[dict[str, Any]] = mapped_column(JSON)  # full DebugReport
+    provider: Mapped[str] = mapped_column(String(32))
+    model: Mapped[str] = mapped_column(String(128))
+    system_prompt_version: Mapped[str] = mapped_column(String(16), default="1")
+    confidence: Mapped[str | None] = mapped_column(String(16), nullable=True)
+    trigger: Mapped[str] = mapped_column(String(16), default="manual")  # manual | auto
+    applied: Mapped[bool] = mapped_column(Boolean, default=False)
+    created_at: Mapped[int] = mapped_column(BigInteger, index=True)
+
+    __table_args__ = (Index("idx_debug_run_created", "run_id", "created_at"),)
 
 
 class CursorEventRow(Base):

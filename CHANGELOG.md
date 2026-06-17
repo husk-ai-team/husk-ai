@@ -3,6 +3,59 @@
 All notable changes from the audit, refactor, and hardening pass. Grouped by
 theme; newest first.
 
+## [0.3.0] — Automatic LLM debugger (BYOK) + node-graph visualization
+
+### Automatic debugger (bring your own key)
+
+- **BYOK provider layer** (`husk_studio_backend/debugger/providers.py`): a small
+  provider abstraction over pure `httpx` (no new SDK deps) with Anthropic and
+  OpenAI implementations and a one-line registry to add more. The user picks the
+  provider and model; the model's context window (`husk_shared/model_metadata.py`)
+  sizes the context budget.
+- **Local-first key handling** (`debugger/secrets.py`): the key lives only in
+  `~/.husk/secrets.json` (chmod 0600 on POSIX) with an `ANTHROPIC_API_KEY` /
+  `OPENAI_API_KEY` env fallback. It is never logged, never written into traces or
+  exports, and `GET /api/debugger/config` returns `has_key` only — never the key.
+  Provider calls go straight from the local backend to the provider, never through
+  a Husk server.
+- **Failure-focused context assembler** (`debugger/context_assembler.py`): builds
+  the LLM input from a run — topology, executed path, per-node state + diff, tool
+  calls, model calls (prompt/response/tokens), exceptions/stack traces, and the
+  recursion-limit signal. Big traces are windowed: full detail around the failure,
+  far regions summarized or dropped to fit the selected model's window — the
+  failure region is never cut.
+- **Shipped, versioned system prompt** (`debugger/system_prompt.py`): instructs
+  symptom-vs-cause reasoning, walking back to the first divergence, failure
+  classification, and strict JSON output. Output is validated with a forbid-extra
+  Pydantic schema and a tolerant extractor (`debugger/schemas.py`); fabricated
+  trace content and silent guessing are forbidden.
+- **Propose, don't apply.** `POST /api/debugger/runs/{id}/analyze` runs on demand;
+  auto-analysis of failed runs is opt-in and **off by default**. A proposed fix is
+  shown as a diff; applying it (`/apply-fix`) requires an explicit confirm and the
+  off-by-default "allow applying fixes" toggle, writes a `.husk-bak` backup, and is
+  atomic (clean apply or nothing). Reports persist in a new `debug_reports` table.
+
+### Agent visualization (UI + structured data layer)
+
+- **Structural per-node data.** The engine (`husk_shared/engine.py`) gained an
+  optional, no-op-by-default telemetry hook; the example agent uses it to emit a
+  `graph_node` span per node carrying before/after state, the state diff, and (on
+  exceptions) a stack trace, with the node's model/tool spans nested under it. Graph
+  topology is written onto the root span. This data now exists in the trace rather
+  than being reconstructed.
+- **Per-node graph API** (`GET /api/v1/runs/{id}/graph`): nodes with status
+  (success / error / **skipped** / running), per-node state + diff, model and tool
+  calls, tokens, timing, the detected failure point, edges (incl. conditional
+  edges/labels when recoverable), and the attached debugger report.
+- **Node-graph UI**: a new dependency-free SVG graph view in the run detail page —
+  state-colored nodes, a highlighted failure point, arrowed/labeled edges, a
+  per-node context panel (input/output, prompt/response, errors, before/after state
+  diff), a Timeline/Graph toggle, and the debugger report overlaid on the
+  implicated nodes. A BYOK panel was added to Settings.
+- **No recording-format bump.** `debug_reports` is a brand-new table created by
+  `create_all`; it does not change the shape of `runs`/`spans`/`branches`, so
+  `RECORDING_FORMAT_VERSION` stays at 1 and old/new DBs stay mutually readable.
+
 ## [0.2.0] — Husk's own replay engine
 
 ### The modify-and-replay primitive is now Husk's own

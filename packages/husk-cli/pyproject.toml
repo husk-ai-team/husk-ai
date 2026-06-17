@@ -1,6 +1,6 @@
 [project]
 name = "husk-ai"
-version = "0.2.0"
+version = "0.3.0"
 description = "Husk — the visual debugger for AI agents (CLI). Installs the `husk-ai` command. Local-first, source-available (BUSL 1.1)."
 readme = "README.md"
 requires-python = ">=3.11"
