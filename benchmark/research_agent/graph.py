@@ -708,7 +708,8 @@ def _set_topology_attrs(root) -> None:  # type: ignore[no-untyped-def]
     names = graph.node_names
     root.set_attribute("husk.graph.nodes", json.dumps(names))
     root.set_attribute(
-        "husk.graph.edges", json.dumps([[a, b] for a, b in zip(names, names[1:])])
+        "husk.graph.edges",
+        json.dumps([[a, b] for a, b in zip(names, names[1:], strict=False)]),
     )
 
 

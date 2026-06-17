@@ -280,7 +280,7 @@ def build_run_graph(run: RunRow, spans: list[SpanRow]) -> RunGraph:
             elif isinstance(e, dict) and "from" in e and "to" in e:
                 edges.append({"from": str(e["from"]), "to": str(e["to"]), "conditional": False, "label": None})
     else:
-        for a, b in zip(executed_names, executed_names[1:]):
+        for a, b in zip(executed_names, executed_names[1:], strict=False):
             edges.append({"from": a, "to": b, "conditional": False, "label": None})
     if isinstance(cond_edges, list):
         for e in cond_edges:

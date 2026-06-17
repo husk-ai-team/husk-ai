@@ -154,7 +154,8 @@ def _post(
         # Provider error bodies do not contain the API key; include a short,
         # truncated snippet to aid debugging (status + provider message).
         raise ProviderError(f"provider returned {resp.status_code}: {resp.text[:300]}")
-    return resp.json()
+    data: dict[str, Any] = resp.json()
+    return data
 
 
 _PROVIDERS: dict[str, LLMProvider] = {

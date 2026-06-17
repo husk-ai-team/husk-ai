@@ -57,7 +57,7 @@ async def _seed_failed_run() -> None:
                     "husk.graph_module": "agent.py:graph",
                     "husk.graph.nodes": json.dumps(_NODES),
                     "husk.graph.edges": json.dumps(
-                        [[a, b] for a, b in zip(_NODES, _NODES[1:])]
+                        [[a, b] for a, b in zip(_NODES, _NODES[1:], strict=False)]
                     ),
                 },
             )
