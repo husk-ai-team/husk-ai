@@ -12,20 +12,25 @@ router = APIRouter(prefix="/api/v1/runs", tags=["runs"])
 
 
 @router.get("")
-async def list_runs(limit: int = 50, offset: int = 0) -> list[dict[str, Any]]:
+async def list_runs(
+    limit: int = 50,
+    offset: int = 0,
+    status: str | None = None,
+    framework: str | None = None,
+    q: str | None = None,
+) -> list[dict[str, Any]]:
+    """Recent runs, newest first. Optional filters: ``status``, ``framework``
+    (substring), and ``q`` (substring match on script_path or run id)."""
     async with async_session() as s:
-        rows = (
-            (
-                await s.execute(
-                    select(RunRow)
-                    .order_by(RunRow.started_at.desc())
-                    .limit(limit)
-                    .offset(offset)
-                )
-            )
-            .scalars()
-            .all()
-        )
+        query = select(RunRow).order_by(RunRow.started_at.desc())
+        if status:
+            query = query.where(RunRow.status == status)
+        if framework:
+            query = query.where(RunRow.framework.like(f"%{framework}%"))
+        if q:
+            like = f"%{q}%"
+            query = query.where(RunRow.script_path.like(like) | RunRow.id.like(like))
+        rows = (await s.execute(query.limit(limit).offset(offset))).scalars().all()
         return [_serialize(r) for r in rows]
 
 

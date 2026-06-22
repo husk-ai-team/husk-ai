@@ -3,9 +3,12 @@
 
 @custom-variant dark (&:is(.dark *));
 
-/* Modern tech-forward fonts */
+/* Type system: Geist (UI sans) + Geist Mono (data/code) + Instrument Serif
+ * (editorial display for hero titles — a deliberate, characterful counterpoint
+ * to the technical UI; the name is a happy accident for an instrument). */
 @import url('https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&display=swap');
 @import url('https://fonts.googleapis.com/css2?family=Geist+Mono:wght@400;500&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&display=swap');
 
 @theme inline {
   --radius-sm: calc(var(--radius) - 4px);
@@ -46,77 +49,93 @@
   --color-sidebar-ring: var(--sidebar-ring);
 }
 
+/*
+ * Husk Studio — "warm instrument" dark theme.
+ *
+ * Neutrals are tinted toward the brand's warm hue (~56) instead of the old cold
+ * blue-grey, so the orange accent reads as an ember that belongs in the room
+ * rather than a sticker on cold metal. OKLCH throughout: chroma stays low on the
+ * neutrals and falls toward the extremes, so nothing goes muddy or garish.
+ */
 :root {
-  /* Modern Tech-Forward: Dark + Orange Accent */
-  --primary: #FF6B35;
-  --primary-foreground: #FFFFFF;
-  --sidebar-primary: #FF6B35;
-  --sidebar-primary-foreground: #FFFFFF;
-  --chart-1: #FF6B35;
-  --chart-2: #FF8C42;
-  --chart-3: #FF6B35;
-  --chart-4: #FF8C42;
-  --chart-5: #FF6B35;
-  --radius: 0.75rem;
-  --background: #0F1117;
-  --foreground: #E6E6E6;
-  --card: #161B22;
-  --card-foreground: #E6E6E6;
-  --popover: #161B22;
-  --popover-foreground: #E6E6E6;
-  --secondary: #21262D;
-  --secondary-foreground: #E6E6E6;
-  --muted: #30363D;
-  --muted-foreground: #8B949E;
-  --accent: #FF6B35;
-  --accent-foreground: #FFFFFF;
-  --destructive: #F85149;
-  --destructive-foreground: #FFFFFF;
-  --border: #30363D;
-  --input: #0D1117;
-  --ring: #FF6B35;
-  --sidebar: #0F1117;
-  --sidebar-foreground: #E6E6E6;
-  --sidebar-accent: #FF6B35;
-  --sidebar-accent-foreground: #FFFFFF;
-  --sidebar-border: #30363D;
-  --sidebar-ring: #FF6B35;
+  --radius: 0.8rem;
+
+  /* Brand */
+  --primary: oklch(0.705 0.186 44);
+  --primary-foreground: oklch(0.99 0.004 80);
+  --accent: oklch(0.705 0.186 44);
+  --accent-foreground: oklch(0.99 0.004 80);
+  --ring: oklch(0.705 0.186 44);
+
+  /* Warm neutral ramp (hue ~56, low chroma) */
+  --background: oklch(0.158 0.006 56);
+  --foreground: oklch(0.928 0.009 78);
+  --card: oklch(0.198 0.008 56);
+  --card-foreground: oklch(0.928 0.009 78);
+  --popover: oklch(0.198 0.008 56);
+  --popover-foreground: oklch(0.928 0.009 78);
+  --secondary: oklch(0.242 0.010 56);
+  --secondary-foreground: oklch(0.928 0.009 78);
+  --muted: oklch(0.300 0.012 56);
+  --muted-foreground: oklch(0.672 0.020 64);
+  --border: oklch(0.300 0.013 56);
+  --input: oklch(0.140 0.006 56);
+
+  /* Semantic */
+  --destructive: oklch(0.640 0.205 27);
+  --destructive-foreground: oklch(0.985 0.004 80);
+
+  /* Data viz: a warm orange-amber spine with two cool counterpoints */
+  --chart-1: oklch(0.705 0.186 44);
+  --chart-2: oklch(0.800 0.130 74);
+  --chart-3: oklch(0.720 0.120 196);
+  --chart-4: oklch(0.760 0.120 28);
+  --chart-5: oklch(0.660 0.130 286);
+
+  /* Sidebar / chrome (one step darker than content) */
+  --sidebar: oklch(0.150 0.006 56);
+  --sidebar-foreground: oklch(0.928 0.009 78);
+  --sidebar-primary: oklch(0.705 0.186 44);
+  --sidebar-primary-foreground: oklch(0.99 0.004 80);
+  --sidebar-accent: oklch(0.705 0.186 44);
+  --sidebar-accent-foreground: oklch(0.99 0.004 80);
+  --sidebar-border: oklch(0.300 0.013 56);
+  --sidebar-ring: oklch(0.705 0.186 44);
 }
 
 .dark {
-  /* Same as :root - dark theme is default */
-  --primary: #FF6B35;
-  --primary-foreground: #FFFFFF;
-  --sidebar-primary: #FF6B35;
-  --sidebar-primary-foreground: #FFFFFF;
-  --background: #0F1117;
-  --foreground: #E6E6E6;
-  --card: #161B22;
-  --card-foreground: #E6E6E6;
-  --popover: #161B22;
-  --popover-foreground: #E6E6E6;
-  --secondary: #21262D;
-  --secondary-foreground: #E6E6E6;
-  --muted: #30363D;
-  --muted-foreground: #8B949E;
-  --accent: #FF6B35;
-  --accent-foreground: #FFFFFF;
-  --destructive: #F85149;
-  --destructive-foreground: #FFFFFF;
-  --border: #30363D;
-  --input: #0D1117;
-  --ring: #FF6B35;
-  --chart-1: #FF6B35;
-  --chart-2: #FF8C42;
-  --chart-3: #FF6B35;
-  --chart-4: #FF8C42;
-  --chart-5: #FF6B35;
-  --sidebar: #0F1117;
-  --sidebar-foreground: #E6E6E6;
-  --sidebar-accent: #FF6B35;
-  --sidebar-accent-foreground: #FFFFFF;
-  --sidebar-border: #30363D;
-  --sidebar-ring: #FF6B35;
+  --primary: oklch(0.705 0.186 44);
+  --primary-foreground: oklch(0.99 0.004 80);
+  --accent: oklch(0.705 0.186 44);
+  --accent-foreground: oklch(0.99 0.004 80);
+  --ring: oklch(0.705 0.186 44);
+  --background: oklch(0.158 0.006 56);
+  --foreground: oklch(0.928 0.009 78);
+  --card: oklch(0.198 0.008 56);
+  --card-foreground: oklch(0.928 0.009 78);
+  --popover: oklch(0.198 0.008 56);
+  --popover-foreground: oklch(0.928 0.009 78);
+  --secondary: oklch(0.242 0.010 56);
+  --secondary-foreground: oklch(0.928 0.009 78);
+  --muted: oklch(0.300 0.012 56);
+  --muted-foreground: oklch(0.672 0.020 64);
+  --border: oklch(0.300 0.013 56);
+  --input: oklch(0.140 0.006 56);
+  --destructive: oklch(0.640 0.205 27);
+  --destructive-foreground: oklch(0.985 0.004 80);
+  --chart-1: oklch(0.705 0.186 44);
+  --chart-2: oklch(0.800 0.130 74);
+  --chart-3: oklch(0.720 0.120 196);
+  --chart-4: oklch(0.760 0.120 28);
+  --chart-5: oklch(0.660 0.130 286);
+  --sidebar: oklch(0.150 0.006 56);
+  --sidebar-foreground: oklch(0.928 0.009 78);
+  --sidebar-primary: oklch(0.705 0.186 44);
+  --sidebar-primary-foreground: oklch(0.99 0.004 80);
+  --sidebar-accent: oklch(0.705 0.186 44);
+  --sidebar-accent-foreground: oklch(0.99 0.004 80);
+  --sidebar-border: oklch(0.300 0.013 56);
+  --sidebar-ring: oklch(0.705 0.186 44);
 }
 
 @layer base {
@@ -125,9 +144,36 @@
   }
   body {
     @apply bg-background text-foreground;
+    /* Warm ember glow from the top edge — atmosphere over the flat charcoal. */
+    background-image: radial-gradient(
+      78% 58% at 50% -14%,
+      oklch(0.705 0.186 44 / 0.08),
+      transparent 70%
+    );
+    background-attachment: fixed;
     font-family: 'Geist', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
   }
-  h1, h2, h3, h4, h5, h6 {
+  /* Fine film grain, fixed behind the app, so surfaces never feel like flat fills. */
+  body::after {
+    content: "";
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+    opacity: 0.035;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  }
+  #root {
+    position: relative;
+    z-index: 1;
+  }
+  /* Hero titles: editorial serif. UI sub-headings stay in Geist. */
+  h1 {
+    font-family: 'Instrument Serif', Georgia, 'Times New Roman', serif;
+    font-weight: 400;
+    letter-spacing: -0.01em;
+  }
+  h2, h3, h4, h5, h6 {
     font-family: 'Geist', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
     font-weight: 700;
     letter-spacing: -0.02em;
@@ -209,6 +255,33 @@
   /* Brutalist transitions */
   .brutal-transition {
     transition: all 200ms ease-in-out;
+  }
+
+  /* Editorial display utility (Instrument Serif), for hero titles. */
+  .font-display {
+    font-family: 'Instrument Serif', Georgia, 'Times New Roman', serif;
+    font-weight: 400;
+    letter-spacing: -0.01em;
+  }
+
+  /* One-shot content reveal on mount: quick, ease-out, no bounce. */
+  @keyframes husk-rise {
+    from {
+      opacity: 0;
+      transform: translateY(10px);
+    }
+    to {
+      opacity: 1;
+      transform: none;
+    }
+  }
+  .husk-rise {
+    animation: husk-rise 460ms cubic-bezier(0.16, 1, 0.3, 1) both;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .husk-rise {
+      animation: none;
+    }
   }
 
   @media (min-width: 640px) {

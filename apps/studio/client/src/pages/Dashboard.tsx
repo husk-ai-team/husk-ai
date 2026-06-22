@@ -19,8 +19,10 @@ import {
   fmtDuration,
   getDashboardSummary,
   getIntegrationsStatus,
+  getRuns,
   type AllIntegrationStatus,
   type DashboardSummary,
+  type Run,
 } from "@/lib/api";
 import { useSession } from "@/lib/auth";
 
@@ -30,12 +32,14 @@ export default function Dashboard() {
   const { session } = useSession();
   const [data, setData] = useState<DashboardSummary | null>(null);
   const [status, setStatus] = useState<AllIntegrationStatus | null>(null);
+  const [failures, setFailures] = useState<Run[]>([]);
 
   useEffect(() => {
     let alive = true;
     const tick = () => {
       getDashboardSummary().then((d) => alive && setData(d)).catch(() => {});
       getIntegrationsStatus().then((s) => alive && setStatus(s)).catch(() => {});
+      getRuns({ status: "error", limit: 5 }).then((f) => alive && setFailures(f)).catch(() => {});
     };
     tick();
     const t = setInterval(tick, POLL_MS);
@@ -50,14 +54,14 @@ export default function Dashboard() {
 
   return (
     <>
-      <section className="px-6 md:px-12 pt-12 md:pt-16 pb-20 max-w-6xl mx-auto">
+      <section className="husk-rise px-6 md:px-12 pt-12 md:pt-16 pb-20 max-w-6xl mx-auto">
         {/* Hero */}
         <div className="mb-10 md:mb-14">
           <div className="text-xs uppercase tracking-[0.18em] text-accent">
             Welcome back
           </div>
-          <h1 className="mt-2 text-4xl md:text-6xl font-bold tracking-[-0.02em]">
-            Hi, <span className="text-accent">{firstName}</span>.
+          <h1 className="mt-2 text-5xl md:text-7xl font-normal tracking-[-0.01em]">
+            Hi, <span className="text-accent italic">{firstName}</span>.
           </h1>
           <p className="mt-3 text-sm md:text-base text-muted-foreground max-w-2xl">
             Your local Husk. Real-time view of every run, every span, every
@@ -137,7 +141,7 @@ export default function Dashboard() {
           <Tile
             icon={<AlertTriangle className="size-3.5" />}
             label="Errors"
-            href="/runs"
+            href="/runs?status=error"
           >
             <StatNumber
               value={data?.totals.errors ?? "—"}
@@ -190,6 +194,33 @@ export default function Dashboard() {
           </div>
 
           <div>
+            {failures.length > 0 && (
+              <div className="mb-6">
+                <SectionTitle icon={<AlertTriangle className="size-3.5" />}>
+                  Recent failures
+                </SectionTitle>
+                <div className="overflow-hidden rounded-xl border border-destructive/30 bg-destructive/5 divide-y divide-border/30">
+                  {failures.map((r) => (
+                    <Link
+                      key={r.id}
+                      href={`/runs/${r.id}`}
+                      className="flex items-center gap-3 px-4 py-3 hover:bg-secondary/20 transition-colors"
+                    >
+                      <FrameworkDot framework={r.framework} />
+                      <div className="min-w-0 flex-1">
+                        <div className="truncate text-sm font-medium">
+                          {r.script_path || `${r.id.slice(0, 12)}…`}
+                        </div>
+                        <div className="mt-0.5 text-xs text-muted-foreground">
+                          {fmtAgo(r.started_at)}
+                        </div>
+                      </div>
+                      <StatusPill status={r.status} />
+                    </Link>
+                  ))}
+                </div>
+              </div>
+            )}
             <SectionTitle icon={<PlugZap className="size-3.5" />}>
               By framework
             </SectionTitle>

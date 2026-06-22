@@ -32,7 +32,6 @@ class ConfigUpdate(BaseModel):
     provider: str | None = None
     model: str | None = None
     auto_analyze: bool | None = None
-    auto_apply: bool | None = None
     api_key: str | None = None  # write-only; never echoed back
 
 
@@ -59,7 +58,6 @@ async def update_config(body: ConfigUpdate) -> dict[str, Any]:
         provider=body.provider,
         model=body.model,
         auto_analyze=body.auto_analyze,
-        auto_apply=body.auto_apply,
         api_key=body.api_key,
     )
     return secrets.public_config()

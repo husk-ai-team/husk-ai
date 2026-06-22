@@ -3,6 +3,43 @@
 All notable changes from the audit, refactor, and hardening pass. Grouped by
 theme; newest first.
 
+## [0.4.0] — Security hardening, dead-code removal, terminal/CI workflow
+
+### Security
+- **Replay RCE closed.** `/api/replay` imported and executed a graph-module path
+  taken from stored run data with no auth. Added a shared loopback + Origin guard
+  (`api/_guard.py`) on the replay / OTel-ingest / debugger routers, and a
+  `graph_module` allowlist in `replay/graph_replay.py` (cwd or
+  `$HUSK_ALLOWED_GRAPH_DIRS`) so only trusted project files can be imported.
+- **At-rest hardening.** `~/.husk` is created `0700` and `traces.db` `0600`; an
+  opt-out redaction pass (`HUSK_NO_REDACT=1`) scrubs common key/token shapes from
+  ingested prompts/completions/tool I/O before they are persisted.
+- Removed all `husk.dev` references (CORS allow-list, landing page, Studio footer,
+  package metadata) — links now point at the GitHub repository.
+
+### Zero-friction capture + terminal/CI
+- **`husk_shared.instrument()`** — one call wires OpenTelemetry export to Husk
+  (lazy OTel import, no new hard dependency); `llm_span()` sets the GenAI attrs.
+- **`husk run <command…>`** runs your agent and captures it in one step (auto-starts
+  the backend, sets `$OTEL_EXPORTER_OTLP_ENDPOINT`, prints the run URL).
+  **`husk replay <run_id>`** and **`husk export <run_id>`** bring replay and portable
+  run bundles to the shell and CI.
+
+### Studio
+- Run **search + status filters**, a **Recent failures** dashboard tile, and the
+  **Errors** tile deep-links to the filtered view. **Replay is gated**: runs without
+  a graph module show a clear explanation instead of a `400`.
+
+### Cleanup
+- Deleted the dead legacy `husk run` / sandbox execution path (~8k LOC); `husk-sandbox`
+  is now just the HTTP cassette. Removed the inert `auto_apply` config. Pruned 50
+  unused Studio components and 35 unused frontend dependencies.
+
+### Tests
+- Security regressions (replay-RCE allowlist, loopback guard, ingest redaction),
+  `instrument()` / CLI / runs-filter tests, and end-to-end flows (capture→read,
+  BYOK debugger with a mocked LLM, replay on Husk's own engine). Suite: 110 passing.
+
 ## [0.3.0] — Automatic LLM debugger (BYOK) + node-graph visualization
 
 ### Automatic debugger (bring your own key)

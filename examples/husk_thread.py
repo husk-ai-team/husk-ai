@@ -26,37 +26,23 @@ import uuid
 from pathlib import Path
 
 from opentelemetry import trace
-from opentelemetry.exporter.otlp.proto.http.trace_exporter import OTLPSpanExporter
-from opentelemetry.sdk.resources import Resource
-from opentelemetry.sdk.trace import TracerProvider
-from opentelemetry.sdk.trace.export import BatchSpanProcessor
 
+from husk_shared import instrument
 from husk_shared.engine import LinearExecutor, LinearGraph, SnapshotStore
 
 log = logging.getLogger(__name__)
 
-# OTLP endpoint — honors $OTEL_EXPORTER_OTLP_ENDPOINT (standard OTel env var)
-# so the backend can override when replaying on a non-default port. Falls back
-# to the default Husk port.
-_otlp_base = os.environ.get("OTEL_EXPORTER_OTLP_ENDPOINT", "http://localhost:7654").rstrip("/")
-ENDPOINT = f"{_otlp_base}/v1/traces"
 GRAPH_FILE = str(Path(__file__).resolve())
 
-# Tracer is set up lazily so the module can be re-imported by the backend
-# without setting up another global processor.
+# One call sets up OTel export to Husk (honors $OTEL_EXPORTER_OTLP_ENDPOINT so the
+# backend can override the port during replay). Lazy so re-import is cheap.
 _tracer = None
 
 
 def _get_tracer():  # type: ignore[no-untyped-def]
     global _tracer
-    if _tracer is not None:
-        return _tracer
-    provider = trace.get_tracer_provider()
-    if not hasattr(provider, "add_span_processor"):
-        provider = TracerProvider(resource=Resource.create({"service.name": "husk-demo"}))
-        provider.add_span_processor(BatchSpanProcessor(OTLPSpanExporter(endpoint=ENDPOINT)))
-        trace.set_tracer_provider(provider)
-    _tracer = trace.get_tracer("husk.examples.husk_thread")
+    if _tracer is None:
+        _tracer = instrument(service_name="husk-demo")
     return _tracer
 
 

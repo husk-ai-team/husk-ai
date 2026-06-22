@@ -33,7 +33,7 @@ PROVIDER_ENV_VAR: dict[str, str] = {
 DEFAULT_PROVIDER = "anthropic"
 DEFAULT_MODEL = "claude-sonnet-4"
 
-_PUBLIC_FIELDS = ("provider", "model", "auto_analyze", "auto_apply")
+_PUBLIC_FIELDS = ("provider", "model", "auto_analyze")
 
 
 def _secrets_path() -> Any:
@@ -45,7 +45,6 @@ def _default_config() -> dict[str, Any]:
         "provider": DEFAULT_PROVIDER,
         "model": DEFAULT_MODEL,
         "auto_analyze": False,
-        "auto_apply": False,
         "keys": {},  # provider -> api key (local only)
     }
 
@@ -88,7 +87,6 @@ def public_config() -> dict[str, Any]:
         "provider": provider,
         "model": str(raw.get("model") or DEFAULT_MODEL),
         "auto_analyze": bool(raw.get("auto_analyze")),
-        "auto_apply": bool(raw.get("auto_apply")),
         "has_key": resolve_api_key(provider) is not None,
     }
 
@@ -98,7 +96,6 @@ def save_config(
     provider: str | None = None,
     model: str | None = None,
     auto_analyze: bool | None = None,
-    auto_apply: bool | None = None,
     api_key: str | None = None,
 ) -> None:
     """Persist config. A provided ``api_key`` is stored for the active provider.
@@ -113,8 +110,6 @@ def save_config(
         cfg["model"] = model
     if auto_analyze is not None:
         cfg["auto_analyze"] = bool(auto_analyze)
-    if auto_apply is not None:
-        cfg["auto_apply"] = bool(auto_apply)
     if api_key:
         target = provider or cfg.get("provider") or DEFAULT_PROVIDER
         keys = dict(cfg.get("keys") or {})

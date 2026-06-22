@@ -126,6 +126,9 @@ async def replay(req: ReplayRequest, request: Request) -> dict[str, Any]:
             parent_thread_id=parent_thread_id,
             fork_node=fork_node,
         )
+    except PermissionError as e:
+        # graph_module outside the allowed roots — refuse to import/execute it.
+        raise HTTPException(status_code=403, detail=str(e)) from e
     except FileNotFoundError as e:
         raise HTTPException(status_code=404, detail=str(e)) from e
     except (ImportError, AttributeError, TypeError) as e:

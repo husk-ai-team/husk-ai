@@ -138,6 +138,12 @@ export default function Replay() {
     }
   };
 
+  // Only graph-instrumented runs (those that recorded husk.graph_module) can be
+  // re-imported and replayed; plain OTel-observability runs cannot.
+  const replayable = spans.some(
+    (s) => Boolean((s.attrs as Record<string, unknown> | null)?.["husk.graph_module"]),
+  );
+
   return (
     <section className="px-6 md:px-12 pt-12 pb-16 max-w-6xl mx-auto">
       <Link
@@ -153,9 +159,9 @@ export default function Replay() {
           <Sparkles className="size-3.5" />
           Time-travel
         </div>
-        <h1 className="mt-2 text-4xl md:text-5xl font-bold tracking-[-0.02em] flex items-baseline gap-3">
+        <h1 className="mt-2 text-5xl md:text-6xl font-normal tracking-[-0.01em] flex items-baseline gap-3">
           <PencilLine className="hidden md:inline-block size-7 text-accent" />
-          Modify <span className="text-accent">&amp;</span> replay
+          Modify <span className="text-accent italic">&amp;</span> replay
         </h1>
         {run && (
           <p className="mt-2 text-sm text-muted-foreground">
@@ -164,6 +170,15 @@ export default function Replay() {
           </p>
         )}
       </div>
+
+      {run && spans.length > 0 && !replayable && (
+        <div className="mb-6 rounded-lg border border-amber-500/40 bg-amber-500/10 px-4 py-3 text-sm text-amber-200">
+          This run is observability-only — no{" "}
+          <code className="font-mono text-xs">husk.graph_module</code> was recorded, so it
+          can&apos;t be replayed. Replay works on agents running on Husk&apos;s own engine (see{" "}
+          <code className="font-mono text-xs">examples/husk_thread.py</code>).
+        </div>
+      )}
 
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-5">
         <section className="lg:col-span-2 overflow-hidden rounded-xl border border-border/30 bg-secondary/10">
@@ -207,7 +222,12 @@ export default function Replay() {
               <button
                 type="button"
                 onClick={runReplay}
-                disabled={running || !runId}
+                disabled={running || !runId || !replayable}
+                title={
+                  replayable
+                    ? undefined
+                    : "This run is observability-only — no graph module was recorded, so it can't be replayed."
+                }
                 className="inline-flex items-center gap-2 rounded-md bg-accent px-4 py-1.5 text-sm font-semibold text-white hover:bg-accent/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 <Play className="size-3.5" />

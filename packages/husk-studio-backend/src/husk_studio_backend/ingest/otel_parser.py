@@ -11,11 +11,56 @@ from __future__ import annotations
 
 import base64
 import logging
+import os
+import re
 from collections.abc import Iterable
 from dataclasses import dataclass
 from typing import Any
 
 log = logging.getLogger(__name__)
+
+# ── secret redaction ─────────────────────────────────────────────────────────
+# Recorded prompts/completions/tool I/O are persisted in cleartext in traces.db
+# and may also be shipped to the BYOK debugger LLM. Scrub the obvious provider
+# secret shapes before persist. Opt out with HUSK_NO_REDACT=1. This is a coarse
+# net (not a guarantee) — it catches the common key/token formats, not arbitrary
+# user PII.
+_REDACTED = "***REDACTED***"
+_TOKEN_PATTERNS = [
+    re.compile(r"sk-ant-[A-Za-z0-9_-]{20,}"),  # Anthropic
+    re.compile(r"sk-[A-Za-z0-9]{20,}"),  # OpenAI-style
+    re.compile(r"AKIA[0-9A-Z]{16}"),  # AWS access key id
+    re.compile(r"AIza[0-9A-Za-z_-]{35}"),  # Google API key
+    re.compile(r"ghp_[A-Za-z0-9]{36}"),  # GitHub PAT
+    re.compile(r"xox[baprs]-[A-Za-z0-9-]{10,}"),  # Slack
+    re.compile(r"(?i)bearer\s+[A-Za-z0-9._\-]{12,}"),  # Authorization: Bearer ...
+]
+_KEYED = re.compile(
+    r'(?i)(api[_-]?key|secret|token|password)("?\s*[:=]\s*"?)([A-Za-z0-9._\-]{8,})'
+)
+
+
+def _redact_text(s: str) -> str:
+    out = _KEYED.sub(lambda m: f"{m.group(1)}{m.group(2)}{_REDACTED}", s)
+    for pat in _TOKEN_PATTERNS:
+        out = pat.sub(_REDACTED, out)
+    return out
+
+
+def _redact(obj: Any) -> Any:
+    if isinstance(obj, str):
+        return _redact_text(obj)
+    if isinstance(obj, list):
+        return [_redact(x) for x in obj]
+    if isinstance(obj, dict):
+        return {k: _redact(v) for k, v in obj.items()}
+    return obj
+
+
+def _maybe_redact(obj: Any) -> Any:
+    if os.environ.get("HUSK_NO_REDACT", "").strip().lower() in {"1", "true", "yes", "on"}:
+        return obj
+    return _redact(obj)
 
 
 def decode_attr_value(v: dict[str, Any]) -> Any:
@@ -207,8 +252,8 @@ def parse_otlp_traces(body: dict[str, Any]) -> list[ParsedSpan]:
                         started_at_ms=_nano_to_ms(span.get("startTimeUnixNano")),
                         finished_at_ms=_nano_to_ms(span.get("endTimeUnixNano")) or None,
                         status=status,
-                        input_inline={"messages": inputs} if inputs else None,
-                        output_inline={"choices": outputs} if outputs else None,
+                        input_inline=_maybe_redact({"messages": inputs}) if inputs else None,
+                        output_inline=_maybe_redact({"choices": outputs}) if outputs else None,
                         tokens_in=_tokens(span_attrs, "input"),
                         tokens_out=_tokens(span_attrs, "output"),
                         provider=span_attrs.get("gen_ai.system"),
@@ -217,7 +262,7 @@ def parse_otlp_traces(body: dict[str, Any]) -> list[ParsedSpan]:
                             or span_attrs.get("gen_ai.request.model")
                         ),
                         attrs={**span_attrs, "_resource": resource_attrs},
-                        error_payload=err_payload,
+                        error_payload=_maybe_redact(err_payload),
                         service_name=service_name,
                         gen_ai_system=span_attrs.get("gen_ai.system"),
                     )

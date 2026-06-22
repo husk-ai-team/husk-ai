@@ -148,9 +148,19 @@ def verify_recording_version(db_path: Path) -> int:
 
 async def init_db() -> None:
     """Create tables and stamp/verify the recording format version."""
+    import os
+
+    from husk_studio_backend.config import husk_home
     from husk_studio_backend.db.models import Base
 
     engine = async_engine()
     async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.create_all)
         await conn.run_sync(_ensure_recording_version)
+
+    # The trace DB holds cleartext prompts/completions/tool I/O. Lock it to the
+    # owner (best-effort; on Windows the ~/.husk ACL is the real protection).
+    try:
+        os.chmod(husk_home() / "traces.db", 0o600)
+    except OSError:
+        pass

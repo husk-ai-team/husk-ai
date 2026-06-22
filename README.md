@@ -30,6 +30,37 @@ your agent data never leaves it.
   <img src="assets/husk-comparison.png" alt="Before Husk: a wall of logs. After Husk: a clean visual timeline." width="100%" />
 </p>
 
+## Requirements
+
+- **Python 3.11+** and **[uv](https://docs.astral.sh/uv/)** — uv installs the pinned 3.11 for you.
+- **Node.js 20+** with `corepack` — only needed to build the Studio UI the first time; the API and CLI run without it.
+- An LLM API key is **optional** — only the bring-your-own-key auto-debugger uses one, and it stays on your machine.
+
+## Quick start
+
+```bash
+git clone https://github.com/husk-ai-team/husk-ai.git && cd husk-ai
+uv sync --all-packages
+uv run husk-ai start                      # local Studio at http://localhost:7654
+```
+
+Then get a run in front of you — pick one:
+
+```bash
+uv run husk-ai demo                        # seed a sample trace to look at right away
+uv run husk-ai run python my_agent.py      # run YOUR agent and capture it in one command
+```
+
+To wire your own agent, add one line so its OpenTelemetry spans flow to Husk:
+
+```python
+from husk_shared import instrument
+instrument()   # points OpenTelemetry at http://localhost:7654 — then run your agent as usual
+```
+
+**Local-first: no account, no cloud, no telemetry.** New to the terminal, or want the
+long version with framework-specific snippets? See **[Getting started](#getting-started)**.
+
 ## Features
 
 - **One timeline for every step.** LLM calls, tool calls, and IDE events from
@@ -82,26 +113,38 @@ intervals: the [benchmark README](benchmark/README.md).
 > `HUSK_REPLAY_CASSETTE=1`. Without it, a replay re-runs the downstream nodes
 > against the live model — still bypassing the upstream token cost.
 
-## Quick install
+## How replay works — and what's stored
 
-For the impatient. Prerequisites: [git](https://git-scm.com/) and
-[uv](https://docs.astral.sh/uv/) (uv installs the pinned Python 3.11 for you).
+Husk's replay has three modes, in increasing determinism:
 
-```bash
-git clone https://github.com/husk-ai-team/husk-ai.git && cd husk-ai
-uv sync --all-packages
-uv run husk-ai start
-```
+- **Re-invoke (default).** The Studio re-imports your agent's graph module (the
+  file recorded on the run) and runs it again with your edited state. It executes
+  real code and — unless a cassette is used — makes real LLM/tool calls.
+- **Node-skip (Husk engine).** When your agent runs on Husk's own checkpoint
+  engine (`husk_shared.engine`), a replay resumes from the snapshot taken before
+  the fork node and re-runs only that node onward — the upstream work is skipped,
+  so it emits no spans and spends no tokens. This is the path the benchmark measures.
+- **Model-free (cassette).** With `HUSK_REPLAY_CASSETTE=1`, recorded provider HTTP
+  responses are served from disk — deterministic and $0; a changed request falls
+  through to the real provider and is recorded.
 
-The CLI opens your browser at `http://localhost:7654`. Want demo data to look at
-first? Run `uv run husk-ai demo` in another terminal while the server is up.
+**What's stored, and where.** Everything lives under `~/.husk/` on your machine:
+`traces.db` (runs and spans — including prompts, completions, and tool I/O — as
+cleartext JSON), `cassettes/`, and the BYOK debugger key in `secrets.json`. On
+ingest Husk scrubs common secret shapes (provider keys, bearer tokens) from
+recorded text; set `HUSK_NO_REDACT=1` to disable.
 
-> A one-line `pip install husk-ai` is on the roadmap. Today, install from source.
+## Security model
 
-Never opened a terminal? The full **Getting started** guide below walks through
-everything step by step.
-
----
+Husk is a **local, loopback-only** tool. The backend binds `127.0.0.1`, and its
+state-changing routes (replay, trace ingest, debugger) reject non-loopback peers
+and cross-origin browser requests — so a web page you happen to visit can't drive
+them. Because replay executes code, it will only import graph modules under your
+project directory (or `$HUSK_ALLOWED_GRAPH_DIRS`). The auto-debugger is
+**bring-your-own-key**: when you run it, your run's context (prompts, completions,
+and the agent's source) is sent to the LLM provider you configured — the one place
+data leaves your machine. The key is stored locally in `~/.husk/secrets.json` and
+never sent to any Husk server.
 
 ## Connect to AI coding tools (MCP)
 
@@ -604,7 +647,16 @@ then run your agent normally:
 OTEL_EXPORTER_OTLP_ENDPOINT=http://localhost:7654 python your_agent.py
 ```
 
-Or wire OTel in code (works for any framework):
+Or wire it in code. The easy way — one line with Husk's helper:
+
+```python
+from husk_shared import instrument
+
+instrument(service_name="my-agent")   # OTel -> http://localhost:7654 (honors $OTEL_EXPORTER_OTLP_ENDPOINT)
+# now run your agent normally. Husk picks up every span.
+```
+
+Prefer not to import Husk? The exact same setup with the raw OpenTelemetry SDK:
 
 ```python
 from opentelemetry import trace
@@ -743,8 +795,11 @@ Every command you can run via `uv run husk-ai` in the cloned repo.
 | Command | What it does |
 | --- | --- |
 | `husk-ai start` | Boot the server (default port 7654) and open the Studio in your browser. Auto-builds the Studio bundle on first run if missing. Override port with `--port 7656`; skip the browser open with `--no-open-browser`. |
+| `husk-ai run <command…>` | Run your agent and capture it in one step: ensures the backend is up (auto-starts it if needed), points your agent's OpenTelemetry exporter at Husk via `$OTEL_EXPORTER_OTLP_ENDPOINT`, runs the command, and prints the run URL. `--no-serve` exits when the command finishes (for CI). |
 | `husk-ai demo` | Seed one IDE observability event + a 3-span OTel trace with GenAI v1.36 attrs. Useful for verifying the Studio renders integration tiles and traces correctly before connecting your own agent. |
 | `husk-ai list` | List recent runs in the terminal (run id, framework, span count, cost). |
+| `husk-ai replay <run_id>` | Re-run a recorded run with a modified state from the terminal/CI. `--set key=value` overrides state (value parsed as JSON, else string), `--span <id>` forks from a node, `--cassette` serves the LLM from the recorded HTTP cassette ($0, deterministic). |
+| `husk-ai export <run_id>` | Export a run (run + spans + branches, already secret-redacted) to a portable JSON bundle — `--out FILE`, else stdout. Good for bug reports and sharing a trajectory. |
 | `husk-ai doctor` | Diagnostics: prints the installed version, your `~/.husk/` home, DB path, and a health check. Run this first when something feels off. |
 | `husk-ai clean` | Wipe the local database at `~/.husk/`. Removes all runs, traces, and auth state. Does not delete the cloned repo or your `.venv`. |
 | `husk-ai mcp` | Run the MCP server so AI coding tools (Claude Code, Cursor, Windsurf, Lovable) can read your runs/traces, analyze cost, and replay. stdio by default; `--transport http` for remote clients; `--enable-replay` to expose the (local-only) replay tool. |

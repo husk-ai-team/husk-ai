@@ -115,6 +115,23 @@ export default function RunDetail() {
       .then((b) => alive && setParentBranch(b[0] ?? null))
       .catch(() => {});
 
+    return () => {
+      alive = false;
+    };
+  }, [runId]);
+
+  // Live span stream — only for runs still in flight. A finished run gets no new
+  // spans, so we skip the socket entirely (less load, and it lets the view settle).
+  const runStatus = run?.status;
+  useEffect(() => {
+    if (!runId || !runStatus) return;
+    const finished =
+      runStatus === "success" || runStatus === "error" || runStatus === "aborted";
+    if (finished) {
+      setLive(false);
+      return;
+    }
+    let alive = true;
     const ws = subscribeRun(runId, (ev: RunEvent) => {
       if (!alive) return;
       if (ev.type === "span.replay" || ev.type === "span.created") {
@@ -124,12 +141,11 @@ export default function RunDetail() {
     });
     ws.onopen = () => alive && setLive(true);
     ws.onclose = () => alive && setLive(false);
-
     return () => {
       alive = false;
       ws.close();
     };
-  }, [runId]);
+  }, [runId, runStatus]);
 
   if (error) {
     return (
@@ -142,13 +158,18 @@ export default function RunDetail() {
   }
 
   const selected = spans.find((s) => s.id === selectedId) ?? null;
+  // A run is replayable only if it carries a graph module to re-import; plain
+  // OTel-observability runs (the demo, most traced agents) do not.
+  const replayable = spans.some(
+    (s) => Boolean((s.attrs as Record<string, unknown> | null)?.["husk.graph_module"]),
+  );
   const selectedNode = graph ? findNode(graph, selectedNodeId) : null;
   const duration =
     run?.finished_at && run?.started_at ? run.finished_at - run.started_at : null;
   const totalTokens = (run?.total_tokens_in || 0) + (run?.total_tokens_out || 0);
 
   return (
-    <section className="px-6 md:px-12 pt-12 pb-16 max-w-7xl mx-auto">
+    <section className="husk-rise px-6 md:px-12 pt-12 pb-16 max-w-7xl mx-auto">
       <Link
         href="/runs"
         className="inline-flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground transition-colors"
@@ -239,6 +260,7 @@ export default function RunDetail() {
             <Actions
               span={selected}
               runId={runId ?? ""}
+              replayable={replayable}
               childBranches={childBranches}
               parentBranch={parentBranch}
               onCompare={setCompare}
@@ -351,6 +373,7 @@ function TabButton({
 function Actions({
   span,
   runId,
+  replayable,
   childBranches,
   parentBranch,
   onCompare,
@@ -360,6 +383,7 @@ function Actions({
 }: {
   span: Span | null;
   runId: string;
+  replayable: boolean;
   childBranches: Branch[];
   parentBranch: Branch | null;
   onCompare: (c: { a: string; b: string }) => void;
@@ -367,6 +391,7 @@ function Actions({
   hasKey: boolean;
   onDebugChanged: () => void;
 }) {
+  const canReplay = Boolean(span) && replayable;
   return (
     <div className="flex h-full flex-col">
       <div className="border-b border-border/30 bg-secondary/30 px-4 py-2.5 text-[11px] uppercase tracking-[0.16em] text-muted-foreground font-semibold">
@@ -380,12 +405,18 @@ function Actions({
           onChanged={onDebugChanged}
         />
         <Link
-          href={span ? `/runs/${runId}/replay` : "#"}
+          href={canReplay ? `/runs/${runId}/replay` : "#"}
           onClick={(e) => {
-            if (!span) e.preventDefault();
+            if (!canReplay) e.preventDefault();
           }}
+          aria-disabled={!canReplay}
+          title={
+            replayable
+              ? undefined
+              : "This run is observability-only — no graph module was recorded, so it can't be replayed."
+          }
           className={`inline-flex w-full items-center justify-center gap-2 rounded-md px-3 py-2 text-sm font-semibold transition-all ${
-            span
+            canReplay
               ? "bg-accent text-white hover:bg-accent/90"
               : "bg-accent/40 text-white cursor-not-allowed"
           }`}
@@ -395,8 +426,9 @@ function Actions({
           <ArrowRight className="size-4" />
         </Link>
         <p className="text-[11px] leading-relaxed text-muted-foreground">
-          Fork the thread from the selected span with edited state. The original
-          run is preserved.
+          {replayable
+            ? "Fork the thread from the selected span with edited state. The original run is preserved."
+            : "Replay needs a graph-instrumented run (it must record husk.graph_module — e.g. an agent on Husk's engine). This run is observability-only."}
         </p>
 
         {parentBranch && (

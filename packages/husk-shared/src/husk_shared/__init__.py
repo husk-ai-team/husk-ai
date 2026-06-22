@@ -5,6 +5,7 @@ from husk_shared.recording import (
     check_format_version,
 )
 from husk_shared.schemas import Branch, Run, Snapshot, Span
+from husk_shared.tracing import instrument, llm_span
 
 __all__ = [
     "RECORDING_FORMAT_VERSION",
@@ -17,4 +18,6 @@ __all__ = [
     "SpanKind",
     "SpanStatus",
     "check_format_version",
+    "instrument",
+    "llm_span",
 ]

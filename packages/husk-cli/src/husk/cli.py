@@ -3,6 +3,7 @@ from __future__ import annotations
 import logging
 import os
 import sys
+from typing import Any
 
 import click
 from rich.console import Console
@@ -238,6 +239,199 @@ def _emit_demo_trace(base: str) -> None:
             _time.sleep(_random.uniform(0.05, 0.12))
 
     provider.shutdown()
+
+
+def _backend_healthy(base: str) -> bool:
+    import httpx
+
+    try:
+        return httpx.get(f"{base}/api/health", timeout=1.0).status_code == 200
+    except Exception:  # noqa: BLE001
+        return False
+
+
+@main.command(context_settings={"ignore_unknown_options": True})
+@click.argument("command", nargs=-1, required=True, type=click.UNPROCESSED)
+@click.option("--port", default=7654, type=int, help="Backend port (default 7654).")
+@click.option("--service-name", default=None, help="OTel service.name (default: the command's name).")
+@click.option(
+    "--no-serve",
+    is_flag=True,
+    help="If Husk auto-started the backend, exit when the command finishes (for CI).",
+)
+def run(command: tuple[str, ...], port: int, service_name: str | None, no_serve: bool) -> None:
+    """Run your agent and capture it: `husk run python my_agent.py`.
+
+    Ensures the Husk backend is up (auto-starts it if needed), points your agent's
+    OpenTelemetry exporter at Husk via $OTEL_EXPORTER_OTLP_ENDPOINT, runs the
+    command, and prints the Studio URL.
+    """
+    import subprocess
+    import threading
+    import time
+    from pathlib import Path
+
+    base = f"http://127.0.0.1:{port}"
+    started_here = False
+
+    if not _backend_healthy(base):
+        import uvicorn
+
+        from husk.server import _resolve_port
+        from husk_studio_backend.main import app
+
+        actual_port = _resolve_port("127.0.0.1", port)
+        base = f"http://127.0.0.1:{actual_port}"
+        cfg = uvicorn.Config(app, host="127.0.0.1", port=actual_port, log_level="warning")
+        server = uvicorn.Server(cfg)
+        threading.Thread(target=server.run, daemon=True, name="husk-backend").start()
+        for _ in range(100):  # up to ~5s for the socket to come up
+            if _backend_healthy(base):
+                break
+            time.sleep(0.05)
+        started_here = True
+        console.print(f"[dim]Started Husk backend on {base}[/dim]")
+
+    env = os.environ.copy()
+    env["OTEL_EXPORTER_OTLP_ENDPOINT"] = base
+    env.setdefault("OTEL_SERVICE_NAME", service_name or Path(command[0]).stem or "husk-agent")
+
+    console.print(f"[dim]Running:[/dim] {' '.join(command)}")
+    try:
+        code = subprocess.run(list(command), env=env).returncode
+    except FileNotFoundError:
+        console.print(f"[red]Command not found:[/red] {command[0]}")
+        sys.exit(127)
+
+    console.print(f"\n[green]Done.[/green] View runs: [cyan]{base}/runs[/cyan]")
+
+    if started_here and not no_serve:
+        console.print("[dim]Backend still serving so you can view the run. Ctrl+C to stop.[/dim]")
+        try:
+            while True:
+                time.sleep(1)
+        except KeyboardInterrupt:
+            pass
+    sys.exit(code)
+
+
+@main.command()
+@click.argument("run_id")
+@click.option(
+    "--set",
+    "overrides",
+    multiple=True,
+    metavar="KEY=VALUE",
+    help="State override (repeatable). VALUE is parsed as JSON, else kept as a string.",
+)
+@click.option("--span", "span_id", default=None, help="Span id to fork from (re-run that node onward).")
+@click.option("--cassette", is_flag=True, help="Serve LLM calls from the recorded HTTP cassette (model-free).")
+@click.option("--url", default="http://127.0.0.1:7654", help="Husk backend URL.")
+def replay(
+    run_id: str, overrides: tuple[str, ...], span_id: str | None, cassette: bool, url: str
+) -> None:
+    """Replay a recorded run with a modified state, from the terminal/CI.
+
+    Example: husk replay <run_id> --set topic=Tokyo --cassette
+    """
+    import json as _json
+
+    import httpx
+
+    state_override: dict[str, Any] = {}
+    for item in overrides:
+        if "=" not in item:
+            console.print(f"[red]--set expects KEY=VALUE, got:[/red] {item}")
+            sys.exit(2)
+        k, _, v = item.partition("=")
+        try:
+            state_override[k] = _json.loads(v)
+        except ValueError:
+            state_override[k] = v
+
+    base = url.rstrip("/")
+    body = {
+        "run_id": run_id,
+        "span_id": span_id,
+        "state_override": state_override,
+        "use_cassette": cassette,
+    }
+    try:
+        r = httpx.post(f"{base}/api/replay", json=body, timeout=120.0)
+    except httpx.ConnectError:
+        console.print(
+            f"[red]Husk backend not reachable at {base}[/red]\n"
+            f"Start it first: [cyan]husk start[/cyan]"
+        )
+        sys.exit(1)
+    if r.status_code >= 400:
+        console.print(f"[red]Replay failed ({r.status_code}):[/red] {r.text}")
+        sys.exit(1)
+    data = r.json()
+    console.print("[green]Replay started.[/green]")
+    console.print(f"  thread: {data.get('thread_id')}")
+    console.print(f"  child:  {data.get('child_id')}")
+    console.print(f"  View:   [cyan]{base}/runs[/cyan] (the new run appears once OTel flushes)")
+
+
+def _row_to_dict(row: Any) -> dict[str, Any]:
+    """Dump every mapped column of a SQLAlchemy row by its attribute name."""
+    from sqlalchemy import inspect as _sa_inspect
+
+    return {a.key: getattr(row, a.key) for a in _sa_inspect(row).mapper.column_attrs}
+
+
+@main.command()
+@click.argument("run_id")
+@click.option("--out", "out_path", default=None, type=click.Path(), help="Write to FILE (default: stdout).")
+def export(run_id: str, out_path: str | None) -> None:
+    """Export a run (run + spans + branches) to a portable JSON bundle.
+
+    The recorded text is already secret-redacted at ingest. Useful for bug reports
+    and sharing a trajectory without exposing the whole database.
+    """
+    import json as _json
+    from pathlib import Path
+
+    from husk_studio_backend.db.engine import sync_engine, sync_session
+    from husk_studio_backend.db.models import Base, BranchRow, RunRow, SpanRow
+
+    Base.metadata.create_all(sync_engine())  # no-op if present; avoids a raw error on a fresh ~/.husk
+    with sync_session() as s:
+        run = s.get(RunRow, run_id)
+        if run is None:
+            console.print(f"[red]Run not found:[/red] {run_id}")
+            sys.exit(1)
+        spans = (
+            s.query(SpanRow)
+            .filter(SpanRow.run_id == run_id)
+            .order_by(SpanRow.started_at.asc())
+            .all()
+        )
+        branches = (
+            s.query(BranchRow)
+            .filter(
+                (BranchRow.parent_run_id == run_id) | (BranchRow.child_run_id == run_id)
+            )
+            .all()
+        )
+        bundle = {
+            "husk_export_version": 1,
+            "husk_version": __version__,
+            "run": _row_to_dict(run),
+            "spans": [_row_to_dict(sp) for sp in spans],
+            "branches": [_row_to_dict(b) for b in branches],
+        }
+
+    text = _json.dumps(bundle, indent=2, default=str)
+    if out_path:
+        Path(out_path).write_text(text, encoding="utf-8")
+        console.print(
+            f"[green]Exported[/green] run {run_id} → {out_path} "
+            f"({len(spans)} spans, {len(branches)} branches)"
+        )
+    else:
+        click.echo(text)
 
 
 @main.group(invoke_without_command=True)

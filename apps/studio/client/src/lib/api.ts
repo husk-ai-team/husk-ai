@@ -49,7 +49,20 @@ async function fetcher<T>(url: string): Promise<T> {
   return (await r.json()) as T;
 }
 
-export const getRuns = () => fetcher<Run[]>(`${BASE}/runs`);
+export const getRuns = (params?: {
+  status?: string;
+  framework?: string;
+  q?: string;
+  limit?: number;
+}) => {
+  const qs = new URLSearchParams();
+  if (params?.status) qs.set("status", params.status);
+  if (params?.framework) qs.set("framework", params.framework);
+  if (params?.q) qs.set("q", params.q);
+  if (params?.limit) qs.set("limit", String(params.limit));
+  const suffix = qs.toString() ? `?${qs}` : "";
+  return fetcher<Run[]>(`${BASE}/runs${suffix}`);
+};
 export const getRun = (id: string) => fetcher<Run>(`${BASE}/runs/${id}`);
 export const getSpans = (id: string) => fetcher<Span[]>(`${BASE}/runs/${id}/spans`);
 
@@ -378,7 +391,6 @@ export interface DebuggerConfig {
   provider: string;
   model: string;
   auto_analyze: boolean;
-  auto_apply: boolean;
   has_key: boolean;
 }
 

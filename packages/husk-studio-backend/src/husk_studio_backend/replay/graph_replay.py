@@ -15,6 +15,7 @@ from __future__ import annotations
 
 import importlib.util
 import logging
+import os
 import sys
 import threading
 import uuid
@@ -26,6 +27,42 @@ log = logging.getLogger(__name__)
 _import_lock = threading.Lock()
 _module_cache: dict[str, Any] = {}
 
+
+class GraphModuleNotAllowed(PermissionError):
+    """Refused to import a graph module from outside the allowed roots."""
+
+
+def _allowed_roots() -> list[Path]:
+    """Directories a replay is permitted to import a graph module from.
+
+    Default: the backend's current working directory (where ``husk-ai start`` was
+    launched, i.e. the user's project). Extra roots can be added via
+    ``HUSK_ALLOWED_GRAPH_DIRS`` (os.pathsep-separated). This is the gate that turns
+    the dynamic ``exec_module`` from "import any path on disk" (an RCE primitive
+    when an attacker controls the stored ``husk.graph_module`` attribute) into
+    "import only from trusted project dirs".
+    """
+    roots = [Path.cwd().resolve()]
+    extra = os.environ.get("HUSK_ALLOWED_GRAPH_DIRS", "")
+    for part in extra.split(os.pathsep):
+        if part.strip():
+            roots.append(Path(part).expanduser().resolve())
+    return roots
+
+
+def _check_allowed(p: Path) -> None:
+    resolved = p.resolve()
+    for root in _allowed_roots():
+        try:
+            resolved.relative_to(root)
+            return
+        except ValueError:
+            continue
+    raise GraphModuleNotAllowed(
+        f"graph module {resolved} is outside the allowed roots "
+        f"(cwd or $HUSK_ALLOWED_GRAPH_DIRS); refusing to import"
+    )
+
 # Serialises checkpoint-resume replays. The cached graph module shares a single
 # snapshot-store connection, so concurrent resumes on the same thread (possible
 # via the HTTP endpoint's asyncio.to_thread) could interleave snapshot reads and
@@ -36,6 +73,7 @@ _replay_lock = threading.Lock()
 def _load_module(path: str) -> Any:
     """Import a Python file by absolute path; cache by mtime."""
     p = Path(path)
+    _check_allowed(p)  # refuse to import code from outside the allowed roots
     if not p.exists():
         raise FileNotFoundError(f"Graph file not found: {path}")
     key = str(p.resolve())

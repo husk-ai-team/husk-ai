@@ -1,6 +1,6 @@
 [project]
 name = "husk-ai"
-version = "0.3.0"
+version = "0.4.0"
 description = "Husk — the visual debugger for AI agents (CLI). Installs the `husk-ai` command. Local-first, source-available (BUSL 1.1)."
 readme = "README.md"
 requires-python = ">=3.11"
@@ -42,8 +42,8 @@ husk-ai = "husk.cli:main"
 husk = "husk.cli:main"
 
 [project.urls]
-Homepage = "https://husk.dev"
-Documentation = "https://docs.husk.dev"
+Homepage = "https://github.com/husk-ai-team/husk-ai"
+Documentation = "https://github.com/husk-ai-team/husk-ai#readme"
 Repository = "https://github.com/husk-ai-team/husk-ai"
 
 [build-system]

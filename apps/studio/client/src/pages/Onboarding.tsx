@@ -43,14 +43,14 @@ const STEPS: Record<
     ],
   },
   langgraph: {
-    title: "LangGraph",
+    title: "Modify & replay",
     icon: <PlayCircle className="size-5" />,
     blurb:
-      "Replay any thread. Edit state at any checkpoint, fork into a new branch.",
+      "Replay any thread on Husk's own engine. Edit state at any checkpoint, fork into a new branch.",
     snippets: [
       {
         label: "Run the bundled example",
-        cmd: "uv run --group examples python examples/langgraph_thread.py",
+        cmd: "uv run --group examples python examples/husk_thread.py",
       },
     ],
   },
@@ -98,7 +98,7 @@ export default function Onboarding() {
         <div className="text-xs uppercase tracking-[0.18em] text-accent">
           Onboarding
         </div>
-        <h1 className="mt-2 text-4xl md:text-5xl font-bold tracking-[-0.02em]">
+        <h1 className="mt-2 text-5xl md:text-6xl font-normal tracking-[-0.01em]">
           Wire your stack
         </h1>
         <p className="mt-2 text-sm text-muted-foreground max-w-2xl">

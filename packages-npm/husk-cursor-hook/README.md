@@ -1,6 +1,6 @@
 # husk-cursor-hook
 
-Cursor observability bridge for [Husk](https://husk.dev) — the visual debugger for AI agents.
+Cursor observability bridge for [Husk](https://github.com/husk-ai-team/husk-ai) — the visual debugger for AI agents.
 
 Streams Cursor's `afterFileEdit` and `stop` events to your local Husk backend
 so the Studio timeline shows every file your agent touched, alongside the LLM

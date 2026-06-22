@@ -82,12 +82,12 @@ export function StudioLayout({ children }: StudioLayoutProps) {
             <span>Local-first. Your data never leaves this machine.</span>
           </div>
           <a
-            href="https://husk.dev"
+            href="https://github.com/husk-ai-team/husk-ai"
             target="_blank"
             rel="noreferrer"
             className="inline-flex items-center gap-1 hover:text-foreground transition-colors"
           >
-            husk.dev <ExternalLink className="size-3" />
+            GitHub <ExternalLink className="size-3" />
           </a>
         </div>
       </footer>

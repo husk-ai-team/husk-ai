@@ -7,7 +7,16 @@ from pathlib import Path
 def husk_home() -> Path:
     custom = os.environ.get("HUSK_HOME")
     base = Path(custom) if custom else Path.home() / ".husk"
+    existed = base.exists()
     base.mkdir(parents=True, exist_ok=True)
+    if not existed:
+        # The dir holds cleartext traces + the BYOK key. Restrict to the owner on
+        # creation. POSIX: 0700. On Windows os.chmod can't express this, but the
+        # user-profile ACL already restricts cross-user reads; this is best-effort.
+        try:
+            os.chmod(base, 0o700)
+        except OSError:
+            pass
     return base
 
 

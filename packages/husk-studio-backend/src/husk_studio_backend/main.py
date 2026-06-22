@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import asyncio
 import logging
 import os
 import shutil
@@ -10,7 +9,7 @@ from contextlib import asynccontextmanager
 from pathlib import Path
 from typing import Any
 
-from fastapi import FastAPI, Request
+from fastapi import Depends, FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse, HTMLResponse
 from fastapi.staticfiles import StaticFiles
@@ -30,9 +29,8 @@ from husk_studio_backend.api import (
     runs,
     spans,
 )
-from husk_studio_backend.config import runs_dir
+from husk_studio_backend.api._guard import local_only
 from husk_studio_backend.db.engine import init_db
-from husk_studio_backend.ingest.jsonl_reader import discover_and_tail_active_runs
 
 log = logging.getLogger(__name__)
 
@@ -124,8 +122,6 @@ def _ensure_studio_built() -> None:
 @asynccontextmanager
 async def lifespan(_: FastAPI) -> AsyncIterator[None]:
     await init_db()
-    # Pick up any legacy JSONL runs left over from earlier sandbox sessions.
-    asyncio.create_task(discover_and_tail_active_runs(runs_dir()))
     yield
 
 
@@ -140,12 +136,10 @@ app = FastAPI(
 # In a packaged build the backend itself serves the Studio bundle from `/` (Day 7).
 app.add_middleware(
     CORSMiddleware,
-    # The marketing site (husk.dev in prod, localhost:3000 in dev) POSTs
-    # cross-origin to /api/auth/cli-callback during the CLI sign-in flow, so
-    # we have to allow both the public origin and the dev origins.
+    # Loopback dev origins only: the Studio (Vite :5174) and the local dev
+    # marketing/sign-in pages (:5173 / :3000). State-changing routes are further
+    # gated to loopback by the local_only guard.
     allow_origins=[
-        "https://husk.dev",
-        "https://www.husk.dev",
         "http://localhost:5174",
         "http://127.0.0.1:5174",
         "http://localhost:5173",
@@ -163,14 +157,16 @@ app.include_router(runs.router)
 app.include_router(spans.router)
 app.include_router(branches.router)
 app.include_router(diff.router)
-app.include_router(otel.router)
+# Sensitive routers (ingest feeds replay; replay executes code; debugger writes
+# files / holds the key) are gated to loopback, same-host requests only.
+app.include_router(otel.router, dependencies=[Depends(local_only)])
 app.include_router(cursor.router)
-app.include_router(replay.router)
+app.include_router(replay.router, dependencies=[Depends(local_only)])
 app.include_router(integrations.router)
 app.include_router(dashboard.router)
 app.include_router(auth.router)
 app.include_router(graph.router)
-app.include_router(debugger.router)
+app.include_router(debugger.router, dependencies=[Depends(local_only)])
 
 
 _LANDING_HTML = """<!doctype html>
@@ -307,14 +303,14 @@ _LANDING_HTML = """<!doctype html>
         (b) auto-build tried and failed (check the terminal where you ran
         <code>husk-ai start</code> for the warning). Both options above need
         Node.js 20+ and <code>corepack</code> enabled. See the
-        <a href="https://husk.dev/get-started#studio-development">full guide</a>.
+        <a href="https://github.com/husk-ai-team/husk-ai#build-the-studio--run-a-dev-server">full guide</a>.
       </div>
 
       <p class="footer">
         API health: <a href="/api/health">/api/health</a>
         &nbsp;&middot;&nbsp; Backend version: __VERSION__
         &nbsp;&middot;&nbsp; Need Node?
-        <a href="https://husk.dev/get-started#step-4">install guide</a>
+        <a href="https://nodejs.org">install guide</a>
       </p>
     </div>
   </body>
@@ -381,14 +377,3 @@ else:
         )
 
 
-def attach_run_tail(run_id: str, event_path_str: str) -> None:
-    """Helper for the legacy CLI to register a new run before the sandbox spawns.
-
-    Kept for back-compat while husk-sandbox is being retired.
-    """
-    from pathlib import Path
-
-    from husk_studio_backend.ingest.jsonl_reader import tail_events
-
-    loop = asyncio.get_event_loop()
-    loop.create_task(tail_events(run_id, Path(event_path_str)))

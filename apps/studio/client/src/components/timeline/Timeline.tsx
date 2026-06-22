@@ -29,8 +29,13 @@ export function Timeline({ spans, selectedId, onSelect }: TimelineProps) {
     );
   }
 
+  // graph_node spans are per-node wrappers shown in the Graph tab; the timeline
+  // shows the actual work (llm / tool / chain), so they'd only be noise here.
   const sorted = useMemo(
-    () => [...spans].sort((a, b) => a.started_at - b.started_at),
+    () =>
+      spans
+        .filter((s) => s.kind !== "graph_node")
+        .sort((a, b) => a.started_at - b.started_at),
     [spans],
   );
 
@@ -72,10 +77,10 @@ export function Timeline({ spans, selectedId, onSelect }: TimelineProps) {
                       y1={PADDING_TOP - 8}
                       x2={x}
                       y2={height - 6}
-                      stroke="#30363D"
+                      stroke="#2E2A24"
                       strokeWidth={1}
                       strokeDasharray="2 5"
-                      opacity={0.5}
+                      opacity={0.6}
                     />
                     <text
                       x={x}
@@ -182,16 +187,18 @@ export function Timeline({ spans, selectedId, onSelect }: TimelineProps) {
 }
 
 function fillForKind(kind: string, status: string): { bg: string; stroke: string } {
-  if (status === "error") return { bg: "#F85149", stroke: "#FF8B85" };
+  if (status === "error") return { bg: "#F0564E", stroke: "#FF8B85" };
   switch (kind) {
     case "llm":
-      return { bg: "#FF6B35", stroke: "#FFA978" };
+      return { bg: "#FF7A45", stroke: "#FFA978" };
     case "tool":
-      return { bg: "#5B9BD5", stroke: "#9DC7EC" };
+      return { bg: "#4FB0AE", stroke: "#8FD3D1" };
     case "chain":
-      return { bg: "#76C893", stroke: "#A5E0BD" };
+      return { bg: "#5FC08C", stroke: "#A4E0BC" };
+    case "graph_node":
+      return { bg: "#C7A24A", stroke: "#E2C788" };
     default:
-      return { bg: "#8B949E", stroke: "#C0C7CE" };
+      return { bg: "#8A8276", stroke: "#B7AFA2" };
   }
 }
 

@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Link, useLocation } from "wouter";
+import { Link, useLocation, useSearch } from "wouter";
 
 import { FrameworkBadge, FrameworkDot, StatusPill } from "@/components/StatusPill";
 import {
@@ -11,19 +11,26 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { fmtAgo, fmtCost, fmtDuration, getRuns, type Run } from "@/lib/api";
-import { ArrowLeft, ArrowRight, ListIcon } from "lucide-react";
+import { ArrowLeft, ArrowRight, ListIcon, Search } from "lucide-react";
+
+const STATUS_FILTERS = ["", "success", "error", "running"] as const;
 
 const POLL_MS = 3000;
 
 export default function Runs() {
   const [, setLocation] = useLocation();
+  const search = useSearch();
   const [runs, setRuns] = useState<Run[] | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [q, setQ] = useState("");
+  const [statusFilter, setStatusFilter] = useState<string>(
+    () => new URLSearchParams(search).get("status") ?? "",
+  );
 
   useEffect(() => {
     let alive = true;
     const tick = () =>
-      getRuns()
+      getRuns({ q: q || undefined, status: statusFilter || undefined })
         .then((r) => alive && setRuns(r))
         .catch((e) => alive && setError(String(e)));
     tick();
@@ -32,10 +39,10 @@ export default function Runs() {
       alive = false;
       clearInterval(t);
     };
-  }, []);
+  }, [q, statusFilter]);
 
   return (
-    <section className="px-6 md:px-12 pt-12 md:pt-16 pb-20 max-w-6xl mx-auto">
+    <section className="husk-rise px-6 md:px-12 pt-12 md:pt-16 pb-20 max-w-6xl mx-auto">
       <Link
         href="/dashboard"
         className="inline-flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground transition-colors"
@@ -49,7 +56,7 @@ export default function Runs() {
           <div className="text-xs uppercase tracking-[0.18em] text-accent">
             Recent activity
           </div>
-          <h1 className="mt-2 text-4xl md:text-5xl font-bold tracking-[-0.02em]">
+          <h1 className="mt-2 text-5xl md:text-6xl font-normal tracking-[-0.01em]">
             Runs
           </h1>
           <p className="mt-2 text-sm text-muted-foreground">
@@ -62,6 +69,34 @@ export default function Runs() {
             {runs.length} {runs.length === 1 ? "run" : "runs"}
           </div>
         )}
+      </div>
+
+      <div className="mb-5 flex flex-wrap items-center gap-3">
+        <div className="relative min-w-[220px] flex-1">
+          <Search className="pointer-events-none absolute left-3 top-1/2 size-3.5 -translate-y-1/2 text-muted-foreground" />
+          <input
+            value={q}
+            onChange={(e) => setQ(e.target.value)}
+            placeholder="Search by script path or run id…"
+            className="w-full rounded-md border border-border/40 bg-background/40 py-2 pl-9 pr-3 text-sm focus:border-accent/60 focus:outline-none"
+          />
+        </div>
+        <div className="flex gap-1.5">
+          {STATUS_FILTERS.map((s) => (
+            <button
+              key={s || "all"}
+              type="button"
+              onClick={() => setStatusFilter(s)}
+              className={`rounded-md px-3 py-1.5 text-xs font-medium capitalize transition-colors ${
+                statusFilter === s
+                  ? "bg-accent text-white"
+                  : "bg-secondary/30 text-muted-foreground hover:bg-secondary/50"
+              }`}
+            >
+              {s || "all"}
+            </button>
+          ))}
+        </div>
       </div>
 
       {error && (

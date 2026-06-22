@@ -1,6 +1,6 @@
 [project]
 name = "husk-shared"
-version = "0.3.0"
+version = "0.4.0"
 description = "Husk shared Pydantic schemas and enums (used by CLI, sandbox, backend)"
 requires-python = ">=3.11"
 license = { text = "BUSL-1.1" }

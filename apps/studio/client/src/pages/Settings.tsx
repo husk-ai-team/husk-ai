@@ -21,12 +21,9 @@ import {
   CheckCircle2,
   CircleDashed,
   Database,
-  FolderOpen,
   Save,
   ShieldCheck,
 } from "lucide-react";
-
-const LG_PATH_KEY = "husk.langgraph_db_path";
 
 const TABLES = [
   {
@@ -108,9 +105,6 @@ const TABLES = [
 export default function Settings() {
   const { session } = useSession();
   const [status, setStatus] = useState<AllIntegrationStatus | null>(null);
-  const [lgPath, setLgPath] = useState<string>(
-    () => localStorage.getItem(LG_PATH_KEY) || "",
-  );
 
   useEffect(() => {
     let alive = true;
@@ -126,13 +120,8 @@ export default function Settings() {
     };
   }, []);
 
-  const saveLgPath = () => {
-    localStorage.setItem(LG_PATH_KEY, lgPath);
-    toast.success("LangGraph DB path saved");
-  };
-
   return (
-    <section className="px-6 md:px-12 pt-12 pb-20 max-w-6xl mx-auto">
+    <section className="husk-rise px-6 md:px-12 pt-12 pb-20 max-w-6xl mx-auto">
       <Link
         href="/dashboard"
         className="inline-flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground transition-colors"
@@ -145,7 +134,7 @@ export default function Settings() {
         <div className="text-xs uppercase tracking-[0.18em] text-accent">
           Configuration
         </div>
-        <h1 className="mt-2 text-4xl md:text-5xl font-bold tracking-[-0.02em]">
+        <h1 className="mt-2 text-5xl md:text-6xl font-normal tracking-[-0.01em]">
           Settings
         </h1>
         <p className="mt-2 text-sm text-muted-foreground">
@@ -200,33 +189,6 @@ export default function Settings() {
             hint="Time-travel replay"
             s={status?.langgraph}
           />
-        </div>
-      </section>
-
-      {/* LangGraph DB path */}
-      <section className="mb-10">
-        <H2 icon={<FolderOpen className="size-3.5" />}>LangGraph</H2>
-        <div className="rounded-xl border border-border/30 bg-secondary/10 p-5 md:p-6">
-          <label className="block">
-            <span className="block text-xs uppercase tracking-wide text-muted-foreground mb-1.5">
-              Checkpointer DB path
-            </span>
-            <input
-              type="text"
-              value={lgPath}
-              onChange={(e) => setLgPath(e.target.value)}
-              placeholder="~/.husk/langgraph_demo.sqlite"
-              className="w-full rounded-md border border-border/40 bg-background/40 px-3 py-2 font-mono text-sm focus:border-accent/60 focus:outline-none"
-            />
-          </label>
-          <button
-            type="button"
-            onClick={saveLgPath}
-            className="mt-3 inline-flex items-center gap-1.5 rounded-md bg-accent text-white px-3 py-1.5 text-sm font-semibold hover:bg-accent/90"
-          >
-            <Save className="size-3.5" />
-            Save
-          </button>
         </div>
       </section>
 
@@ -333,7 +295,6 @@ function DebuggerSettings() {
         provider: cfg.provider,
         model: cfg.model,
         auto_analyze: cfg.auto_analyze,
-        auto_apply: cfg.auto_apply,
         ...(apiKey ? { api_key: apiKey } : {}),
       });
       setCfg(next);
@@ -415,12 +376,6 @@ function DebuggerSettings() {
           hint="Run the debugger automatically when a run finishes in error."
           checked={cfg.auto_analyze}
           onChange={(v) => patch({ auto_analyze: v })}
-        />
-        <ToggleRow
-          label="Allow applying fixes"
-          hint="Even on, applying a fix still requires an explicit confirm. Off by default."
-          checked={cfg.auto_apply}
-          onChange={(v) => patch({ auto_apply: v })}
         />
       </div>
 
