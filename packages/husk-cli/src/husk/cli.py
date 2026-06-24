@@ -22,6 +22,16 @@ def _setup_logging(level: str) -> None:
     )
 
 
+def _default_url() -> str:
+    """Backend URL for client commands: the port the last `husk start` bound
+    (written to ~/.husk/port), falling back to 7654."""
+    try:
+        port = int((husk_home() / "port").read_text(encoding="utf-8").strip())
+    except (OSError, ValueError):
+        port = 7654
+    return f"http://127.0.0.1:{port}"
+
+
 @click.group()
 @click.version_option(__version__, prog_name="husk")
 @click.option(
@@ -110,10 +120,15 @@ def doctor() -> None:
         "[dim](--enable-replay or HUSK_MCP_ENABLE_REPLAY=1; local-only)[/dim]"
     )
 
+    console.print("\n[dim]Next steps:[/dim]")
+    console.print("  [cyan]husk-ai start[/cyan]        backend + Studio")
+    console.print("  [cyan]husk-ai demo[/cyan]         seed a sample run")
+    console.print("  [cyan]husk-ai run <cmd>[/cyan]    capture your own agent")
+
 
 @main.command()
-@click.option("--url", default="http://127.0.0.1:7654", help="Husk backend URL.")
-def demo(url: str) -> None:
+@click.option("--url", default=None, help="Husk backend URL (default: the running backend's port).")
+def demo(url: str | None) -> None:
     """Seed demo fixtures so the Studio has a fresh narrative to show.
 
     Emits a 3-span OTel trace and a sample IDE observability event so the
@@ -122,7 +137,7 @@ def demo(url: str) -> None:
     """
     import httpx
 
-    base = url.rstrip("/")
+    base = (url or _default_url()).rstrip("/")
 
     try:
         h = httpx.get(f"{base}/api/health", timeout=2.0)
@@ -166,6 +181,11 @@ def demo(url: str) -> None:
     console.print(f"Open the Studio: [cyan]{base}[/cyan]")
     console.print(
         "[dim]The Dashboard shows the run under /runs and the IDE event on the Cursor tile.[/dim]"
+    )
+    console.print(
+        "\n[dim]Next — let your coding agent debug runs for you:[/dim] "
+        "[cyan]husk-ai mcp install --client claude-code[/cyan] "
+        "[dim](or cursor · windsurf), then paste[/dim] [cyan]AGENT_PROMPT.md[/cyan]"
     )
 
 
@@ -277,10 +297,11 @@ def run(command: tuple[str, ...], port: int, service_name: str | None, no_serve:
     if not _backend_healthy(base):
         import uvicorn
 
-        from husk.server import _resolve_port
+        from husk.server import _resolve_port, _write_port_file
         from husk_studio_backend.main import app
 
         actual_port = _resolve_port("127.0.0.1", port)
+        _write_port_file(actual_port)
         base = f"http://127.0.0.1:{actual_port}"
         cfg = uvicorn.Config(app, host="127.0.0.1", port=actual_port, log_level="warning")
         server = uvicorn.Server(cfg)
@@ -326,9 +347,9 @@ def run(command: tuple[str, ...], port: int, service_name: str | None, no_serve:
 )
 @click.option("--span", "span_id", default=None, help="Span id to fork from (re-run that node onward).")
 @click.option("--cassette", is_flag=True, help="Serve LLM calls from the recorded HTTP cassette (model-free).")
-@click.option("--url", default="http://127.0.0.1:7654", help="Husk backend URL.")
+@click.option("--url", default=None, help="Husk backend URL (default: the running backend's port).")
 def replay(
-    run_id: str, overrides: tuple[str, ...], span_id: str | None, cassette: bool, url: str
+    run_id: str, overrides: tuple[str, ...], span_id: str | None, cassette: bool, url: str | None
 ) -> None:
     """Replay a recorded run with a modified state, from the terminal/CI.
 
@@ -349,7 +370,7 @@ def replay(
         except ValueError:
             state_override[k] = v
 
-    base = url.rstrip("/")
+    base = (url or _default_url()).rstrip("/")
     body = {
         "run_id": run_id,
         "span_id": span_id,

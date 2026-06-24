@@ -37,6 +37,7 @@ export default function Dashboard() {
   useEffect(() => {
     let alive = true;
     const tick = () => {
+      if (document.hidden) return; // don't poll a backgrounded tab
       getDashboardSummary().then((d) => alive && setData(d)).catch(() => {});
       getIntegrationsStatus().then((s) => alive && setStatus(s)).catch(() => {});
       getRuns({ status: "error", limit: 5 }).then((f) => alive && setFailures(f)).catch(() => {});

@@ -34,6 +34,17 @@ def _resolve_port(host: str, port: int) -> int:
     )
 
 
+def _write_port_file(port: int) -> None:
+    """Record the bound port so client commands (`demo`, `replay`) find the
+    backend even when `start` auto-bumped off a busy 7654. Best-effort."""
+    try:
+        from husk.config import husk_home
+
+        (husk_home() / "port").write_text(str(port), encoding="utf-8")
+    except OSError:
+        pass
+
+
 def start_server(
     *,
     host: str = "127.0.0.1",
@@ -46,6 +57,7 @@ def start_server(
     has time to bind the socket before the user lands.
     """
     port = _resolve_port(host, port)
+    _write_port_file(port)
 
     if open_browser:
         url = f"http://localhost:{port}"

@@ -3,6 +3,30 @@
 All notable changes from the audit, refactor, and hardening pass. Grouped by
 theme; newest first.
 
+## [0.5.1] — Container image (GHCR) + onboarding & polling polish
+
+### Packaging
+- **Container image on GitHub Packages.** A multi-stage `Dockerfile` (Node builds
+  the Studio bundle, which is gitignored; a uv/Python stage runs the backend that
+  serves it) and a tag-triggered workflow (`.github/workflows/docker-publish.yml`)
+  publish `ghcr.io/husk-ai-team/husk-ai` on every `vX.Y.Z` tag, using the built-in
+  `GITHUB_TOKEN` — no secrets. `docker run -p 7654:7654 -v husk-data:/data
+  ghcr.io/husk-ai-team/husk-ai`. README documents the loopback caveat (great for
+  the Studio + same-network capture; cross-host ingest still wants a local install).
+
+### Onboarding
+- **No more port footgun.** `husk-ai start` records the bound port to
+  `~/.husk/port`, and `demo` / `replay` default to it (fallback 7654) — so they
+  reach the backend even when `start` auto-bumped off a busy 7654.
+- `husk-ai demo` now points to the next step (`husk-ai mcp install` + the new
+  paste-in `AGENT_PROMPT.md`), and `husk-ai doctor` prints a short "next steps"
+  block. Added `AGENT_PROMPT.md` (a ready-to-paste prompt that makes a coding
+  assistant actually use Husk's MCP tools when debugging).
+
+### Performance
+- The Studio's Runs and Dashboard pages stop polling while the browser tab is
+  hidden (one-line `document.hidden` guard) — no wasted requests in the background.
+
 ## [0.5.0] — OpenRouter debugger provider + example state-diff telemetry
 
 ### Debugger

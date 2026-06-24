@@ -192,6 +192,10 @@ husk-ai mcp install --client lovable     # prints the full tunnel walkthrough
 **Tools exposed:** `list_runs`, `get_run`, `get_trace`, `get_span`, `list_errors`,
 `cost_breakdown`, `dashboard_summary`, `list_cursor_events`.
 
+**Make your assistant actually use them.** Connecting the server isn't enough — drop
+[`AGENT_PROMPT.md`](AGENT_PROMPT.md) into your assistant's rules (`CLAUDE.md`, a
+`.cursor/rules/` file, …) so it reaches for Husk when you're debugging instead of guessing.
+
 > **Replay is off by default.** `replay_run` re-invokes your agent and runs your
 > code, so it is gated behind an explicit flag and intended for local use only:
 >
@@ -204,6 +208,29 @@ husk-ai mcp install --client lovable     # prints the full tunnel walkthrough
 > Working from a source clone (no `pip install husk-ai` yet)? Prefix with `uv run`
 > (e.g. `uv run husk-ai mcp install --client cursor`). The install command writes
 > the absolute path to the venv binary, so the client can still launch it.
+
+---
+
+## Run with Docker (GHCR)
+
+Prefer a container? The image bundles the backend + the Studio and is published to
+the GitHub Container Registry on every release:
+
+```bash
+docker run --rm -p 7654:7654 -v husk-data:/data ghcr.io/husk-ai-team/husk-ai
+```
+
+Then open **http://localhost:7654**. Seed a sample run with:
+
+```bash
+docker exec <container> uv run --no-sync husk-ai demo
+```
+
+> **Loopback by design.** Husk's state-changing routes (trace ingest, replay,
+> debugger) reject non-loopback callers, so the container is best for viewing the
+> Studio and for running an agent **alongside Husk on the same container/Compose
+> network** (loopback inside the container). To capture an agent running on your
+> host, install Husk locally (`uv`/`pip`) so ingest stays on loopback.
 
 ---
 

@@ -1,0 +1,15 @@
+# Keep the build context small and force fresh installs/builds in-image.
+.git
+.venv
+**/node_modules
+**/__pycache__
+**/*.pyc
+apps/*/dist
+benchmark
+.claude
+.github
+*.egg-info
+.pytest_cache
+.mypy_cache
+.ruff_cache
+HUSK-FEATURES.md

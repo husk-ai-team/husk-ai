@@ -29,10 +29,12 @@ export default function Runs() {
 
   useEffect(() => {
     let alive = true;
-    const tick = () =>
+    const tick = () => {
+      if (document.hidden) return; // don't poll a backgrounded tab
       getRuns({ q: q || undefined, status: statusFilter || undefined })
         .then((r) => alive && setRuns(r))
         .catch((e) => alive && setError(String(e)));
+    };
     tick();
     const t = setInterval(tick, POLL_MS);
     return () => {
