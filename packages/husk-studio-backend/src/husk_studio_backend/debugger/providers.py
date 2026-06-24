@@ -137,6 +137,59 @@ class OpenAIProvider:
         return _models_payload(self._KNOWN)
 
 
+class OpenRouterProvider:
+    """OpenRouter: OpenAI-compatible API (same ``/chat/completions`` shape, Bearer
+    auth) fronting many models. Husk's own benchmark runs on OpenRouter Llama, so
+    supporting it here lets you debug a run with the same provider it ran on.
+
+    Models are namespaced (``meta-llama/llama-3.3-70b-instruct``). Uses ``max_tokens``
+    (OpenAI's classic field, which OpenRouter expects) rather than the newer
+    ``max_completion_tokens``.
+    """
+
+    name = "openrouter"
+    _URL = "https://openrouter.ai/api/v1/chat/completions"
+    _KNOWN = [
+        "meta-llama/llama-3.3-70b-instruct",
+        "meta-llama/llama-3.1-70b-instruct",
+        "meta-llama/llama-3.1-8b-instruct",
+        "openai/gpt-4o",
+        "openai/gpt-4o-mini",
+        "anthropic/claude-3.5-sonnet",
+    ]
+
+    def complete(
+        self,
+        *,
+        system: str,
+        user: str,
+        model: str,
+        api_key: str,
+        max_output_tokens: int,
+        transport: httpx.BaseTransport | None = None,
+    ) -> str:
+        headers = {
+            "authorization": f"Bearer {api_key}",
+            "content-type": "application/json",
+        }
+        body = {
+            "model": model,
+            "max_tokens": max_output_tokens,
+            "messages": [
+                {"role": "system", "content": system},
+                {"role": "user", "content": user},
+            ],
+        }
+        data = _post(self._URL, headers, body, transport)
+        try:
+            return data["choices"][0]["message"]["content"] or ""
+        except (KeyError, IndexError, TypeError) as e:
+            raise ProviderError(f"unexpected OpenRouter response shape: {e}") from e
+
+    def list_models(self) -> list[dict[str, Any]]:
+        return _models_payload(self._KNOWN)
+
+
 def _post(
     url: str,
     headers: dict[str, str],
@@ -161,6 +214,7 @@ def _post(
 _PROVIDERS: dict[str, LLMProvider] = {
     AnthropicProvider.name: AnthropicProvider(),
     OpenAIProvider.name: OpenAIProvider(),
+    OpenRouterProvider.name: OpenRouterProvider(),
 }
 
 

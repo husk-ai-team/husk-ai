@@ -3,6 +3,29 @@
 All notable changes from the audit, refactor, and hardening pass. Grouped by
 theme; newest first.
 
+## [0.5.0] — OpenRouter debugger provider + example state-diff telemetry
+
+### Debugger
+- **OpenRouter provider** (`debugger/providers.py`): the BYOK auto-debugger now
+  supports OpenRouter alongside Anthropic and OpenAI, so you can debug a run with
+  the same provider it ran on (Husk's own benchmark runs on OpenRouter Llama).
+  OpenAI-compatible call path (Bearer auth, classic `max_tokens`); `GET
+  /api/debugger/providers` now returns `anthropic, openai, openrouter`. Added
+  context-window / output metadata (`husk_shared/model_metadata.py`) for the
+  `meta-llama/*`, `openai/*`, and `anthropic/*` OpenRouter model ids.
+
+### Example
+- **`examples/husk_thread.py` now demonstrates per-node state.** It wires the engine
+  telemetry hook (`on_node`) so each node emits a `graph_node` span carrying
+  `state_before` / `state_after` / `state_diff`, and records the linear topology on
+  the root span. The Studio's per-node **State diff** view and node graph now
+  populate from the bundled example (previously the example emitted no state). Fixed
+  the post-run hint, which pointed at the Vite dev URL (`:5174`) instead of the
+  running backend.
+
+### Tests
+- OpenRouter provider call-shape + registry tests. Suite: 112 passing.
+
 ## [0.4.0] — Security hardening, dead-code removal, terminal/CI workflow
 
 ### Security

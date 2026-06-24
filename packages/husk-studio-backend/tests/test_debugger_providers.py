@@ -14,7 +14,9 @@ import pytest
 from husk_studio_backend.debugger.providers import (
     AnthropicProvider,
     OpenAIProvider,
+    OpenRouterProvider,
     ProviderError,
+    available_providers,
     get_provider,
 )
 
@@ -65,6 +67,36 @@ def test_openai_call_shape(caplog: pytest.LogCaptureFixture) -> None:
     )
     assert out == "hello"
     assert _SECRET not in caplog.text
+
+
+def test_openrouter_call_shape(caplog: pytest.LogCaptureFixture) -> None:
+    seen: dict[str, object] = {}
+
+    def handler(request: httpx.Request) -> httpx.Response:
+        seen["url"] = str(request.url)
+        seen["authorization"] = request.headers.get("authorization")
+        seen["body"] = request.content.decode()
+        return httpx.Response(200, json={"choices": [{"message": {"content": "ok"}}]})
+
+    out = OpenRouterProvider().complete(
+        system="s",
+        user="u",
+        model="meta-llama/llama-3.3-70b-instruct",
+        api_key=_SECRET,
+        max_output_tokens=64,
+        transport=httpx.MockTransport(handler),
+    )
+    assert out == "ok"
+    assert seen["authorization"] == f"Bearer {_SECRET}"
+    assert "openrouter.ai" in str(seen["url"])
+    # OpenRouter expects the classic `max_tokens` field, not `max_completion_tokens`.
+    assert '"max_tokens": 64' in str(seen["body"]) or '"max_tokens":64' in str(seen["body"])
+    assert _SECRET not in caplog.text
+
+
+def test_openrouter_is_registered() -> None:
+    assert "openrouter" in available_providers()
+    assert get_provider("openrouter").name == "openrouter"
 
 
 def test_provider_error_on_non_2xx() -> None:

@@ -18,17 +18,21 @@ nodes emit no spans and consume no tokens.
 
 from __future__ import annotations
 
+import json
 import logging
 import os
 import threading
 import time
+import traceback
 import uuid
+from contextlib import contextmanager
 from pathlib import Path
 
 from opentelemetry import trace
 
 from husk_shared import instrument
 from husk_shared.engine import LinearExecutor, LinearGraph, SnapshotStore
+from husk_shared.state_diff import diff_states
 
 log = logging.getLogger(__name__)
 
@@ -91,6 +95,64 @@ def answerer(state: dict) -> dict:
         return {"answer": answer}
 
 
+# --- Engine telemetry: per-node `graph_node` spans (state before/after/diff) ---
+
+_STATE_ATTR_CAP = 8000
+
+
+def _safe_state_json(obj: object) -> str:
+    s = json.dumps(obj, sort_keys=True, default=str)
+    if len(s) > _STATE_ATTR_CAP:
+        s = s[:_STATE_ATTR_CAP] + f"…[+{len(s) - _STATE_ATTR_CAP} chars]"
+    return s
+
+
+def _make_node_telemetry(tracer):  # type: ignore[no-untyped-def]
+    """Engine hook: wrap each node in a `graph_node` span carrying the state
+    before/after and their diff, so per-node state is first-class in the trace.
+    This is what populates the Studio's per-node "State diff" view; without it the
+    graph shows nodes but no state. The node's own LLM/tool span nests under it.
+    """
+
+    @contextmanager
+    def on_node(node: str, seq: int, before: dict):  # type: ignore[no-untyped-def]
+        with tracer.start_as_current_span(f"node:{node}") as span:
+            span.set_attribute("husk.span_kind", "graph_node")
+            span.set_attribute("husk.node", node)
+            span.set_attribute("husk.node_seq", seq)
+            span.set_attribute("husk.state_before", _safe_state_json(before))
+
+            def record(after: dict, delta: dict, error: BaseException | None) -> None:
+                span.set_attribute("husk.state_after", _safe_state_json(after))
+                span.set_attribute(
+                    "husk.state_diff", _safe_state_json(diff_states(before, after))
+                )
+                if error is not None:
+                    span.set_attribute(
+                        "husk.error.traceback",
+                        "".join(
+                            traceback.format_exception(type(error), error, error.__traceback__)
+                        ),
+                    )
+                    span.set_status(trace.Status(trace.StatusCode.ERROR, str(error)))
+
+            yield record
+
+    return on_node
+
+
+def _set_topology_attrs(root) -> None:  # type: ignore[no-untyped-def]
+    """Record the linear topology on the root span so the Studio + debugger see
+    nodes/edges structurally (and can show skipped upstream nodes on a replay).
+    """
+    names = graph.node_names
+    root.set_attribute("husk.graph.nodes", json.dumps(names))
+    root.set_attribute(
+        "husk.graph.edges",
+        json.dumps([[a, b] for a, b in zip(names, names[1:], strict=False)]),
+    )
+
+
 # --- Husk-native graph + snapshot store -------------------------------------
 
 
@@ -126,13 +188,14 @@ def invoke(state: dict, thread_id: str | None = None) -> dict:
     """Run the graph from scratch, snapshotting after each node."""
     tracer = _get_tracer()
     tid = thread_id or str(uuid.uuid4())
-    executor = LinearExecutor(graph, _get_store())
+    executor = LinearExecutor(graph, _get_store(), on_node=_make_node_telemetry(tracer))
 
     with tracer.start_as_current_span("agent.run") as root:
         root.set_attribute("service.name", "husk-demo")
         root.set_attribute("husk.thread_id", tid)
         root.set_attribute("husk.graph_module", f"{GRAPH_FILE}:graph")
         root.set_attribute("husk.replay.engine", "husk-native")
+        _set_topology_attrs(root)
         result = executor.run_full(tid, state)
         root.set_attribute("husk.final_state", str(result))
 
@@ -150,7 +213,7 @@ def replay_from(*, state_override: dict, parent_thread_id: str, fork_node: str) 
     emit no spans and consume no tokens.
     """
     tracer = _get_tracer()
-    executor = LinearExecutor(graph, _get_store())
+    executor = LinearExecutor(graph, _get_store(), on_node=_make_node_telemetry(tracer))
     child_id = str(uuid.uuid4())
     child_thread_id = f"{parent_thread_id}::replay::{child_id}"
 
@@ -161,6 +224,7 @@ def replay_from(*, state_override: dict, parent_thread_id: str, fork_node: str) 
         root.set_attribute("husk.replay.engine", "husk-native")
         root.set_attribute("husk.replay.child_id", child_id)
         root.set_attribute("husk.replay.fork_node", fork_node)
+        _set_topology_attrs(root)
         result = executor.resume(
             parent_thread_id=parent_thread_id,
             child_thread_id=child_thread_id,
@@ -180,7 +244,8 @@ def main() -> None:
     result = invoke({"topic": "Rome"})
     log.info(f"Thread:  {result['thread_id']}")
     log.info(f"State:   {result['state']}")
-    log.info("Open http://localhost:5174/runs to see the run, then 'Modify and replay'.")
+    base = os.environ.get("OTEL_EXPORTER_OTLP_ENDPOINT", "http://127.0.0.1:7654").rstrip("/")
+    log.info(f"Open {base}/runs to see the run, then 'Modify and replay'.")
 
 
 if __name__ == "__main__":

@@ -47,6 +47,14 @@ _MODEL_METADATA: dict[str, ModelMeta] = {
     "claude-sonnet-4": {"context_window": 200_000, "max_output": 64_000},
     "claude-haiku-4-5": {"context_window": 200_000, "max_output": 32_000},
     "claude-opus-4-7": {"context_window": 200_000, "max_output": 32_000},
+    # OpenRouter (namespaced ids; OpenAI-compatible API). The benchmark runs on
+    # the meta-llama models, so the debugger can target the same provider.
+    "meta-llama/llama-3.3-70b-instruct": {"context_window": 131_072, "max_output": 8_192},
+    "meta-llama/llama-3.1-70b-instruct": {"context_window": 131_072, "max_output": 8_192},
+    "meta-llama/llama-3.1-8b-instruct": {"context_window": 131_072, "max_output": 8_192},
+    "openai/gpt-4o": {"context_window": 128_000, "max_output": 16_384},
+    "openai/gpt-4o-mini": {"context_window": 128_000, "max_output": 16_384},
+    "anthropic/claude-3.5-sonnet": {"context_window": 200_000, "max_output": 8_192},
 }
 
 
