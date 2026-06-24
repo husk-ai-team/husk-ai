@@ -214,16 +214,26 @@ husk-ai mcp install --client lovable     # prints the full tunnel walkthrough
 ## Run with Docker (GHCR)
 
 Prefer a container? The image bundles the backend + the Studio and is published to
-the GitHub Container Registry on every release:
+the GitHub Container Registry on every release — pull it with
+`docker pull ghcr.io/husk-ai-team/husk-ai`:
 
 ```bash
-docker run --rm -p 7654:7654 -v husk-data:/data ghcr.io/husk-ai-team/husk-ai
+docker run --rm --name husk -p 7654:7654 -v husk-data:/data ghcr.io/husk-ai-team/husk-ai
 ```
 
-Then open **http://localhost:7654**. Seed a sample run with:
+Open **http://localhost:7654** and click **Try free** (a one-click local guest
+session — no account, no cloud). Seed a sample run:
 
 ```bash
-docker exec <container> uv run --no-sync husk-ai demo
+docker exec husk uv run --no-sync husk-ai demo
+```
+
+To see the **node graph + per-node state diff**, run the bundled example agent on
+the container's loopback (`demo` emits a flat trace, not a node graph):
+
+```bash
+docker exec husk sh -c \
+  'OTEL_EXPORTER_OTLP_ENDPOINT=http://127.0.0.1:7654 uv run --no-sync python examples/husk_thread.py'
 ```
 
 > **Loopback by design.** Husk's state-changing routes (trace ingest, replay,
