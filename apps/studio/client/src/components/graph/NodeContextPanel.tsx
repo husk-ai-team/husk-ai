@@ -73,7 +73,7 @@ export function NodeContextPanel({ node }: { node: GraphNode | null }) {
             {node.tool_calls.map((t) => (
               <div key={t.span_id} className="mb-4">
                 <div className="mb-1.5 flex items-center gap-1.5 text-[11px] text-muted-foreground">
-                  <Wrench className="size-3.5 text-sky-400" />
+                  <Wrench className="size-3.5 text-foreground" />
                   {t.name}
                 </div>
                 <Labeled label="args">
@@ -161,7 +161,7 @@ function KV({ k, v, accent }: { k: string; v: string; accent?: boolean }) {
 function StatusPill({ status }: { status: string }) {
   const cls =
     status === "success"
-      ? "bg-emerald-500/15 text-emerald-300 ring-1 ring-emerald-500/30"
+      ? "bg-secondary text-muted-foreground ring-1 ring-border"
       : status === "error"
         ? "bg-destructive/15 text-destructive ring-1 ring-destructive/30"
         : status === "skipped"

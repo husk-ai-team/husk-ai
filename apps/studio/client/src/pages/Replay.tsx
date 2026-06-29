@@ -172,7 +172,7 @@ export default function Replay() {
       </div>
 
       {run && spans.length > 0 && !replayable && (
-        <div className="mb-6 rounded-lg border border-amber-500/40 bg-amber-500/10 px-4 py-3 text-sm text-amber-200">
+        <div className="mb-6 rounded-lg border border-border bg-secondary/50 px-4 py-3 text-sm text-muted-foreground">
           This run is observability-only — no{" "}
           <code className="font-mono text-xs">husk.graph_module</code> was recorded, so it
           can&apos;t be replayed. Replay works on agents running on Husk&apos;s own engine (see{" "}
@@ -212,7 +212,7 @@ export default function Replay() {
                 title="Replay the LLM calls from the recorded cassette instead of calling the provider — free, deterministic, byte-identical (a changed request still falls through to the real API)."
                 className={`inline-flex items-center gap-1.5 rounded-md border px-2.5 py-1.5 text-[11px] font-medium transition-colors ${
                   useCassette
-                    ? "border-emerald-500/50 bg-emerald-500/10 text-emerald-300"
+                    ? "border-foreground/30 bg-secondary/60 text-foreground"
                     : "border-border/50 bg-secondary/20 text-muted-foreground hover:text-foreground"
                 }`}
               >
@@ -264,14 +264,14 @@ export default function Replay() {
       )}
 
       {result && (
-        <div className="mt-6 overflow-hidden rounded-xl border border-emerald-500/40 bg-emerald-500/5">
-          <div className="flex flex-wrap items-center justify-between gap-3 border-b border-emerald-500/20 bg-emerald-500/10 px-5 py-3">
+        <div className="mt-6 overflow-hidden rounded-xl border border-foreground/30 bg-secondary/40">
+          <div className="flex flex-wrap items-center justify-between gap-3 border-b border-border bg-secondary/60 px-5 py-3">
             <div className="flex items-center gap-3">
-              <span className="flex size-8 items-center justify-center rounded-lg bg-emerald-500/20 text-emerald-300">
+              <span className="flex size-8 items-center justify-center rounded-lg bg-secondary text-foreground">
                 <Sparkles className="size-4" />
               </span>
               <div>
-                <div className="text-sm font-semibold text-emerald-300">
+                <div className="text-sm font-semibold text-foreground">
                   Branch created.
                 </div>
                 <div className="font-mono text-[11px] text-muted-foreground">
@@ -295,7 +295,7 @@ export default function Replay() {
             </button>
           </div>
           {(linking || linkedChild) && (
-            <div className="border-b border-emerald-500/20 px-5 py-3 text-xs">
+            <div className="border-b border-border px-5 py-3 text-xs">
               {linkedChild ? (
                 <span className="text-muted-foreground">
                   Replay bypassed{" "}

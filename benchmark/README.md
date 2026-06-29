@@ -287,21 +287,6 @@ Husk-equivalent performance)
 
 ---
 
-## Volume calibration
-
-The 10k-run benchmark looks bloated only when miscontextualised. Calibrated:
-
-| Segment | Engineers | Estimated runs/month | Failures (20-30 %) |
-|---|---:|---:|---:|
-| Single dev team (seed/Series A) | 5-15 | 10.000 - 15.000 | 2.000 - 4.500 |
-| Mid-size company | 50-100 | 50.000 - 100.000+ | 10.000 - 30.000 |
-| Enterprise (e.g. Arize public scale) | 100+ | 1.000.000+ | tracked via CI/evals |
-
-10k runs ≈ **one month for a 10-engineer dev team** running RAG / multi-step
-agent pipelines ~50 times/day across dev + staging. Realistic, not inflated.
-
----
-
 ## Methodological caveats (the pitch states these explicitly)
 
 1. **State replay ≠ output determinism.** Husk's engine guarantees perfect

@@ -1,7 +1,54 @@
 # Changelog
 
-All notable changes from the audit, refactor, and hardening pass. Grouped by
-theme; newest first.
+All notable changes, grouped by theme; newest first.
+
+## [0.7.0] — Back to a single-user development debugger
+
+Husk is, again, an interactive debugger you use while building an AI agent, before production —
+for a single Product Manager debugging their own agent, not a team. The production-observability /
+multi-user direction has been reversed.
+
+### Repositioned
+- **Single-user, local-first, development-time.** No login, no accounts, no project switcher, no
+  team dashboard. The Studio opens straight onto the agent you're building on this machine.
+- **Development-only, enforced in code.** Trace ingest is loopback-only, so only an agent running
+  on this machine can stream in — a production deployment on another host is refused. Husk cannot
+  be pointed at production by design.
+- **The AI debugs for you.** The automatic debugger reads a failed run and tells you, in plain
+  language, what went wrong and what to change — on one click, or automatically the moment a run
+  fails.
+
+### Removed from the public product (moved to a private enterprise edition)
+- User accounts + login, teams, projects, per-project ingest API keys, the project switcher, the
+  "Connect your team" settings, and the keyed networked-ingest path.
+- The production-analytics layer: over-time cost/failure insights, anomaly cards, and the grounded
+  chatbot, plus the over-time Errors-analysis page.
+
+### Kept
+- Multi-model attribution (which model handled each step, and its cost, within a run),
+  modify-and-replay (resume from the broken step, skipping upstream token cost), and local-first /
+  zero data retention.
+
+## [0.6.0] — Zero-boilerplate native replay: `@husk.node` / `HuskAgent`
+
+The gap this closes: the headline modify-and-replay feature (resume a run from any
+node with edited state, skipping the upstream nodes) required hand-wiring ~150
+lines of OTel/snapshot/`replay_from` plumbing onto Husk's engine. This release
+collapses that into two decorators.
+
+### `@husk.node` / `HuskAgent`
+- New `husk_shared.agent.HuskAgent`: decorate plain `(state) -> delta` functions
+  with `@agent.node` and get full node-skip modify-and-replay (the token-bypass
+  primitive) — the OTel root span, per-node `graph_node` telemetry with state
+  diffs, topology attributes, snapshot store, and `invoke` / `replay_from` are all
+  generated. `husk.graph_module` is resolved automatically from the agent's
+  module-global name.
+- `examples/husk_thread.py` shrinks from ~150 lines of boilerplate to its two node
+  functions plus the decorators.
+- The replay dispatcher (`replay/graph_replay.py`) learns to drive a decorated
+  agent (marked `_husk_agent`) — finding `invoke` / `replay_from` on the agent
+  object — without changing how it drives module-level functions or LangGraph's
+  `invoke(state, config=)` convention.
 
 ## [0.5.1] — Container image (GHCR) + onboarding & polling polish
 

@@ -40,6 +40,10 @@ class RunRow(Base):
     total_cost_usd: Mapped[float] = mapped_column(Float, default=0.0)
     env_fingerprint: Mapped[str | None] = mapped_column(String(64), nullable=True)
     error_message: Mapped[str | None] = mapped_column(Text, nullable=True)
+    # Dormant in the single-user product (always NULL): kept as a nullable, indexed
+    # column so a trace DB stays forward-compatible with the enterprise (multi-
+    # project) edition and no recording-format migration is needed either way.
+    project_id: Mapped[str | None] = mapped_column(String(40), nullable=True, index=True)
     extra_metadata: Mapped[dict[str, Any]] = mapped_column("metadata", JSON, default=dict)
 
     __table_args__ = (

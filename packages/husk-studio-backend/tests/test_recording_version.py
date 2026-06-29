@@ -102,3 +102,58 @@ def test_too_new_db_is_refused(tmp_path: Path) -> None:
     eng.dispose()
     with pytest.raises(RecordingFormatError):
         verify_recording_version(db)
+
+
+def _runs_columns(db: Path) -> set[str]:
+    import sqlite3
+
+    con = sqlite3.connect(str(db))
+    try:
+        return {row[1] for row in con.execute("PRAGMA table_info(runs)")}
+    finally:
+        con.close()
+
+
+def test_v1_db_migrates_to_v2_adding_project_id(tmp_path: Path) -> None:
+    # The v1 -> v2 migration is an additive ALTER (create_all never adds columns
+    # to an existing table), so a pre-project_id DB must gain the column on open.
+    assert RECORDING_FORMAT_VERSION >= 2  # this test exercises the v1 -> v2 step
+    db = tmp_path / "v1.db"
+    eng = create_engine(f"sqlite:///{db}")
+    with eng.begin() as conn:
+        # A v1-shaped runs table: no project_id, stamped recording v1.
+        conn.exec_driver_sql(
+            'CREATE TABLE runs (id VARCHAR PRIMARY KEY, started_at BIGINT, '
+            'status VARCHAR, "metadata" JSON)'
+        )
+        conn.exec_driver_sql(
+            "INSERT INTO runs (id, started_at, status) VALUES ('old', 1, 'success')"
+        )
+        conn.exec_driver_sql("PRAGMA user_version = 1")
+    with eng.begin() as conn:
+        _ensure_recording_version(conn)  # 0 < 1 < current -> run the migration chain
+    eng.dispose()
+
+    assert "project_id" in _runs_columns(db)  # column added
+    assert _user_version(db) == RECORDING_FORMAT_VERSION  # restamped to current
+
+    import sqlite3
+
+    con = sqlite3.connect(str(db))
+    try:
+        # Pre-existing rows backfill to NULL = "All projects".
+        assert con.execute("SELECT project_id FROM runs WHERE id='old'").fetchone()[0] is None
+    finally:
+        con.close()
+
+
+def test_v1_to_v2_migration_is_idempotent(tmp_path: Path) -> None:
+    # Re-running the guard on an already-current DB must not fail (the ALTER is
+    # guarded by a column-existence check).
+    db = _fresh_db(tmp_path)
+    eng = create_engine(f"sqlite:///{db}")
+    with eng.begin() as conn:
+        _ensure_recording_version(conn)
+        _ensure_recording_version(conn)
+    eng.dispose()
+    assert "project_id" in _runs_columns(db)

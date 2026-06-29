@@ -18,15 +18,15 @@ export function StateDiffView({ diff }: { diff: StateDiff | null }) {
   return (
     <div className="space-y-3 text-xs">
       {changed.map(([k, v]) => (
-        <div key={`c-${k}`} className="rounded-md border border-amber-500/30 bg-amber-500/5 p-2.5">
-          <div className="mb-1 font-mono text-[11px] text-amber-300">~ {k}</div>
+        <div key={`c-${k}`} className="rounded-md border border-border bg-secondary/50 p-2.5">
+          <div className="mb-1 font-mono text-[11px] text-muted-foreground">~ {k}</div>
           <pre className="overflow-x-auto whitespace-pre-wrap text-[11px] text-destructive/90">- {fmt(v.from)}</pre>
-          <pre className="overflow-x-auto whitespace-pre-wrap text-[11px] text-emerald-300/90">+ {fmt(v.to)}</pre>
+          <pre className="overflow-x-auto whitespace-pre-wrap text-[11px] text-foreground/90">+ {fmt(v.to)}</pre>
         </div>
       ))}
       {added.map(([k, v]) => (
-        <div key={`a-${k}`} className="rounded-md border border-emerald-500/30 bg-emerald-500/5 p-2.5">
-          <div className="mb-1 font-mono text-[11px] text-emerald-300">+ {k}</div>
+        <div key={`a-${k}`} className="rounded-md border border-border bg-secondary/40 p-2.5">
+          <div className="mb-1 font-mono text-[11px] text-foreground">+ {k}</div>
           <pre className="overflow-x-auto whitespace-pre-wrap text-[11px] text-foreground/80">{fmt(v)}</pre>
         </div>
       ))}

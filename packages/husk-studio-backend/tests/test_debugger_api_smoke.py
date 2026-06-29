@@ -12,6 +12,7 @@ import pytest
 def isolated_home(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> Path:
     monkeypatch.setenv("HUSK_HOME", str(tmp_path))
     monkeypatch.setenv("HUSK_NO_AUTO_BUILD", "1")
+    monkeypatch.delenv("REGOLO_API_KEY", raising=False)  # Regolo is the default provider
     monkeypatch.delenv("ANTHROPIC_API_KEY", raising=False)
     monkeypatch.delenv("OPENAI_API_KEY", raising=False)
     import husk_studio_backend.db.engine as eng

@@ -29,14 +29,15 @@ export default function Runs() {
 
   useEffect(() => {
     let alive = true;
-    const tick = () => {
-      if (document.hidden) return; // don't poll a backgrounded tab
+    const load = () => {
       getRuns({ q: q || undefined, status: statusFilter || undefined })
         .then((r) => alive && setRuns(r))
         .catch((e) => alive && setError(String(e)));
     };
-    tick();
-    const t = setInterval(tick, POLL_MS);
+    load(); // always load on mount; only the recurring poll pauses when hidden
+    const t = setInterval(() => {
+      if (!document.hidden) load();
+    }, POLL_MS);
     return () => {
       alive = false;
       clearInterval(t);
@@ -118,8 +119,9 @@ export default function Runs() {
               <TableHeader>
                 <TableRow className="hover:bg-transparent border-border/30">
                   <TableHead className="w-2"></TableHead>
-                  <TableHead>Project</TableHead>
+                  <TableHead>Run</TableHead>
                   <TableHead>Agent</TableHead>
+                  <TableHead>Models</TableHead>
                   <TableHead>Status</TableHead>
                   <TableHead>Started</TableHead>
                   <TableHead className="text-right">Duration</TableHead>
@@ -154,6 +156,9 @@ export default function Runs() {
                         <FrameworkBadge framework={r.framework} />
                       </TableCell>
                       <TableCell>
+                        <ModelChips models={r.models} />
+                      </TableCell>
+                      <TableCell>
                         <StatusPill status={r.status} />
                       </TableCell>
                       <TableCell
@@ -182,6 +187,29 @@ export default function Runs() {
         )
       )}
     </section>
+  );
+}
+
+function ModelChips({ models }: { models?: string[] }) {
+  if (!models || models.length === 0)
+    return <span className="text-xs text-muted-foreground">—</span>;
+  const short = (m: string) => m.split("/").pop() ?? m;
+  const shown = models.slice(0, 2);
+  return (
+    <span className="flex flex-wrap items-center gap-1">
+      {shown.map((m) => (
+        <span
+          key={m}
+          className="rounded border border-border bg-secondary px-1.5 py-0.5 font-mono text-[10px] text-foreground/80"
+          title={m}
+        >
+          {short(m)}
+        </span>
+      ))}
+      {models.length > 2 && (
+        <span className="text-[10px] text-muted-foreground">+{models.length - 2}</span>
+      )}
+    </span>
   );
 }
 

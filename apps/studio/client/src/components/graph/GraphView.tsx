@@ -15,10 +15,10 @@ interface GraphViewProps {
 // tokens (emerald = success, destructive #F85149 = error, accent = running,
 // muted = skipped). Dark tinted fills so the colored stroke reads as the signal.
 const STATUS = {
-  error: { fill: "#251513", stroke: "#F0564E", dot: "#F0564E", text: "#FFB3AD" },
-  success: { fill: "#172017", stroke: "#4FB07E", dot: "#5FC08C", text: "#A4E0BC" },
-  skipped: { fill: "#1B1814", stroke: "#3C362E", dot: "#6E665A", text: "#8A8276" },
-  running: { fill: "#26190F", stroke: "#FF7A45", dot: "#FF7A45", text: "#FFB892" },
+  error: { fill: "#26272c", stroke: "#26272c", dot: "#26272c", text: "#f4f4f6" },
+  success: { fill: "#f3f3f5", stroke: "#c4c5ca", dot: "#8a8b91", text: "#26272c" },
+  skipped: { fill: "#f8f8f9", stroke: "#e3e3e6", dot: "#bcbdc2", text: "#8a8b91" },
+  running: { fill: "#e9e9ec", stroke: "#8a8b91", dot: "#55565c", text: "#26272c" },
 } as const;
 
 function statusOf(s: string) {
@@ -116,7 +116,7 @@ export function GraphView({ graph, selectedId, onSelect }: GraphViewProps) {
                   height={h}
                   rx={10}
                   fill={c.fill}
-                  stroke={selected ? "#FF6B35" : c.stroke}
+                  stroke={selected ? "#26272c" : c.stroke}
                   strokeWidth={selected ? 2.5 : 1.4}
                   strokeDasharray={node.status === "skipped" ? "5 4" : undefined}
                   opacity={node.status === "skipped" ? 0.85 : 1}
@@ -136,7 +136,7 @@ export function GraphView({ graph, selectedId, onSelect }: GraphViewProps) {
                 {failure ? (
                   <AlertTriangle x={w - 26} y={9} width={15} height={15} color="#F85149" />
                 ) : flagged ? (
-                  <Bug x={w - 26} y={9} width={15} height={15} color="#FF6B35" />
+                  <Bug x={w - 26} y={9} width={15} height={15} color="#26272c" />
                 ) : null}
               </g>
             );

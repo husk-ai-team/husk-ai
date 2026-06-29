@@ -26,6 +26,6 @@ translates that saving into per-provider USD using current list prices
 it is the cheapest production LLM provider. The Groq saving is
 intentionally small in absolute dollars. The 'vs Groq smallest'
 column shows the multiplier you would observe if the same workload
-ran on each pricier provider. For a real customer running a debug
+ran on each pricier provider. If your agent runs a debug
 cycle on Claude Sonnet 4, the saving per replay is the corresponding
 row, not the Groq baseline.

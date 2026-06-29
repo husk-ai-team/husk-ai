@@ -1,10 +1,7 @@
-import { Loader2 } from "lucide-react";
 import { Route, Switch } from "wouter";
 
 import { StudioLayout } from "./components/StudioLayout";
-import { WelcomeGate } from "./components/WelcomeGate";
 import { Toaster } from "./components/ui/sonner";
-import { useSession } from "./lib/auth";
 import Dashboard from "./pages/Dashboard";
 import Onboarding from "./pages/Onboarding";
 import Replay from "./pages/Replay";
@@ -13,29 +10,8 @@ import Runs from "./pages/Runs";
 import Settings from "./pages/Settings";
 
 export default function App() {
-  const { session, loading } = useSession();
-
-  if (loading) {
-    return (
-      <div className="min-h-screen bg-background text-foreground grid place-items-center">
-        <div className="inline-flex items-center gap-2 text-sm text-muted-foreground">
-          <Loader2 className="size-4 animate-spin" />
-          Checking session…
-        </div>
-        <Toaster richColors position="bottom-right" />
-      </div>
-    );
-  }
-
-  if (!session) {
-    return (
-      <>
-        <WelcomeGate />
-        <Toaster richColors position="bottom-right" />
-      </>
-    );
-  }
-
+  // Local-first, single-user: no login gate, no project provider — the Studio is
+  // the one debugger window onto the agent you're building on this machine.
   return (
     <StudioLayout>
       <Switch>

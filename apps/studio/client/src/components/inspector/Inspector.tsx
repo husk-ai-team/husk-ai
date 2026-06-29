@@ -129,14 +129,14 @@ export function Inspector({ span }: InspectorProps) {
 
 function iconForKind(kind: string) {
   if (kind === "llm") return <Bot className="size-4 text-accent" />;
-  if (kind === "tool") return <Wrench className="size-4 text-sky-400" />;
-  return <Cog className="size-4 text-emerald-400" />;
+  if (kind === "tool") return <Wrench className="size-4 text-foreground" />;
+  return <Cog className="size-4 text-foreground" />;
 }
 
 function bgForKind(kind: string) {
   if (kind === "llm") return "bg-accent/15";
-  if (kind === "tool") return "bg-sky-500/15";
-  return "bg-emerald-500/15";
+  if (kind === "tool") return "bg-secondary";
+  return "bg-secondary";
 }
 
 function KV({ k, v, accent }: { k: string; v: string; accent?: boolean }) {
@@ -153,7 +153,7 @@ function KV({ k, v, accent }: { k: string; v: string; accent?: boolean }) {
 function Pill({ status }: { status: string }) {
   const cls =
     status === "success"
-      ? "bg-emerald-500/15 text-emerald-300 ring-1 ring-emerald-500/30"
+      ? "bg-secondary text-muted-foreground ring-1 ring-border"
       : status === "error" || status === "failed"
         ? "bg-destructive/15 text-destructive ring-1 ring-destructive/30"
         : "bg-accent/15 text-accent ring-1 ring-accent/30";
@@ -272,13 +272,13 @@ function bubbleStyle(role: string) {
       };
     case "system":
       return {
-        palette: "border-emerald-500/30 bg-emerald-500/10 text-foreground",
+        palette: "border-border bg-secondary/60 text-foreground",
         icon: <Cog className="size-3.5" />,
         name: "System",
       };
     case "tool":
       return {
-        palette: "border-sky-500/30 bg-sky-500/10 text-foreground",
+        palette: "border-border bg-secondary/60 text-foreground",
         icon: <Wrench className="size-3.5" />,
         name: "Tool",
       };

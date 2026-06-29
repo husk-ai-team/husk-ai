@@ -1,88 +1,88 @@
 # Husk AI — Tutte le caratteristiche
 
 > Documento di riferimento completo: cos'è Husk, cosa fa **oggi** (feature spedite),
-> com'è fatto dentro, e cosa c'è **nella vision / roadmap** (feature future).
-> Aggiornato alla versione **v0.4.0**.
+> com'è fatto dentro, e cosa c'è **nella roadmap** (feature future).
+> Aggiornato alla versione **v0.5.x**.
 
 ---
 
-## 1. Cos'è Husk (vision e posizionamento)
+## 1. Cos'è Husk (posizionamento)
 
-**Husk è il debugger visuale per agenti AI** — *"il Chrome DevTools degli agenti AI"*.
+**Husk è il debugger interattivo dell'agente AI che stai costruendo** — lo usi *mentre
+sviluppi* un agente, **prima** che vada in produzione.
 
-L'idea centrale, lo slogan del prodotto:
+> **"Il tuo agente fa la cosa sbagliata. Husk ti mostra perché, in linguaggio normale,
+> e ti lascia correggere prima di spedire."**
 
-> **"Finally, see what your AI is thinking."**
-> Cattura ogni passo, riavvolgi qualsiasi decisione, e fai il replay da qualsiasi
-> checkpoint con uno stato diverso.
+Colleghi il tuo agente con una riga di setup, lo esegui, e Husk ti rigioca ogni run come
+una **storia visuale**: cosa ha fatto l'agente passo per passo, quale modello ha gestito
+ogni chiamata e quanto è costata, e — quando qualcosa si rompe — **clicchi una volta e
+Husk debugga la run per te**: una spiegazione in linguaggio normale di cosa è andato
+storto e cosa cambiare. Poi modifichi qualsiasi passo e fai il replay da lì, saltando il
+costo dei token a monte.
 
-Husk esegue i tuoi agenti AI dentro (o accanto a) uno **Studio locale** e ti mostra
-in tempo reale:
-- **cosa pensano** (prompt, completamenti, ragionamento passo-passo),
-- **dove falliscono** (nodo esatto, eccezione, stack trace),
-- **come cambia il comportamento** se cambi un input (modify-and-replay).
+È pensato per chi **usa** agenti AI e ha bisogno di debuggare il proprio — tipicamente un
+Product Manager che costruisce agenti con builder no-code / hostati — non per un ingegnere
+che legge tracce grezze. L'interfaccia parla in **linguaggio normale**, non in span o codice.
 
-Cattura le tracce **OpenTelemetry** dei tuoi agenti e le trasforma in **un'unica
-timeline navigabile**, al posto di un muro di log.
-
-### Principi fondanti (la vision di fondo)
+### Principi fondanti
 
 | Principio | Cosa significa |
 |---|---|
-| **Local-first** | Il backend gira sulla tua macchina. I dati dell'agente non la lasciano mai. |
-| **No cloud, no signup, no telemetry** | Nessun account, nessun invio di dati, nessuna telemetria. |
-| **Husk Cloud è opzionale, mai obbligatorio** | Esiste come opzione, ma il prodotto core è completo offline. |
-| **Categoria di prodotto** | *Visual / time-travel state debugger* (come Replay.io per JS o rr di Mozilla), **non** un proxy gateway tipo Helicone né una dashboard di osservabilità cloud. |
-| **Osservabilità non invasiva** | I bridge IDE sono *observability-only*: Husk registra, **non blocca mai** l'IDE o l'agente. |
-| **Propose, don't apply** | Il debugger propone fix come diff; non applica nulla senza conferma esplicita. |
+| **Local-first** | Il backend gira sulla tua macchina, in single-user. I dati dell'agente non la lasciano mai. |
+| **Zero data retention** | Niente account, niente invio di dati, niente telemetria. L'unica chiamata in uscita è quella del debugger automatico, verso un provider modello che scegli tu (BYOK). |
+| **Solo sviluppo — mai produzione** | Husk debugga un agente *mentre lo costruisci*. Non può essere puntato sulla produzione: l'ingest delle tracce è **loopback-only**, quindi solo un agente che gira su *questa* macchina può streammare dentro. Un deploy di produzione su un altro host viene rifiutato alla porta. Husk non è — e non può essere — monitoraggio di produzione. |
+| **Il debugger fa il debug per te** | L'AI non si limita a "spiegare": legge l'intera run e ti dice causa e fix. Click singolo, oppure auto-debug che parte nel momento in cui una run fallisce. |
+| **Propose, don't apply** | Il debugger propone un fix come diff; non applica nulla senza conferma esplicita. |
 
-### Il problema che risolve (la pain validata)
+### Il problema che risolve
 
 - 66% degli sviluppatori frustrati dal codice AI "quasi giusto" (Stack Overflow 2025).
 - 45% riporta che debuggare codice generato da AI **richiede più tempo**.
-- 46,2% fatica a integrare l'osservabilità degli agenti nel proprio workflow.
 - Tasso di fallimento reale degli agenti multi-step ben sopra il 20% (MAST, SWE-bench, studi RAG).
 
 ---
 
 ## 2. Feature attuali (spedite) — panoramica
 
-Le quattro caratteristiche di punta annunciate nel README:
+Le quattro cose che ottieni:
 
-1. **Una timeline per ogni passo.** Chiamate LLM, chiamate a tool ed eventi IDE da
-   qualsiasi framework finiscono in un unico activity feed con prompt, completamenti,
-   conteggio token e costo — invece di un muro di log.
-2. **Time-travel / modify-and-replay.** Entri in qualsiasi checkpoint registrato,
-   modifichi lo stato, e crei un branch da quel punto per vedere come reagisce
-   l'agente — alimentato dal motore di checkpoint/replay **proprietario di Husk**.
-3. **Cattura attività IDE.** Modifiche ai file e segnali di stop da Cursor e VS Code
-   confluiscono nella timeline insieme agli span dell'agente. Solo osservabilità —
-   Husk non blocca mai l'IDE.
-4. **Connessione ai tool di coding AI (MCP).** Husk parla il Model Context Protocol,
-   così Claude Code, Cursor, Windsurf e Lovable possono interrogare le run, leggere
-   tracce, analizzare i costi e fare replay dei checkpoint da dentro l'assistente.
+1. **Vedi cosa ha fatto davvero il tuo agente.** Ogni run come visuale passo-per-passo, in
+   linguaggio normale — non un muro di span grezzi.
+2. **Un click la debugga per te.** Quando una run fallisce, clicchi una volta e Husk legge
+   l'intera run e ti dice la causa e cosa cambiare — debug automatico in linguaggio normale,
+   senza leggere tracce. Attivi l'auto-debug e parte nel momento esatto in cui una run fallisce.
+3. **Quale modello ha fatto cosa.** In un agente multi-modello, vedi quale modello ha gestito
+   ogni passo e quanto è costato ciascuno — la via più rapida per trovare la chiamata che ha
+   dato la risposta sbagliata.
+4. **Modify-and-replay.** Riesegui dal passo rotto con lo stato modificato, saltando
+   deterministicamente il costo dei token a monte.
 
 ---
 
-## 3. Cattura e osservabilità (tracing)
+## 3. Cattura (tracing)
 
-- **Ingest OpenTelemetry (OTLP/HTTP)** sulla porta `7654`, endpoint `/v1/traces`.
+- **Ingest OpenTelemetry (OTLP/HTTP)** sulla porta `7654`, endpoint `/v1/traces` —
+  **loopback-only by design**: solo un agente che gira su questa macchina può streammare dentro.
 - **Standard GenAI v1.36**: nomi standard per prompt, completamenti, conteggio token, ecc.
 - **Una timeline unificata** per run: ogni span (chiamata LLM, chiamata a tool,
   decisione dell'agente) con prompt, completamento, token in/out e **costo**.
-- **Zero-friction capture** — una sola riga per strumentare il tuo agente:
+- **Una sola riga di setup** per strumentare il tuo agente:
   ```python
-  from husk_shared import instrument
-  instrument(service_name="my-agent")   # punta OTel a http://localhost:7654
+  from husk_shared import instrument_openai
+  instrument_openai()   # ogni chiamata dell'SDK OpenAI ora streamma in Husk
   ```
-  Import OTel lazy: nessuna nuova dipendenza hard. `llm_span()` imposta gli attributi GenAI.
-- **Ricetta generica senza codice** (variabile d'ambiente):
+  Quella riga è l'unico passo di codice. Tutto il resto — capire una run, trovare perché è
+  fallita, correggerla — avviene nello Studio, in linguaggio normale.
+- **Adapter one-line per framework**: `instrument_openai`, `instrument_anthropic`,
+  `instrument_langgraph`, `instrument_llamaindex` (wrapper sottili, import lazy: nessuna
+  nuova dipendenza hard). C'è anche `instrument(service_name=...)` per puntare manualmente
+  OTel a `http://localhost:7654`.
+- **Ricetta generica via variabile d'ambiente** (qualsiasi framework che già emette OTel GenAI):
   ```bash
   OTEL_EXPORTER_OTLP_ENDPOINT=http://localhost:7654 python your_agent.py
   ```
-- **Le run appaiono nello Studio entro ~2 secondi.**
-- **Overhead di ingest** misurato: scrittura su SQLite locale, nessun hop di rete
-  (vs LangSmith ~132 ms di round-trip al cloud).
+- **Le run appaiono nello Studio entro ~2 secondi.** Scrittura su SQLite locale, nessun hop di rete.
 
 ### Framework supportati oggi
 
@@ -105,16 +105,29 @@ per dimensionare il budget di contesto del debugger.
 
 ---
 
-## 4. Time-travel: modify-and-replay
+## 4. Attribuzione multi-modello
+
+Dentro una **singola run**, Husk mostra **quale modello** ha gestito ogni passo e **quanto
+è costato** ciascuno — il modo più rapido per individuare la chiamata che ha prodotto la
+risposta sbagliata.
+
+- **Cattura per-passo.** Modello e provider, token e costo registrati su ogni span.
+- **Breakdown per-run.** "Modelli in questa run": chiamate, token, costo, quota di costo ed
+  errori per modello, così la spesa di una run multi-modello è attribuibile modello per modello.
+- **Modello a colpo d'occhio.** La lista delle run mostra quali modelli ha toccato ciascuna.
+
+---
+
+## 5. Time-travel: modify-and-replay
 
 Il **primitivo core** del prodotto. Tre modalità di replay, in ordine crescente di determinismo:
 
-### 4.1 Re-invoke (default)
+### 5.1 Re-invoke (default)
 Lo Studio re-importa il modulo-grafo dell'agente (il file registrato nella run) e lo
 riesegue con lo stato modificato. Esegue codice reale e — se non si usa una cassette —
 fa chiamate LLM/tool reali.
 
-### 4.2 Node-skip (motore Husk)
+### 5.2 Node-skip (motore Husk)
 Quando l'agente gira sul **motore di checkpoint proprietario di Husk**
 (`husk_shared.engine`), il replay riprende dallo snapshot preso *prima* del nodo di fork
 e riesegue **solo quel nodo e i suoi successori**. Il lavoro a monte viene **saltato**:
@@ -124,7 +137,7 @@ non emette span e non spende token. **È il percorso misurato dal benchmark.**
 - Dopo ogni nodo viene persistito uno snapshot dello stato unito.
 - `replay_from` ricarica lo snapshot prima del nodo di fork, applica una patch, e riesegue.
 
-### 4.3 Model-free (cassette)
+### 5.3 Model-free (cassette)
 Con `HUSK_REPLAY_CASSETTE=1`, le risposte HTTP del provider registrate vengono servite
 da disco — **deterministico, byte-identico, $0**. Una richiesta *cambiata* fallisce il
 match e cade sul provider reale, poi viene registrata.
@@ -146,7 +159,7 @@ usare il percorso model-free con cassette).
 
 ---
 
-## 5. Branch, lineage e diff
+## 6. Branch, lineage e diff
 
 - **Branch first-class** — `/api/v1/branches` crea (idempotente) ed elenca i link
   parent→child di replay, ognuno con `token_bypass_pct`, token e costo risparmiati.
@@ -157,19 +170,24 @@ usare il percorso model-free con cassette).
 
 ---
 
-## 6. Debugger automatico LLM (BYOK — Bring Your Own Key)
+## 7. Debugger automatico (BYOK — Bring Your Own Key)
 
-Introdotto in v0.3.0. Analizza una run fallita e **propone** una causa + un fix.
+Il **debugger automatico debugga la run per te.** Clicchi una volta su una run fallita (o
+attivi l'auto-debug e parte nel momento in cui una run fallisce) e Husk legge l'intera run
+e ti dice, in linguaggio normale, **cosa è andato storto e cosa cambiare**. Non è una
+semplice "spiegazione": localizza il nodo che ha fallito, classifica il fallimento, risale
+alla causa con le evidenze e **propone un fix**.
 
 - **Provider layer BYOK** (`debugger/providers.py`): astrazione su puro `httpx`
-  (nessuna nuova dipendenza SDK), implementazioni **Anthropic** e **OpenAI**, registry
-  a una riga per aggiungerne altri. L'utente sceglie provider e modello; la context
-  window del modello dimensiona il budget di contesto.
+  (nessuna nuova dipendenza SDK), implementazioni **Regolo** (default), **Anthropic**,
+  **OpenAI** e **OpenRouter**, registry a una riga per aggiungerne altri. L'utente sceglie
+  provider e modello; la context window del modello dimensiona il budget di contesto.
 - **Gestione chiave local-first** (`debugger/secrets.py`): la chiave vive **solo** in
-  `~/.husk/secrets.json` (chmod 0600 su POSIX), con fallback su `ANTHROPIC_API_KEY` /
-  `OPENAI_API_KEY`. Non viene mai loggata, mai scritta in tracce o export.
-  `GET /api/debugger/config` ritorna solo `has_key`, mai la chiave. Le chiamate al
-  provider vanno dal backend locale direttamente al provider, mai attraverso un server Husk.
+  `~/.husk/secrets.json` (chmod 0600 su POSIX), con fallback su variabili d'ambiente
+  (`REGOLO_API_KEY` / `ANTHROPIC_API_KEY` / `OPENAI_API_KEY`). Non viene mai loggata, mai
+  scritta in tracce o export. `GET /api/debugger/config` ritorna solo `has_key`, mai la
+  chiave. Le chiamate al provider vanno dal backend locale direttamente al provider, mai
+  attraverso un server Husk.
 - **Context assembler focalizzato sul fallimento** (`debugger/context_assembler.py`):
   costruisce l'input LLM dalla run — topologia, percorso eseguito, stato + diff per nodo,
   chiamate a tool, chiamate al modello (prompt/risposta/token), eccezioni/stack trace,
@@ -180,19 +198,22 @@ Introdotto in v0.3.0. Analizza una run fallita e **propone** una causa + un fix.
   sintomo-vs-causa, risalita alla prima divergenza, classificazione del fallimento,
   output JSON stretto. Validato con schema Pydantic forbid-extra + estrattore tollerante;
   contenuto di traccia inventato e guessing silenzioso sono vietati.
-- **Propose, don't apply.** `POST /api/debugger/runs/{id}/analyze` gira on-demand;
-  l'auto-analisi delle run fallite è **opt-in e off di default**. Il fix proposto è
-  mostrato come diff; applicarlo (`/apply-fix`) richiede conferma esplicita + toggle
-  "allow applying fixes" (off di default), scrive un backup `.husk-bak`, ed è atomico
-  (apply pulito o niente). I report persistono nella tabella `debug_reports`.
+- **Click singolo o auto-debug.** `POST /api/debugger/runs/{id}/analyze` gira on-demand;
+  l'auto-analisi delle run fallite (`auto_analyze`) è **opt-in e off di default** — quando
+  attiva, una run che finisce in `error` lancia l'analisi in background, una sola volta per run.
+- **Propose, don't apply.** Il fix proposto è mostrato come diff; applicarlo (`/apply-fix`)
+  richiede conferma esplicita + toggle "allow applying fixes" (off di default), scrive un
+  backup `.husk-bak`, ed è atomico (apply pulito o niente). I report persistono nella tabella
+  `debug_reports` (mai la chiave).
+- **Default provider: Regolo.ai** — EU (Italia), GDPR, inferenza a zero data-retention; il
+  modello di default è `Llama-3.3-70B-Instruct`. È l'**unico punto** in cui dei dati lasciano
+  la macchina, e va al provider che scegli tu.
 - **UI**: un pannello BYOK nelle Impostazioni; il report del debugger viene sovrapposto
   ai nodi implicati nella vista grafo.
 
 ---
 
-## 7. Visualizzazione node-graph
-
-Introdotta in v0.3.0 — strato dati strutturato + UI.
+## 8. Visualizzazione node-graph
 
 - **Dati strutturali per nodo.** Il motore (`husk_shared/engine.py`) ha un hook di
   telemetria opzionale (no-op di default); l'agente d'esempio emette uno span
@@ -207,25 +228,26 @@ Introdotta in v0.3.0 — strato dati strutturato + UI.
   nodi colorati per stato, punto di fallimento evidenziato, archi con frecce/label,
   pannello di contesto per nodo (input/output, prompt/risposta, errori, diff stato
   before/after), toggle **Timeline/Graph**, e report del debugger sovrapposto ai nodi.
-- **Nessun bump del formato di registrazione**: `debug_reports` è una tabella nuova;
-  `runs`/`spans`/`branches` non cambiano, quindi `RECORDING_FORMAT_VERSION` resta a 1 e
-  DB vecchi/nuovi restano mutuamente leggibili.
 
 ---
 
-## 8. Studio (la UI React)
+## 9. Studio (la UI React)
 
-SPA React + Vite servita dal backend su `/`. Pagine: **Dashboard, Onboarding, Runs,
-RunDetail, Replay, Settings**.
+SPA React + Vite servita dal backend su `/`. Single-user, su questa macchina. Pagine:
+**Dashboard, Onboarding, Runs, RunDetail, Replay, Settings**.
 
-- **Dashboard**: tile di integrazione (Cursor live), tile **Recent failures**, tile
-  **Errors** che fa deep-link alla vista filtrata.
+- **Dashboard**: l'intestazione dice "Debug before you ship · development only" e
+  "live · on this machine". Mostra una striscia KPI dello stato corrente (costo, token,
+  latenza media, % fallimenti), tile di integrazione (Live ingest, Cursor, conteggio
+  framework), una tile **Failed runs** che fa deep-link alle run da debuggare, una lista
+  **Recent runs**, una lista **Needs debugging** (run fallite) e il breakdown per framework.
 - **Runs**: ricerca run + filtri per stato.
-- **RunDetail**: timeline + vista grafo (toggle), inspector degli span, lineage e diff.
+- **RunDetail**: timeline + vista grafo (toggle), inspector degli span, breakdown
+  multi-modello, lineage e diff, e il report del debugger automatico quando esiste.
 - **Replay**: editor Monaco dello stato, toggle Model-free, link diretto alla nuova run
   con il suo bypass una volta registrata.
-- **Settings**: pannello BYOK per il debugger.
-- **Onboarding**: schermata "Welcome to Husk" → "Try free".
+- **Settings**: pannello BYOK per il debugger (provider, modello, chiave, toggle auto-debug).
+- **Onboarding**: schermata "Welcome to Husk" → "Try free", con il path di setup one-line.
 - **Auto-build**: al primo `husk-ai start` il backend costruisce automaticamente il
   bundle Studio (`corepack pnpm --filter studio build`) se manca; disattivabile con
   `HUSK_NO_AUTO_BUILD=1`. Senza Node, serve una landing di fallback.
@@ -234,29 +256,32 @@ RunDetail, Replay, Settings**.
 
 ---
 
-## 9. Connessione ai tool di coding AI (MCP)
+## 10. Connessione ai tool di coding AI (MCP)
 
 Husk include un **server MCP** (Model Context Protocol), così gli agenti di coding —
-**Claude Code, Cursor, Claude Desktop, Windsurf, Lovable** — possono leggere run,
-ispezionare tracce, analizzare costi e (opt-in) fare replay senza lasciare l'assistente.
+**Claude Code, Cursor, Claude Desktop, Windsurf** — possono leggere le tue run,
+ispezionare tracce, analizzare i costi e (opt-in) fare replay senza lasciare l'assistente.
 
 - Gira **localmente su stdio** e legge `~/.husk/traces.db` direttamente: i tool di
   lettura funzionano **anche quando `husk-ai start` non è in esecuzione**.
-- **Transport HTTP** (`--transport http`, bind `127.0.0.1:7655`, endpoint `/mcp`) per
-  client remoti/cloud come Lovable, via tunnel.
-- **Auto-config del client**: `husk-ai mcp install --client <claude-code|cursor|claude-desktop|windsurf|lovable>`
-  scrive (o stampa) la config e risolve il path assoluto del binario.
+- **Auto-config del client**: `husk-ai mcp install --client <claude-code|cursor|claude-desktop|windsurf>`
+  scrive (o stampa) la config e risolve il path assoluto del binario. `AGENT_PROMPT.md` è
+  un prompt pronto da incollare che fa usare davvero i tool MCP all'assistente quando debugga.
 
 **Tool MCP esposti** (lettura): `list_runs`, `get_run`, `get_trace`, `get_span`,
 `list_errors`, `cost_breakdown`, `dashboard_summary`, `list_cursor_events`.
 
 **Replay via MCP — off di default.** `replay_run` riesegue il tuo codice, quindi è
 gated dietro un flag esplicito (`--enable-replay` / `HUSK_MCP_ENABLE_REPLAY=1`),
-inteso solo per uso locale. Tenere **disabilitato** su qualsiasi server HTTP/tunnel.
+inteso solo per uso locale.
 
 ---
 
-## 10. Integrazioni IDE (bridge di osservabilità)
+## 11. Integrazioni IDE (bridge di osservabilità)
+
+I bridge IDE sono **observability-only**: Husk registra, **non blocca mai** l'IDE o
+l'agente. Servono a far confluire nella timeline anche l'attività dell'IDE mentre
+sviluppi l'agente sulla tua macchina.
 
 ### Cursor — `husk-cursor-hook` (CLI npm)
 - Si iscrive agli hook fire-and-forget di Cursor: **`afterFileEdit`** (ogni file scritto
@@ -266,7 +291,6 @@ inteso solo per uso locale. Tenere **disabilitato** su qualsiasi server HTTP/tun
 - Comandi: `install`, `hook`, `ping`. `ping` verifica la raggiungibilità di Husk.
 - `dist/cli.js` ~7 KB, **zero dipendenze runtime** (usa il fetch nativo di Node).
 - Variabile `HUSK_URL` per puntare a una porta diversa.
-- **Observability-only**: non blocca mai l'agente Cursor.
 
 ### VS Code / Antigravity — `husk-vscode-hook` (estensione)
 - Per **VS Code**, **Antigravity** (fork VS Code di Google) e IDE compatibili.
@@ -276,58 +300,62 @@ inteso solo per uso locale. Tenere **disabilitato** su qualsiasi server HTTP/tun
 - Status bar `● Husk` quando vede il backend locale.
 - Comandi: `Husk: Open Studio`, `Husk: Reconnect`, `Husk: Toggle Terminal Capture`.
 - Settings: `husk.url`, `husk.captureTerminal`.
-- **Observability-only**, non blocca l'IDE.
 
 ---
 
-## 11. CLI `husk-ai`
+## 12. CLI `husk-ai`
 
 | Comando | Cosa fa |
 |---|---|
-| `husk-ai start` | Avvia il server (porta 7654 default) e apre lo Studio. Auto-build del bundle al primo run. `--port`, `--no-open-browser`. |
+| `husk-ai start` | Avvia il server (porta 7654 default) e apre lo Studio. Registra la porta in `~/.husk/port`. Auto-build del bundle al primo run. `--port`, `--no-open-browser`. |
 | `husk-ai run <command…>` | Esegue il tuo agente e lo cattura in un passo: assicura il backend up, imposta `$OTEL_EXPORTER_OTLP_ENDPOINT`, stampa la run URL. `--no-serve` per CI. |
-| `husk-ai demo` | Semina 1 evento IDE + una traccia OTel a 3 span con attributi GenAI v1.36. |
+| `husk-ai demo` | Semina una run d'esempio (evento IDE + traccia OTel con attributi GenAI v1.36) da guardare. |
 | `husk-ai list` | Elenca le run recenti (id, framework, span count, costo). |
 | `husk-ai replay <run_id>` | Replay con stato modificato da terminale/CI. `--set key=value`, `--span <id>` (fork da nodo), `--cassette` (LLM da cassette, $0). |
 | `husk-ai export <run_id>` | Esporta una run (run + span + branch, già redatti) in un bundle JSON portabile. `--out FILE`. |
-| `husk-ai doctor` | Diagnostica: versione, home `~/.husk/`, path DB, health check. |
-| `husk-ai clean` | Pulisce il database locale (run, tracce, auth). Non tocca il repo né il `.venv`. |
-| `husk-ai mcp` | Avvia il server MCP. `--transport http`, `--enable-replay`. |
+| `husk-ai doctor` | Diagnostica: versione, home `~/.husk/`, path DB, health check, prossimi passi. |
+| `husk-ai clean` | Pulisce il database locale (run, tracce). Non tocca il repo né il `.venv`. |
+| `husk-ai mcp` | Avvia il server MCP. `--enable-replay`. |
 | `husk-ai mcp install --client <name>` | Scrive/stampa la config MCP per connettere un client. |
 
 > L'alias legacy `husk` continua a funzionare nel workspace.
 
 ---
 
-## 12. Sicurezza e privacy
+## 13. Sicurezza e privacy
 
 - **Tool locale, loopback-only.** Il backend fa bind su `127.0.0.1`; le route che
-  cambiano stato (replay, ingest OTel, debugger) **rifiutano peer non-loopback** e
-  richieste cross-origin dal browser — così una pagina web visitata non può pilotarle.
-- **Guardia condivisa loopback + Origin** (`api/_guard.py`) sui router replay /
-  ingest-OTel / debugger.
-- **Replay RCE chiuso** (v0.4.0): prima `/api/replay` importava ed eseguiva un path di
-  graph-module preso dai dati salvati senza auth. Ora c'è un **allowlist di graph_module**
-  (`replay/graph_replay.py`): solo file sotto la tua directory di progetto (o
-  `$HUSK_ALLOWED_GRAPH_DIRS`) possono essere importati.
-- **Hardening at-rest**: `~/.husk` creato `0700`, `traces.db` `0600`.
+  cambiano stato o ingeriscono dati (ingest OTel, replay, debugger) **rifiutano peer
+  non-loopback** (copre `--host 0.0.0.0`) e richieste cross-origin dal browser — così una
+  pagina web visitata, o un host remoto, non possono pilotarle. **È così che Husk resta
+  un tool di sviluppo e non può essere puntato sulla produzione.**
+- **Guardia condivisa loopback + Origin** (`api/_guard.py`) sui router ingest-OTel /
+  replay / debugger. Una pagina DNS-rebinding mantiene il proprio document origin nell'header
+  `Origin`, quindi il check loopback-host la rifiuta.
+- **Replay RCE chiuso**: `/api/replay` importa ed esegue solo path di graph-module sotto
+  un **allowlist** (`replay/graph_replay.py`): file sotto la tua directory di progetto (o
+  `$HUSK_ALLOWED_GRAPH_DIRS`).
+- **Hardening at-rest**: `~/.husk` creato `0700`, `traces.db` `0600` (best-effort su
+  Windows, dove la protezione reale è l'ACL del profilo utente).
 - **Redazione segreti in ingest**: scrubbing di chiavi/token comuni (provider key,
   bearer token) da prompt/completamenti/tool I/O prima del salvataggio.
   Disattivabile con `HUSK_NO_REDACT=1`.
 - **BYOK = unico punto in cui i dati lasciano la macchina.** Quando lanci il debugger,
   il contesto della run (prompt, completamenti, sorgente dell'agente) va al provider LLM
   che hai configurato. La chiave è locale (`~/.husk/secrets.json`) e mai inviata a un server Husk.
+- **Caveat in chiaro, dichiarato onestamente**: il trace DB tiene prompt, completamenti e
+  tool I/O **in chiaro**, sulla tua macchina, by design.
 - **Vulnerabilità da segnalare privatamente** (vedi `SECURITY.md`), non via issue pubblica.
 
 ### Dove vivono i dati (`~/.husk/`)
 - `traces.db` — run e span (prompt, completamenti, tool I/O) come JSON in chiaro.
 - `cassettes/` — risposte HTTP registrate per il replay model-free.
 - `secrets.json` — chiave BYOK del debugger.
-- `auth.json`, `runs/` — stato auth e run.
+- `runs/` — stato delle run.
 
 ---
 
-## 13. Formato di registrazione e affidabilità
+## 14. Formato di registrazione e affidabilità
 
 - **Registrazioni versionate** (`husk_shared.recording`): ogni DB è stampato con
   `RECORDING_FORMAT_VERSION` in `PRAGMA user_version`. All'apertura il backend **rifiuta**
@@ -341,7 +369,7 @@ inteso solo per uso locale. Tenere **disabilitato** su qualsiasi server HTTP/tun
 
 ---
 
-## 14. Benchmark — i numeri (e come riprodurli)
+## 15. Benchmark — i numeri (e come riprodurli)
 
 Case study **completamente riproducibile**: ~500 invocazioni di un agente "Research
 Synthesizer" a 5 nodi (`query_expansion → retrieve → analyze → synthesize → cite_check`)
@@ -368,7 +396,7 @@ auto-validato contro Efron-Tibshirani 1993); il successo replay usa un intervall
 
 ---
 
-## 15. Architettura / layout del repo
+## 16. Architettura / layout del repo
 
 ```
 husk/
@@ -388,7 +416,7 @@ husk/
 ```
 
 ### Superficie API del backend (FastAPI, `:7654`)
-- `otel.py` — ingest OTLP/HTTP (`/v1/traces`)
+- `otel.py` — ingest OTLP/HTTP (`/v1/traces`), loopback-only
 - `runs.py`, `spans.py`, `dashboard.py` — lettura run/span/dashboard
 - `graph.py` — `GET /api/v1/runs/{id}/graph`
 - `replay.py` — `/api/replay` (gated, allowlist graph_module)
@@ -396,7 +424,7 @@ husk/
 - `diff.py` — `/api/v1/diff`
 - `debugger.py` — analyze / apply-fix / config (BYOK)
 - `cursor.py`, `integrations.py` — eventi IDE e tile di integrazione
-- `auth.py`, `_guard.py` — auth e guardia loopback+Origin
+- `auth.py`, `_guard.py` — guardia loopback+Origin
 
 ### Requisiti
 - **Python 3.11+** (usa `StrEnum`; pinnato via `.python-version`, fetchato da `uv`).
@@ -407,27 +435,27 @@ husk/
 
 ---
 
-## 16. Licenza e modello di rilascio
+## 17. Licenza e modello di rilascio
 
 - **Source-available** sotto **Business Source License 1.1 (BUSL 1.1)**; converte a una
   licenza open-source dopo la change date.
-- **Husk Cloud è opzionale, mai richiesto.**
 - Rilasci via tag `vX.Y.Z` (GitHub Release).
+- **Immagine container pubblica** su GitHub Container Registry:
+  `docker pull ghcr.io/husk-ai-team/husk-ai` (Dockerfile multi-stage; un workflow
+  tag-triggered la pubblica a ogni tag `vX.Y.Z`).
 
 ---
 
-## 17. Storico versioni (highlight)
+## 18. Storico versioni (highlight)
 
 - **v0.4.0 — Security hardening, dead-code removal, terminal/CI workflow**
-  Replay RCE chiuso (guardia + allowlist), hardening at-rest + redazione ingest,
-  rimozione riferimenti `husk.dev`. `instrument()` one-line, `husk run`/`replay`/`export`
-  in shell e CI. Studio: ricerca + filtri stato, tile Recent failures, replay gated.
-  Pulizia: rimosso il vecchio path sandbox `husk run` (~8k LOC), 50 componenti + 35
-  dipendenze frontend inutilizzate. 110 test passano.
-- **v0.3.0 — Debugger automatico LLM (BYOK) + node-graph**
+  Replay RCE chiuso (guardia + allowlist), hardening at-rest + redazione ingest.
+  `instrument()` one-line, `husk run`/`replay`/`export` in shell e CI. Studio: ricerca +
+  filtri stato, tile Recent failures, replay gated. Pulizia componenti/dipendenze frontend.
+- **v0.3.0 — Debugger automatico (BYOK) + node-graph**
   Provider layer BYOK su httpx (Anthropic/OpenAI), chiave local-first, context assembler
   failure-focused, system prompt versionato, propose-don't-apply. API grafo per nodo + UI
-  SVG senza dipendenze. 94 test.
+  SVG senza dipendenze.
 - **v0.2.0 — Motore di replay proprietario di Husk**
   Engine checkpoint/replay framework-agnostic (`husk_shared.engine`), core de-LangGraphed
   (`/api/replay`, telemetria `husk.*`), benchmark ri-misurato sul motore Husk (42,07%).
@@ -438,37 +466,32 @@ husk/
 
 ---
 
-## 18. Vision / Roadmap (feature future, non ancora spedite)
-
-Elementi esplicitamente marcati come *roadmap / non ancora disponibili* nella documentazione:
+## 19. Roadmap (feature future, non ancora spedite)
 
 | Feature | Stato | Dove |
 |---|---|---|
 | **Pubblicazione npm di `husk-cursor-hook`** | ⏳ roadmap (oggi: install da sorgente; `npm i -g husk-cursor-hook` dà 404) | README, packages-npm/husk-cursor-hook/README |
 | **Pubblicazione PyPI / `pip install husk-ai`** | ⏳ roadmap (oggi: install da clone sorgente) | packages/husk-cli/README |
 | **Estensione VS Code: raggruppare comandi per run / agent thread** | ⏳ roadmap | packages-npm/husk-vscode-hook/README |
-| **Husk Cloud** | opzionale, esiste come opzione futura non obbligatoria | README / LICENSE |
-| **Replay PyPI release del cursor hook** | ⏳ roadmap | packages-npm/husk-cursor-hook/README |
+| **Più provider nel debugger BYOK** | ⏳ roadmap (registry a una riga, progettato per aggiungerne) | debugger/providers.py |
 
-### Direzione di prodotto (vision dichiarata, dal benchmark e dal posizionamento)
+### Direzione di prodotto
 
-- **Restare nella categoria "visual / time-travel state debugger"** — il precedente
-  tecnologico è **Replay.io** (record/replay per JS, Serie B da $43M) e **rr** di Mozilla:
-  stesso primitivo (time-travel a livello di stato), ecosistema di linguaggio diverso.
+- **Restare un debugger interattivo di sviluppo** — record/replay a livello di stato (il
+  precedente tecnologico è **Replay.io** per JS e **rr** di Mozilla), usato *prima* della
+  produzione, non monitoraggio di agenti live.
 - **Scope MVP esplicito**: i grafi sequenziali/diretti (catene RAG, agenti multi-step)
   sono il punto di forza. I **sistemi multi-agente truly-async** con race condition di
-  messaggistica sono **fuori scope per l'MVP** — implicitamente sulla traiettoria futura.
+  messaggistica sono **fuori scope per l'MVP**.
 - **Output determinism completo** (oltre allo state replay) è già disponibile via percorso
   model-free (cassette + provider mocking); l'estensione naturale è renderlo il default
   per più framework.
-- **Più provider nel debugger BYOK**: il registry a una riga è progettato per aggiungerne
-  altri oltre Anthropic e OpenAI.
 
 ---
 
 ### Riferimenti nel repo
 - `README.md` — overview, feature, getting started, CLI, MCP, sicurezza
-- `CHANGELOG.md` — storico v0.1.0 → v0.4.0
+- `CHANGELOG.md` — storico versioni
 - `benchmark/README.md`, `benchmark/HERO_METRICS.md`, `benchmark/COST_MATRIX.md` — numeri e metodologia
 - `SECURITY.md`, `LICENSE`, `CONTRIBUTING.md`
 - `packages-npm/husk-cursor-hook/README.md`, `packages-npm/husk-vscode-hook/README.md` — bridge IDE

@@ -1,7 +1,11 @@
 # husk-ai
 
-Visual debugger for AI agents — CLI + bundled Studio. Stop debugging with print
-statements.
+Local-first, development-time debugger for AI agents — CLI + bundled Studio. You
+run it on your own machine while building an agent, before production. Stop
+debugging with print statements.
+
+Trace ingest is loopback-only by design: only an agent running on *this* machine
+can stream in, so Husk can't be pointed at production.
 
 ## Install from source (MVP today)
 

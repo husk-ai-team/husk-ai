@@ -1,4 +1,10 @@
-"""Dashboard summary — feeds the landing page with aggregate stats."""
+"""Dashboard summary — feeds the development home with totals + recent runs.
+
+Single-user and local-first: there is no project scoping and no over-time
+production aggregation here. This is a snapshot of the runs you've captured on
+this machine while building and debugging your agent — what you have, what it
+cost, and the handful you ran most recently to jump back into.
+"""
 
 from __future__ import annotations
 
@@ -21,7 +27,7 @@ async def summary() -> dict[str, Any]:
 
 
 async def compute_dashboard_summary() -> dict[str, Any]:
-    """Aggregate landing-page stats from the runs/spans tables.
+    """Aggregate the development home from the local runs/spans tables.
 
     Extracted from the `/summary` route so other entry points (the `husk-ai mcp`
     server's `dashboard_summary` tool) can reuse the exact same computation
@@ -31,7 +37,7 @@ async def compute_dashboard_summary() -> dict[str, Any]:
     last_24h = now_ms - 24 * 60 * 60_000
 
     async with async_session() as s:
-        # Totals over all time
+        # Totals over all captured runs.
         totals_row = (
             await s.execute(
                 select(
@@ -47,7 +53,7 @@ async def compute_dashboard_summary() -> dict[str, Any]:
         ).one()
         total_runs, tokens_in, tokens_out, cost_usd, errors = totals_row
 
-        # Last 24h
+        # Last 24h.
         last24 = (
             await s.execute(
                 select(
@@ -60,11 +66,18 @@ async def compute_dashboard_summary() -> dict[str, Any]:
         ).one()
         runs_24h, tokens_in_24h, tokens_out_24h, cost_24h = last24
 
-        total_spans = (
-            await s.execute(select(func.count(SpanRow.id)))
-        ).scalar() or 0
+        total_spans = (await s.execute(select(func.count(SpanRow.id)))).scalar() or 0
 
-        # By framework
+        # Average run latency (finished runs only).
+        avg_latency_ms = (
+            await s.execute(
+                select(func.avg(RunRow.finished_at - RunRow.started_at)).where(
+                    RunRow.finished_at.is_not(None)
+                )
+            )
+        ).scalar()
+
+        # By framework.
         by_framework_rows = (
             await s.execute(
                 select(RunRow.framework, func.count(RunRow.id))
@@ -76,19 +89,15 @@ async def compute_dashboard_summary() -> dict[str, Any]:
             {"framework": fw or "unknown", "count": int(c)} for fw, c in by_framework_rows
         ]
 
-        # Recent runs (last 5)
+        # Recent runs (last 5) — the worklist you jump back into.
         recent_rows = (
-            (
-                await s.execute(
-                    select(RunRow).order_by(RunRow.started_at.desc()).limit(5)
-                )
-            )
+            (await s.execute(select(RunRow).order_by(RunRow.started_at.desc()).limit(5)))
             .scalars()
             .all()
         )
         recent = [_run_summary(r) for r in recent_rows]
 
-        # 12 buckets across the last 24h for the sparkline (count of runs per ~2h)
+        # 12 buckets across the last 24h for the sparkline (count of runs per ~2h).
         bucket_ms = (24 * 60 * 60_000) // 12
         sparkline: list[int] = []
         for i in range(12):
@@ -112,6 +121,7 @@ async def compute_dashboard_summary() -> dict[str, Any]:
             "tokens_out": int(tokens_out or 0),
             "cost_usd": float(cost_usd or 0.0),
             "errors": int(errors or 0),
+            "avg_latency_ms": int(avg_latency_ms or 0),
         },
         "last_24h": {
             "runs": int(runs_24h or 0),

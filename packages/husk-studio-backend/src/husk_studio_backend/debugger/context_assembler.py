@@ -26,6 +26,7 @@ WINDOW_RADIUS = 2  # nodes of full detail on each side of the failure
 _STRING_TRUNC = 1200  # chars kept per long string under last-resort truncation
 _PREVIEW = 240  # chars in a far-node output preview
 _SCAFFOLD_RESERVE = 2000  # tokens reserved for JSON scaffolding/instructions
+_SPANS_CAP = 120  # observability-only fallback: cap raw steps sent
 
 
 def estimate_tokens(obj: Any) -> int:
@@ -136,6 +137,72 @@ def _fit_source(text: str | None, path: str | None, cap_tokens: int) -> tuple[di
     return ({"path": path, "code": body, "truncated": True}, True)
 
 
+def _span_node(sp: SpanRow, seq: int) -> dict[str, Any]:
+    err = sp.error_payload
+    return {
+        "id": sp.name or sp.id,
+        "seq": seq,
+        "kind": sp.kind,
+        "status": sp.status,
+        "model": sp.model,
+        "provider": sp.provider,
+        "tokens_in": sp.tokens_in,
+        "tokens_out": sp.tokens_out,
+        "cost_usd": sp.cost_usd,
+        "input_preview": _preview(sp.input_inline),
+        "output_preview": _preview(sp.output_inline),
+        "error": _truncate_strings(err) if err else None,
+    }
+
+
+def _spans_context(
+    run: RunRow, spans: list[SpanRow], *, model: str, include_source: bool
+) -> dict[str, Any]:
+    """Fallback context for observability-only runs (OTel ingest, no husk graph).
+
+    No node graph or state diff exists, so hand the model the raw steps (LLM/tool
+    calls) with model, tokens, status, and any error, anchored on the failing
+    spans. Marked ``observability_only`` so the prompt lowers its confidence."""
+    budget = context_window(model)
+    reserve = estimate_tokens(DEBUGGER_SYSTEM_PROMPT) + _SCAFFOLD_RESERVE
+    input_budget = max(2000, budget - max_output(model) - reserve)
+
+    ordered = sorted(spans, key=lambda s: s.started_at or 0)[:_SPANS_CAP]
+    nodes = [_span_node(sp, i) for i, sp in enumerate(ordered)]
+    failing = [nd["id"] for nd in nodes if nd["status"] == "error" or nd["error"]]
+
+    failure: dict[str, Any] | None = None
+    if failing or run.error_message:
+        failure = {"run_error": run.error_message, "failing_spans": failing}
+
+    context: dict[str, Any] = {
+        "run_id": run.id,
+        "run_status": run.status,
+        "mode": "observability_only",
+        "spans": nodes,
+        "failure": failure,
+    }
+    if include_source:
+        text, path = read_source_for_run(run, spans)
+        block, _ = _fit_source(text, path, int(input_budget * 0.35))
+        if block:
+            context["source"] = block
+
+    # Crude budget fit: truncate long strings, then drop previews on non-failing
+    # spans. Observability-only runs rarely overflow.
+    if estimate_tokens(context) > input_budget:
+        context["spans"] = _truncate_strings(context["spans"])
+    if estimate_tokens(context) > input_budget:
+        for nd in context["spans"]:
+            if nd["id"] not in failing:
+                nd.pop("input_preview", None)
+                nd.pop("output_preview", None)
+        context["truncation"] = {"applied": True, "string_truncation": True}
+
+    context["_assembled_token_estimate"] = estimate_tokens(context)
+    return context
+
+
 def build_debug_context(
     run: RunRow,
     spans: list[SpanRow],
@@ -145,6 +212,10 @@ def build_debug_context(
 ) -> dict[str, Any]:
     """Build the JSON object the debugger system prompt consumes, within budget."""
     g = build_run_graph(run, spans)
+    if not g.nodes:
+        # Observability-only run (OTel ingest, no husk graph instrumentation):
+        # fall back to a span-level context so the debugger can still localize.
+        return _spans_context(run, spans, model=model, include_source=include_source)
     n = len(g.nodes)
     f = _failure_index(g)
 

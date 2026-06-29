@@ -27,6 +27,9 @@ ENV HUSK_HOME=/data \
 # Install the Python workspace (runtime deps only) from the committed lockfile.
 COPY . .
 RUN uv sync --frozen --all-packages --no-dev
+# Bundle the optional Postgres drivers so HUSK_DB_URL=postgresql+asyncpg://… works
+# out of the box (the compose "postgres" profile relies on this).
+RUN uv pip install "asyncpg>=0.29" "psycopg[binary]>=3.1"
 # Drop in the Studio bundle the backend serves at apps/studio/dist.
 COPY --from=studio /app/apps/studio/dist ./apps/studio/dist
 VOLUME ["/data"]

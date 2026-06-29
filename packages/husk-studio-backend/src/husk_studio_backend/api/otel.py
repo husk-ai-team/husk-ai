@@ -6,6 +6,12 @@ Accepts:
 
 Spans are mapped to Husk Run/Span rows via `ingest.otel_parser` and streamed
 to WebSocket subscribers via `ingest.broadcast.publish`.
+
+Development-only by design: this route is mounted behind the loopback ``local_only``
+guard (see ``main``), so ONLY an agent running on this machine can stream traces in. A
+production deployment on another host is refused at the door. Husk is a tool you use
+while building an agent, before it ships — it is not, and cannot be, production
+monitoring.
 """
 
 from __future__ import annotations
@@ -68,10 +74,13 @@ async def ingest_traces(request: Request) -> Response:
         by_run.setdefault(s.run_id, []).append(s)
 
     persisted_for_broadcast: list[tuple[str, dict[str, Any]]] = []
+    # Local-first single-user: runs aren't scoped to a project, so this stays None.
+    # The column is kept nullable only for forward-compat with the enterprise edition.
+    project_id = getattr(request.state, "project_id", None)
 
     async with async_session() as session:
         for run_id, run_spans in by_run.items():
-            await _upsert_run(session, run_id, run_spans)
+            await _upsert_run(session, run_id, run_spans, project_id)
             for s in run_spans:
                 added = await _upsert_span(session, s)
                 if added:
@@ -94,7 +103,12 @@ async def ingest_traces(request: Request) -> Response:
     return Response(content=_OK_BODY, media_type="application/json")
 
 
-async def _upsert_run(session: AsyncSession, run_id: str, spans: list[ParsedSpan]) -> None:
+async def _upsert_run(
+    session: AsyncSession,
+    run_id: str,
+    spans: list[ParsedSpan],
+    project_id: str | None = None,
+) -> None:
     row = await session.get(RunRow, run_id)
     earliest = min(spans, key=lambda s: s.started_at_ms or 0)
     framework_id = earliest.gen_ai_system or earliest.service_name or "otel"
@@ -109,8 +123,12 @@ async def _upsert_run(session: AsyncSession, run_id: str, spans: list[ParsedSpan
             framework=framework_label,
             status="running",
             started_at=earliest.started_at_ms,
+            # Real indexed column; the dashboard's project switcher filters on it.
+            project_id=project_id,
         )
         session.add(row)
+    elif project_id and not row.project_id:
+        row.project_id = project_id
 
     # Roll forward finish time + status.
     latest_finish = max((s.finished_at_ms or 0) for s in spans)

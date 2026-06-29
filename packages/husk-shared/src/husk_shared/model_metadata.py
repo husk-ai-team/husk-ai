@@ -55,6 +55,13 @@ _MODEL_METADATA: dict[str, ModelMeta] = {
     "openai/gpt-4o": {"context_window": 128_000, "max_output": 16_384},
     "openai/gpt-4o-mini": {"context_window": 128_000, "max_output": 16_384},
     "anthropic/claude-3.5-sonnet": {"context_window": 200_000, "max_output": 8_192},
+    # Regolo.ai (EU, OpenAI-compatible) — Husk's default AI-layer provider. Open
+    # models; only the structural window/output is asserted here (public),
+    # pricing is deliberately left unknown rather than guessed.
+    "Llama-3.3-70B-Instruct": {"context_window": 128_000, "max_output": 8_192},
+    "Llama-3.1-8B-Instruct": {"context_window": 128_000, "max_output": 8_192},
+    "Qwen2.5-Coder-32B-Instruct": {"context_window": 32_768, "max_output": 8_192},
+    "mistral-7b-instruct-v0.3": {"context_window": 32_768, "max_output": 8_192},
 }
 
 

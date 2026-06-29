@@ -54,7 +54,8 @@ def sync_engine() -> Engine:
     global _sync_engine, _sync_factory
     if _sync_engine is None:
         _sync_engine = create_engine(sync_db_url(), echo=False, future=True)
-        _apply_pragmas(_sync_engine)
+        if _sync_engine.dialect.name == "sqlite":
+            _apply_pragmas(_sync_engine)
         _sync_factory = sessionmaker(_sync_engine, expire_on_commit=False)
     return _sync_engine
 
@@ -87,6 +88,24 @@ def sync_session() -> Iterator[Session]:
 # ---------------------------------------------------------------------------
 
 _MIGRATIONS: dict[int, Callable[[Connection], None]] = {}
+
+
+def _migrate_v1_to_v2(conn: Connection) -> None:
+    """v1 -> v2: add the nullable, indexed ``runs.project_id`` column.
+
+    Additive ALTER for existing SQLite trace DBs — ``create_all`` only creates
+    missing tables, never adds columns to an existing one. Idempotent: skip the
+    ALTER if the column is already present, so a partially-applied or legacy
+    DB never crashes on boot."""
+    cols = {row[1] for row in conn.exec_driver_sql("PRAGMA table_info(runs)")}
+    if "project_id" not in cols:
+        conn.exec_driver_sql("ALTER TABLE runs ADD COLUMN project_id VARCHAR(40)")
+    conn.exec_driver_sql(
+        "CREATE INDEX IF NOT EXISTS ix_runs_project_id ON runs (project_id)"
+    )
+
+
+_MIGRATIONS[1] = _migrate_v1_to_v2
 
 
 def _migration_steps(
@@ -156,7 +175,14 @@ async def init_db() -> None:
     engine = async_engine()
     async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.create_all)
-        await conn.run_sync(_ensure_recording_version)
+        # Recording-format versioning rides on SQLite's PRAGMA user_version. On
+        # Postgres, create_all already builds the current schema, so skip it.
+        if engine.dialect.name == "sqlite":
+            await conn.run_sync(_ensure_recording_version)
+
+    # The owner-only chmod + the on-disk DB file only exist for local SQLite.
+    if engine.dialect.name != "sqlite":
+        return
 
     # The trace DB holds cleartext prompts/completions/tool I/O. Lock it to the
     # owner (best-effort; on Windows the ~/.husk ACL is the real protection).

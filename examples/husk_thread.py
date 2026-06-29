@@ -1,67 +1,46 @@
-"""Minimal example agent on Husk's own engine, with OTel instrumentation.
+"""Minimal example agent on Husk's own engine, using the @husk.node decorators.
 
 Run:
     uv run --group examples python examples/husk_thread.py
 
-The graph has two nodes (planner -> answerer) running on `husk_shared.engine`:
-a linear executor plus a local SQLite snapshot store. Each invocation:
-- creates a new thread_id (stored in OTel attrs as `husk.thread_id`)
-- emits OTel spans per node (so the run appears in Husk via /v1/traces)
-- writes a state snapshot after every node to ~/.husk/husk_demo.sqlite
+The graph has two nodes (planner -> answerer). Each `agent.invoke(...)`:
+- creates a thread_id and emits OTel spans per node (so the run appears in Husk),
+- writes a state snapshot after every node to ~/.husk/husk-demo.sqlite.
 
-The backend's /api/replay endpoint re-imports THIS file by path and either
-resumes it from a snapshot (`replay_from`) or re-invokes it (`invoke`) with a
-modified state. The Studio Replay page wires that to a "Run from here" button:
-resuming at a node re-runs only that node and its successors, so the upstream
-nodes emit no spans and consume no tokens.
+The backend's /api/replay endpoint re-imports THIS file and resumes the agent
+from a snapshot (`agent.replay_from`) with a modified state: resuming at a node
+re-runs only that node and its successors, so the upstream nodes emit no spans
+and consume no tokens. The Studio's "Run from here" button wires that up.
+
+All of the OTel/snapshot/replay wiring lives in `HuskAgent`; here we just write
+plain `(state) -> delta` functions and decorate them.
 """
 
 from __future__ import annotations
 
-import json
 import logging
 import os
-import threading
 import time
-import traceback
-import uuid
-from contextlib import contextmanager
-from pathlib import Path
 
 from opentelemetry import trace
 
-from husk_shared import instrument
-from husk_shared.engine import LinearExecutor, LinearGraph, SnapshotStore
-from husk_shared.state_diff import diff_states
+from husk_shared.agent import HuskAgent
 
 log = logging.getLogger(__name__)
 
-GRAPH_FILE = str(Path(__file__).resolve())
-
-# One call sets up OTel export to Husk (honors $OTEL_EXPORTER_OTLP_ENDPOINT so the
-# backend can override the port during replay). Lazy so re-import is cheap.
-_tracer = None
+# Assigned to a module global so the backend can resolve husk.graph_module to it.
+agent = HuskAgent("husk-demo")
 
 
-def _get_tracer():  # type: ignore[no-untyped-def]
-    global _tracer
-    if _tracer is None:
-        _tracer = instrument(service_name="husk-demo")
-    return _tracer
-
-
-# --- Nodes: plain callables (state) -> state delta --------------------------
-
-
+@agent.node
 def planner(state: dict) -> dict:
-    tracer = _get_tracer()
+    tracer = trace.get_tracer("husk-demo")
     with tracer.start_as_current_span("planner") as span:
         span.set_attribute("gen_ai.system", "openai")
         span.set_attribute("gen_ai.operation.name", "chat")
         span.set_attribute("gen_ai.request.model", "gpt-4o-mini")
         span.set_attribute("gen_ai.usage.input_tokens", 24)
         span.set_attribute("gen_ai.usage.output_tokens", 32)
-        span.set_attribute("husk.node", "planner")
         span.add_event("gen_ai.user.message", {"content": f"Plan for topic: {state.get('topic', '?')}"})
         plan = f"1. Research {state.get('topic')}\n2. Summarize\n3. Format final answer"
         span.add_event("gen_ai.choice", {"finish_reason": "stop", "message.content": plan})
@@ -69,15 +48,15 @@ def planner(state: dict) -> dict:
         return {"plan": plan}
 
 
+@agent.node
 def answerer(state: dict) -> dict:
-    tracer = _get_tracer()
+    tracer = trace.get_tracer("husk-demo")
     with tracer.start_as_current_span("answerer") as span:
         span.set_attribute("gen_ai.system", "openai")
         span.set_attribute("gen_ai.operation.name", "chat")
         span.set_attribute("gen_ai.request.model", "gpt-4o")
         span.set_attribute("gen_ai.usage.input_tokens", 64)
         span.set_attribute("gen_ai.usage.output_tokens", 96)
-        span.set_attribute("husk.node", "answerer")
         span.add_event(
             "gen_ai.user.message",
             {"content": f"plan={state.get('plan')}\ntopic={state.get('topic')}"},
@@ -95,153 +74,8 @@ def answerer(state: dict) -> dict:
         return {"answer": answer}
 
 
-# --- Engine telemetry: per-node `graph_node` spans (state before/after/diff) ---
-
-_STATE_ATTR_CAP = 8000
-
-
-def _safe_state_json(obj: object) -> str:
-    s = json.dumps(obj, sort_keys=True, default=str)
-    if len(s) > _STATE_ATTR_CAP:
-        s = s[:_STATE_ATTR_CAP] + f"…[+{len(s) - _STATE_ATTR_CAP} chars]"
-    return s
-
-
-def _make_node_telemetry(tracer):  # type: ignore[no-untyped-def]
-    """Engine hook: wrap each node in a `graph_node` span carrying the state
-    before/after and their diff, so per-node state is first-class in the trace.
-    This is what populates the Studio's per-node "State diff" view; without it the
-    graph shows nodes but no state. The node's own LLM/tool span nests under it.
-    """
-
-    @contextmanager
-    def on_node(node: str, seq: int, before: dict):  # type: ignore[no-untyped-def]
-        with tracer.start_as_current_span(f"node:{node}") as span:
-            span.set_attribute("husk.span_kind", "graph_node")
-            span.set_attribute("husk.node", node)
-            span.set_attribute("husk.node_seq", seq)
-            span.set_attribute("husk.state_before", _safe_state_json(before))
-
-            def record(after: dict, delta: dict, error: BaseException | None) -> None:
-                span.set_attribute("husk.state_after", _safe_state_json(after))
-                span.set_attribute(
-                    "husk.state_diff", _safe_state_json(diff_states(before, after))
-                )
-                if error is not None:
-                    span.set_attribute(
-                        "husk.error.traceback",
-                        "".join(
-                            traceback.format_exception(type(error), error, error.__traceback__)
-                        ),
-                    )
-                    span.set_status(trace.Status(trace.StatusCode.ERROR, str(error)))
-
-            yield record
-
-    return on_node
-
-
-def _set_topology_attrs(root) -> None:  # type: ignore[no-untyped-def]
-    """Record the linear topology on the root span so the Studio + debugger see
-    nodes/edges structurally (and can show skipped upstream nodes on a replay).
-    """
-    names = graph.node_names
-    root.set_attribute("husk.graph.nodes", json.dumps(names))
-    root.set_attribute(
-        "husk.graph.edges",
-        json.dumps([[a, b] for a, b in zip(names, names[1:], strict=False)]),
-    )
-
-
-# --- Husk-native graph + snapshot store -------------------------------------
-
-
-def _snapshot_db_path() -> str:
-    home = Path(os.environ.get("HUSK_HOME", str(Path.home() / ".husk")))
-    home.mkdir(parents=True, exist_ok=True)
-    return str(home / "husk_demo.sqlite")
-
-
-def _build_graph() -> LinearGraph:
-    g = LinearGraph()
-    g.add_node("planner", planner)
-    g.add_node("answerer", answerer)
-    return g
-
-
-# Built at import time so the backend can do `from examples.husk_thread import graph`.
-graph = _build_graph()
-
-_store: SnapshotStore | None = None
-_store_lock = threading.Lock()
-
-
-def _get_store() -> SnapshotStore:
-    global _store
-    with _store_lock:
-        if _store is None:
-            _store = SnapshotStore(_snapshot_db_path())
-        return _store
-
-
-def invoke(state: dict, thread_id: str | None = None) -> dict:
-    """Run the graph from scratch, snapshotting after each node."""
-    tracer = _get_tracer()
-    tid = thread_id or str(uuid.uuid4())
-    executor = LinearExecutor(graph, _get_store(), on_node=_make_node_telemetry(tracer))
-
-    with tracer.start_as_current_span("agent.run") as root:
-        root.set_attribute("service.name", "husk-demo")
-        root.set_attribute("husk.thread_id", tid)
-        root.set_attribute("husk.graph_module", f"{GRAPH_FILE}:graph")
-        root.set_attribute("husk.replay.engine", "husk-native")
-        _set_topology_attrs(root)
-        result = executor.run_full(tid, state)
-        root.set_attribute("husk.final_state", str(result))
-
-    provider = trace.get_tracer_provider()
-    if hasattr(provider, "force_flush"):
-        provider.force_flush()  # type: ignore[attr-defined]
-
-    return {"thread_id": tid, "state": dict(result)}
-
-
-def replay_from(*, state_override: dict, parent_thread_id: str, fork_node: str) -> dict:
-    """Resume `parent_thread_id` from its snapshot and re-run `fork_node` onward.
-
-    Upstream nodes are not re-run: their state comes from the snapshot, so they
-    emit no spans and consume no tokens.
-    """
-    tracer = _get_tracer()
-    executor = LinearExecutor(graph, _get_store(), on_node=_make_node_telemetry(tracer))
-    child_id = str(uuid.uuid4())
-    child_thread_id = f"{parent_thread_id}::replay::{child_id}"
-
-    with tracer.start_as_current_span("agent.run") as root:
-        root.set_attribute("service.name", "husk-demo")
-        root.set_attribute("husk.thread_id", parent_thread_id)
-        root.set_attribute("husk.graph_module", f"{GRAPH_FILE}:graph")
-        root.set_attribute("husk.replay.engine", "husk-native")
-        root.set_attribute("husk.replay.child_id", child_id)
-        root.set_attribute("husk.replay.fork_node", fork_node)
-        _set_topology_attrs(root)
-        result = executor.resume(
-            parent_thread_id=parent_thread_id,
-            child_thread_id=child_thread_id,
-            fork_node=fork_node,
-            patch=dict(state_override),
-        )
-        root.set_attribute("husk.final_state", str(result))
-
-    provider = trace.get_tracer_provider()
-    if hasattr(provider, "force_flush"):
-        provider.force_flush()  # type: ignore[attr-defined]
-
-    return {"thread_id": parent_thread_id, "child_id": child_id, "state": dict(result)}
-
-
 def main() -> None:
-    result = invoke({"topic": "Rome"})
+    result = agent.invoke({"topic": "Rome"})
     log.info(f"Thread:  {result['thread_id']}")
     log.info(f"State:   {result['state']}")
     base = os.environ.get("OTEL_EXPORTER_OTLP_ENDPOINT", "http://127.0.0.1:7654").rstrip("/")

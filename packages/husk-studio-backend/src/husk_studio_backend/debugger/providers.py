@@ -190,6 +190,56 @@ class OpenRouterProvider:
         return _models_payload(self._KNOWN)
 
 
+class RegoloProvider:
+    """Regolo.ai — EU (Italy), GDPR, zero data-retention inference over an
+    OpenAI-compatible ``/chat/completions`` API (Bearer auth, classic
+    ``max_tokens``). Husk's default provider for the AI layer: the data sent for
+    analysis stays in the EU. Adding it is the same one-class shape as the others.
+    """
+
+    name = "regolo"
+    _URL = "https://api.regolo.ai/v1/chat/completions"
+    # ponytail: seed with the open models Regolo serves today; verify/expand from
+    # Regolo's live GET /v1/models rather than guessing more than we know.
+    _KNOWN = [
+        "Llama-3.3-70B-Instruct",
+        "Llama-3.1-8B-Instruct",
+        "Qwen2.5-Coder-32B-Instruct",
+        "mistral-7b-instruct-v0.3",
+    ]
+
+    def complete(
+        self,
+        *,
+        system: str,
+        user: str,
+        model: str,
+        api_key: str,
+        max_output_tokens: int,
+        transport: httpx.BaseTransport | None = None,
+    ) -> str:
+        headers = {
+            "authorization": f"Bearer {api_key}",
+            "content-type": "application/json",
+        }
+        body = {
+            "model": model,
+            "max_tokens": max_output_tokens,
+            "messages": [
+                {"role": "system", "content": system},
+                {"role": "user", "content": user},
+            ],
+        }
+        data = _post(self._URL, headers, body, transport)
+        try:
+            return data["choices"][0]["message"]["content"] or ""
+        except (KeyError, IndexError, TypeError) as e:
+            raise ProviderError(f"unexpected Regolo response shape: {e}") from e
+
+    def list_models(self) -> list[dict[str, Any]]:
+        return _models_payload(self._KNOWN)
+
+
 def _post(
     url: str,
     headers: dict[str, str],
@@ -212,6 +262,7 @@ def _post(
 
 
 _PROVIDERS: dict[str, LLMProvider] = {
+    RegoloProvider.name: RegoloProvider(),
     AnthropicProvider.name: AnthropicProvider(),
     OpenAIProvider.name: OpenAIProvider(),
     OpenRouterProvider.name: OpenRouterProvider(),

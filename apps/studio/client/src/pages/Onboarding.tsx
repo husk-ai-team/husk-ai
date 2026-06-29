@@ -6,7 +6,12 @@ import { useEffect, useState } from "react";
 import { Link } from "wouter";
 
 import { Tile } from "@/components/Tile";
-import { getIntegrationsStatus, fmtAgo, type AllIntegrationStatus } from "@/lib/api";
+import {
+  getIntegrationsStatus,
+  fmtAgo,
+  type AllIntegrationStatus,
+  type IntegrationState,
+} from "@/lib/api";
 import {
   ArrowLeft,
   ArrowRight,
@@ -14,14 +19,14 @@ import {
   CircleDashed,
   Copy,
   Network,
-  PlayCircle,
+  PlugZap,
   Terminal,
 } from "lucide-react";
 import { toast } from "sonner";
 
 const POLL_MS = 2000;
 
-type Kind = "cursor" | "langgraph" | "otel";
+type Kind = "sdk" | "otel" | "cursor";
 
 const STEPS: Record<
   Kind,
@@ -30,41 +35,49 @@ const STEPS: Record<
     icon: React.ReactNode;
     blurb: string;
     snippets: { label: string; cmd: string }[];
+    statusOf: (s: AllIntegrationStatus) => IntegrationState;
   }
 > = {
-  cursor: {
-    title: "Cursor",
-    icon: <Terminal className="size-5" />,
+  sdk: {
+    title: "Your agent's SDK",
+    icon: <PlugZap className="size-5" />,
     blurb:
-      "Stream Cursor's file edits and stop signals into Husk so the Studio timeline shows every move your IDE agent makes.",
-    snippets: [
-      { label: "1. Install the bridge", cmd: "npm install -g husk-cursor-hook" },
-      { label: "2. Generate hooks.json in your Cursor project", cmd: "husk-cursor-hook install" },
-    ],
-  },
-  langgraph: {
-    title: "Modify & replay",
-    icon: <PlayCircle className="size-5" />,
-    blurb:
-      "Replay any thread on Husk's own engine. Edit state at any checkpoint, fork into a new branch.",
+      "One line and every OpenAI, Anthropic, or LangGraph call your agent makes streams into Husk — token counts, tool calls, cost, and all.",
     snippets: [
       {
-        label: "Run the bundled example",
-        cmd: "uv run --group examples python examples/husk_thread.py",
+        label: "1. Install for your SDK",
+        cmd: "pip install 'husk-shared[openai]'   # or [anthropic] · [langgraph] · [llamaindex]",
+      },
+      {
+        label: "2. Add one line, then run your agent as usual",
+        cmd: "from husk_shared import instrument_openai; instrument_openai()",
       },
     ],
+    statusOf: (s) => s.otel,
   },
   otel: {
     title: "Any framework (OTel)",
     icon: <Network className="size-5" />,
     blurb:
-      "Point any OpenTelemetry GenAI emitter (AutoGen, OpenAI Agents SDK, LlamaIndex, Pydantic AI, CrewAI, SmolAgents, Vercel AI SDK) at the local Husk.",
+      "Already emit OpenTelemetry? Point any GenAI emitter (AutoGen, OpenAI Agents SDK, LlamaIndex, Pydantic AI, CrewAI, SmolAgents, Vercel AI SDK) at Husk — no adapter needed.",
     snippets: [
       {
         label: "OTLP endpoint",
         cmd: "http://localhost:7654/v1/traces",
       },
     ],
+    statusOf: (s) => s.otel,
+  },
+  cursor: {
+    title: "Cursor",
+    icon: <Terminal className="size-5" />,
+    blurb:
+      "Stream Cursor's file edits and stop signals into Husk so the timeline shows every move your IDE agent makes.",
+    snippets: [
+      { label: "1. Install the bridge", cmd: "npm install -g husk-cursor-hook" },
+      { label: "2. Generate hooks.json in your Cursor project", cmd: "husk-cursor-hook install" },
+    ],
+    statusOf: (s) => s.cursor,
   },
 };
 
@@ -102,14 +115,15 @@ export default function Onboarding() {
           Wire your stack
         </h1>
         <p className="mt-2 text-sm text-muted-foreground max-w-2xl">
-          Pick how you build agents. Husk will start receiving events the
-          moment you finish a setup.
+          Connect the agent you're building. Husk observes it on this machine while you
+          develop — never in production — and starts receiving events the moment you finish
+          a setup.
         </p>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6">
-        {(["cursor", "langgraph", "otel"] as Kind[]).map((k) => {
-          const s = status?.[k];
+        {(["sdk", "otel", "cursor"] as Kind[]).map((k) => {
+          const s = status ? STEPS[k].statusOf(status) : undefined;
           const live = !!s?.connected;
           const ever = !!s?.ever_connected;
           const step = STEPS[k];
@@ -123,7 +137,7 @@ export default function Onboarding() {
                 active
                   ? "border-accent/60"
                   : live
-                    ? "border-emerald-500/40"
+                    ? "border-foreground/30"
                     : "border-border/30 hover:border-accent/30"
               }`}
             >
@@ -133,7 +147,7 @@ export default function Onboarding() {
                 </div>
                 <div className="flex items-center gap-1.5 text-[10px] uppercase tracking-wider">
                   {live ? (
-                    <span className="text-emerald-300 inline-flex items-center gap-1">
+                    <span className="text-foreground inline-flex items-center gap-1">
                       <CheckCircle2 className="size-3" />
                       live
                     </span>

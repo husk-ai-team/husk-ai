@@ -26,12 +26,16 @@ log = logging.getLogger(__name__)
 
 # provider name -> environment variable consulted as a fallback key source.
 PROVIDER_ENV_VAR: dict[str, str] = {
+    "regolo": "REGOLO_API_KEY",
     "anthropic": "ANTHROPIC_API_KEY",
     "openai": "OPENAI_API_KEY",
 }
 
-DEFAULT_PROVIDER = "anthropic"
-DEFAULT_MODEL = "claude-sonnet-4"
+# Regolo.ai is the default: EU-hosted, GDPR, zero data-retention — so a non-tech
+# team's run data leaves for analysis only to an EU provider. Anthropic / OpenAI /
+# OpenRouter stay selectable in Settings.
+DEFAULT_PROVIDER = "regolo"
+DEFAULT_MODEL = "Llama-3.3-70B-Instruct"
 
 _PUBLIC_FIELDS = ("provider", "model", "auto_analyze")
 

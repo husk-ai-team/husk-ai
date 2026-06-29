@@ -113,3 +113,7 @@ my-video/
 # Internal docs not meant for the public repo
 /*.pdf
 
+# Enterprise edition (team / multi-tenant) — extracted from the public product,
+# kept locally for a future private edition, never committed to the public repo.
+/enterprise/
+

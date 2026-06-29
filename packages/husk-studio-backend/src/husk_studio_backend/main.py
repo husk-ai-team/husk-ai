@@ -16,7 +16,6 @@ from fastapi.staticfiles import StaticFiles
 
 from husk_studio_backend import __version__
 from husk_studio_backend.api import (
-    auth,
     branches,
     cursor,
     dashboard,
@@ -122,6 +121,10 @@ def _ensure_studio_built() -> None:
 @asynccontextmanager
 async def lifespan(_: FastAPI) -> AsyncIterator[None]:
     await init_db()
+    log.info(
+        "Husk is a local development debugger. It observes only the agent you run on this "
+        "machine (ingest is loopback-only) — never a production deployment elsewhere."
+    )
     yield
 
 
@@ -132,20 +135,15 @@ app = FastAPI(
     lifespan=lifespan,
 )
 
-# The Studio (Vite) runs at :5174 in dev; the Marketing site at :3000 (or :5173).
-# In a packaged build the backend itself serves the Studio bundle from `/` (Day 7).
+# The Studio (Vite) runs at :5174 in dev. In a packaged build the backend itself
+# serves the Studio bundle from `/`.
 app.add_middleware(
     CORSMiddleware,
-    # Loopback dev origins only: the Studio (Vite :5174) and the local dev
-    # marketing/sign-in pages (:5173 / :3000). State-changing routes are further
-    # gated to loopback by the local_only guard.
+    # Loopback dev origin only (the Studio's Vite dev server). State-changing
+    # routes are further gated to loopback by the local_only guard.
     allow_origins=[
         "http://localhost:5174",
         "http://127.0.0.1:5174",
-        "http://localhost:5173",
-        "http://127.0.0.1:5173",
-        "http://localhost:3000",
-        "http://127.0.0.1:3000",
     ],
     allow_credentials=True,
     allow_methods=["*"],
@@ -153,19 +151,24 @@ app.add_middleware(
 )
 
 
+# Local single-user surfaces. Husk is a local-first development debugger: the only
+# client is the Studio running on this machine. Read views are open on loopback;
+# anything that ingests, runs code, or writes to disk is gated to loopback by the
+# local_only guard below.
 app.include_router(runs.router)
 app.include_router(spans.router)
 app.include_router(branches.router)
 app.include_router(diff.router)
-# Sensitive routers (ingest feeds replay; replay executes code; debugger writes
-# files / holds the key) are gated to loopback, same-host requests only.
+# Ingest accepts traces only from the agent you're debugging on this machine. This
+# loopback-only gate is what keeps Husk a DEVELOPMENT tool, not production monitoring:
+# a production agent on another host is refused, so Husk can't be pointed at prod.
 app.include_router(otel.router, dependencies=[Depends(local_only)])
 app.include_router(cursor.router)
 app.include_router(replay.router, dependencies=[Depends(local_only)])
 app.include_router(integrations.router)
 app.include_router(dashboard.router)
-app.include_router(auth.router)
 app.include_router(graph.router)
+# The debugger resolves the local BYOK key and can write a fix to disk: loopback only.
 app.include_router(debugger.router, dependencies=[Depends(local_only)])
 
 
@@ -175,13 +178,15 @@ _LANDING_HTML = """<!doctype html>
     <meta charset="utf-8" />
     <title>Husk - Studio not built yet</title>
     <style>
-      :root { color-scheme: dark; }
+      /* "Ink on paper" monochrome — same OKLCH tokens as the Studio (hue 264,
+         chroma <= 0.004). No tint: hierarchy is tone, the accent is ink. */
+      :root { color-scheme: light; }
       * { box-sizing: border-box; }
       body {
         margin: 0;
         font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Inter", sans-serif;
-        background: #0F1117;
-        color: #E6E6E6;
+        background: oklch(0.985 0.001 264);
+        color: oklch(0.22 0.004 264);
         min-height: 100vh;
         display: grid;
         place-items: center;
@@ -195,8 +200,8 @@ _LANDING_HTML = """<!doctype html>
         letter-spacing: -0.02em;
         font-weight: 700;
       }
-      .accent { color: #FF6B35; }
-      .lead { color: #8B949E; margin: 0 0 2rem; font-size: 1rem; }
+      .accent { color: oklch(0.22 0.004 264); }
+      .lead { color: oklch(0.50 0.006 264); margin: 0 0 2rem; font-size: 1rem; }
       .grid {
         display: grid;
         grid-template-columns: 1fr;
@@ -206,13 +211,13 @@ _LANDING_HTML = """<!doctype html>
         .grid { grid-template-columns: 1fr 1fr; }
       }
       .card {
-        border: 1px solid #30363D;
-        background: #161B22;
+        border: 1px solid oklch(0.885 0.003 264);
+        background: oklch(0.998 0.0005 264);
         padding: 1.5rem;
         border-radius: 12px;
         transition: border-color .2s;
       }
-      .card:hover { border-color: rgba(255, 107, 53, 0.5); }
+      .card:hover { border-color: oklch(0.22 0.004 264 / 0.4); }
       .card h2 {
         margin: 0 0 0.25rem;
         font-size: 1.125rem;
@@ -221,13 +226,13 @@ _LANDING_HTML = """<!doctype html>
       .card .sub {
         margin: 0 0 1rem;
         font-size: 0.8125rem;
-        color: #8B949E;
+        color: oklch(0.50 0.006 264);
       }
       .eyebrow {
         font-size: 0.6875rem;
         text-transform: uppercase;
         letter-spacing: 0.18em;
-        color: #FF6B35;
+        color: oklch(0.22 0.004 264);
         font-weight: 600;
         margin: 0 0 0.5rem;
       }
@@ -236,8 +241,8 @@ _LANDING_HTML = """<!doctype html>
         font-size: 0.8125rem;
       }
       pre {
-        background: #0D1117;
-        border: 1px solid #21262D;
+        background: oklch(0.955 0.0015 264);
+        border: 1px solid oklch(0.885 0.003 264);
         border-radius: 6px;
         padding: 0.625rem 0.75rem;
         margin: 0.375rem 0;
@@ -245,24 +250,24 @@ _LANDING_HTML = """<!doctype html>
         white-space: pre-wrap;
         word-break: break-word;
       }
-      pre .prompt { color: #FF6B35; user-select: none; }
+      pre .prompt { color: oklch(0.50 0.006 264); user-select: none; }
       .footer {
         margin-top: 2rem;
         padding-top: 1.25rem;
-        border-top: 1px solid #21262D;
+        border-top: 1px solid oklch(0.885 0.003 264);
         font-size: 0.8125rem;
-        color: #6B7280;
+        color: oklch(0.50 0.006 264);
       }
-      a { color: #FF6B35; text-decoration: none; }
+      a { color: oklch(0.22 0.004 264); text-decoration: none; }
       a:hover { text-decoration: underline; }
       .why {
         margin-top: 1.25rem;
         padding: 0.875rem 1rem;
         border-radius: 8px;
-        background: rgba(255, 107, 53, 0.05);
-        border: 1px solid rgba(255, 107, 53, 0.2);
+        background: oklch(0.955 0.0015 264);
+        border: 1px solid oklch(0.885 0.003 264);
         font-size: 0.8125rem;
-        color: #B8B8B8;
+        color: oklch(0.50 0.006 264);
       }
     </style>
   </head>
@@ -298,7 +303,7 @@ _LANDING_HTML = """<!doctype html>
       </div>
 
       <div class="why">
-        <strong style="color:#FF6B35">Why am I seeing this page?</strong>
+        <strong style="color:oklch(0.22 0.004 264)">Why am I seeing this page?</strong>
         Either (a) you cloned the repo and haven't built the Studio yet, OR
         (b) auto-build tried and failed (check the terminal where you ran
         <code>husk-ai start</code> for the warning). Both options above need

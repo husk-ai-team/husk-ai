@@ -39,7 +39,7 @@ The wall-clock saving compounds with every iteration in a debug cycle.
 
 **Why this matters:** failures late in the graph bypass more
 upstream tokens than failures at the start. The pitch quotes
-the *max-mode* row (best realistic case in production).
+the *max-mode* row (best realistic case).
 
 ## D3 -- MAX Token Bypass Observed
 
@@ -61,8 +61,8 @@ Across all branches: **183,108 tokens** bypassed out of **332,773** that would h
 
 ## Supporting (infrastructure footnote, not hero)
 
-- **Husk ingest overhead**: mean 3.98 ms (95% CI [3.16, 4.96], p50=0.0 ms, p95=43.0 ms). Comparable: Langfuse 0.1 ms (batched), LangSmith 132 ms (cloud RTT).
-- **Storage**: 23,648.1 bytes / trace (13.938 MB DB total). Comparable: Datadog $0.10/GB; Helicone 1-10 GB tiers.
+- **Husk ingest overhead**: mean 3.98 ms (95% CI [3.16, 4.96], p50=0.0 ms, p95=43.0 ms).
+- **Storage**: 23,648.1 bytes / trace (13.938 MB DB total), all on the local machine.
 
 ## Reproducibility
 

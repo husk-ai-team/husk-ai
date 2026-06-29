@@ -128,7 +128,7 @@ export function Timeline({ spans, selectedId, onSelect }: TimelineProps) {
                         height={ROW - 4}
                         rx={1.2}
                         ry={1.2}
-                        fill="#FF6B35"
+                        fill="#26272c"
                       />
                     )}
                     <text
@@ -187,18 +187,18 @@ export function Timeline({ spans, selectedId, onSelect }: TimelineProps) {
 }
 
 function fillForKind(kind: string, status: string): { bg: string; stroke: string } {
-  if (status === "error") return { bg: "#F0564E", stroke: "#FF8B85" };
+  if (status === "error") return { bg: "#26272c", stroke: "#26272c" };
   switch (kind) {
     case "llm":
-      return { bg: "#FF7A45", stroke: "#FFA978" };
+      return { bg: "#8a8b91", stroke: "#55565c" };
     case "tool":
-      return { bg: "#4FB0AE", stroke: "#8FD3D1" };
+      return { bg: "#c4c5ca", stroke: "#c4c5ca" };
     case "chain":
-      return { bg: "#5FC08C", stroke: "#A4E0BC" };
+      return { bg: "#c4c5ca", stroke: "#c4c5ca" };
     case "graph_node":
-      return { bg: "#C7A24A", stroke: "#E2C788" };
+      return { bg: "#bcbdc2", stroke: "#bcbdc2" };
     default:
-      return { bg: "#8A8276", stroke: "#B7AFA2" };
+      return { bg: "#bcbdc2", stroke: "#bcbdc2" };
   }
 }
 

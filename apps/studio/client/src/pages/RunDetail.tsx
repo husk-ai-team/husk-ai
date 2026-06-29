@@ -20,6 +20,7 @@ import {
   getDebuggerConfig,
   getDiff,
   getRun,
+  getRunBreakdown,
   getRunGraph,
   getSpans,
   listBranches,
@@ -28,16 +29,19 @@ import {
   type Branch,
   type DebuggerConfig,
   type Run,
+  type RunBreakdown,
   type RunDiff,
   type RunEvent,
   type RunGraph,
   type Span,
 } from "@/lib/api";
 import {
+  AlertTriangle,
   ArrowLeft,
   ArrowRight,
   GitBranch,
   GitCompare,
+  Layers,
   Network,
   PencilLine,
   Rows3,
@@ -61,8 +65,10 @@ export default function RunDetail() {
   const [compare, setCompare] = useState<{ a: string; b: string } | null>(null);
   const [tab, setTab] = useState<"graph" | "timeline">("graph");
   const [graph, setGraph] = useState<RunGraph | null>(null);
+  const [graphLoaded, setGraphLoaded] = useState(false);
   const [selectedNodeId, setSelectedNodeId] = useState<string | null>(null);
   const [dbgConfig, setDbgConfig] = useState<DebuggerConfig | null>(null);
+  const [breakdown, setBreakdown] = useState<RunBreakdown | null>(null);
 
   const refreshGraph = () => {
     if (!runId) return;
@@ -82,7 +88,10 @@ export default function RunDetail() {
     setParentBranch(null);
     setCompare(null);
     setGraph(null);
+    setGraphLoaded(false);
     setSelectedNodeId(null);
+    setBreakdown(null);
+    setTab("graph");
 
     Promise.all([getRun(runId), getSpans(runId)])
       .then(([r, s]) => {
@@ -97,10 +106,17 @@ export default function RunDetail() {
       .then((g) => {
         if (!alive) return;
         setGraph(g);
+        setGraphLoaded(true);
         if (g.nodes.length) {
           setSelectedNodeId(g.failure?.node_id ?? g.nodes[0].id);
+        } else {
+          // Observability-only run (no agent graph) — the timeline is the useful view.
+          setTab("timeline");
         }
       })
+      .catch(() => alive && setGraphLoaded(true));
+    getRunBreakdown(runId)
+      .then((b) => alive && setBreakdown(b))
       .catch(() => {});
     getDebuggerConfig()
       .then((c) => alive && setDbgConfig(c))
@@ -207,6 +223,17 @@ export default function RunDetail() {
         <LiveBadge on={live} />
       </div>
 
+      {run?.status === "error" && run.error_message && (
+        <div className="mb-6 rounded-xl border border-foreground/30 bg-secondary/60 p-4">
+          <div className="mb-1.5 flex items-center gap-2 text-xs uppercase tracking-[0.16em] text-foreground">
+            <AlertTriangle className="size-3.5" /> What failed
+          </div>
+          <p className="break-words font-mono text-sm text-foreground/90">
+            {run.error_message}
+          </p>
+        </div>
+      )}
+
       <div className="h-[calc(100vh-260px)] min-h-[480px] overflow-hidden rounded-xl border border-border/30 bg-secondary/10">
         <ResizablePanelGroup direction="horizontal">
           <ResizablePanel defaultSize={44} minSize={28}>
@@ -228,12 +255,14 @@ export default function RunDetail() {
               </div>
               <div className="flex-1 overflow-hidden">
                 {tab === "graph" ? (
-                  graph ? (
+                  graph && graph.nodes.length > 0 ? (
                     <GraphView
                       graph={graph}
                       selectedId={selectedNodeId}
                       onSelect={setSelectedNodeId}
                     />
+                  ) : graphLoaded ? (
+                    <ObservabilityOnly onTimeline={() => setTab("timeline")} />
                   ) : (
                     <div className="flex h-full items-center justify-center text-sm text-muted-foreground">
                       Building graph…
@@ -272,10 +301,83 @@ export default function RunDetail() {
         </ResizablePanelGroup>
       </div>
 
+      {breakdown && breakdown.by_model.length > 0 && (
+        <div className="mt-6">
+          <ModelBreakdownCard breakdown={breakdown} />
+        </div>
+      )}
+
       {compare && (
         <DiffSection a={compare.a} b={compare.b} onClose={() => setCompare(null)} />
       )}
     </section>
+  );
+}
+
+function ModelBreakdownCard({ breakdown }: { breakdown: RunBreakdown }) {
+  return (
+    <div className="rounded-xl border border-border bg-card p-5">
+      <div className="mb-3 flex items-center gap-2 text-xs uppercase tracking-[0.16em] text-muted-foreground">
+        <Layers className="size-3.5 text-foreground" />
+        Models in this run
+      </div>
+      <table className="w-full text-sm">
+        <thead>
+          <tr className="text-[10px] uppercase tracking-wider text-muted-foreground/70">
+            <th className="pb-2 text-left font-medium">Model</th>
+            <th className="pb-2 text-right font-medium">Calls</th>
+            <th className="pb-2 text-right font-medium">Tokens</th>
+            <th className="pb-2 text-right font-medium">Cost</th>
+            <th className="pb-2 text-right font-medium">Share</th>
+          </tr>
+        </thead>
+        <tbody className="divide-y divide-border">
+          {breakdown.by_model.map((m) => (
+            <tr key={`${m.model}-${m.provider}`}>
+              <td className="py-2 pr-2">
+                <div className="font-mono text-xs text-foreground" title={m.model}>
+                  {(m.model.split("/").pop() ?? m.model).slice(0, 28)}
+                </div>
+                <div className="text-[10px] text-muted-foreground">
+                  {m.provider ?? "—"}
+                  {m.errors > 0 && ` · ${m.errors} err`}
+                </div>
+              </td>
+              <td className="py-2 text-right tabular-nums text-muted-foreground">{m.calls}</td>
+              <td className="py-2 text-right tabular-nums text-muted-foreground">
+                {(m.tokens_in + m.tokens_out).toLocaleString()}
+              </td>
+              <td className="py-2 text-right tabular-nums text-foreground">{fmtCost(m.cost_usd)}</td>
+              <td className="py-2 text-right tabular-nums text-muted-foreground">
+                {Math.round(m.cost_share * 100)}%
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  );
+}
+
+function ObservabilityOnly({ onTimeline }: { onTimeline: () => void }) {
+  return (
+    <div className="flex h-full flex-col items-center justify-center gap-3 px-6 text-center">
+      <div className="grid size-11 place-items-center rounded-xl bg-secondary text-muted-foreground">
+        <Network className="size-5" />
+      </div>
+      <p className="text-sm font-semibold text-foreground">Observability-only run</p>
+      <p className="max-w-xs text-xs text-muted-foreground">
+        No agent graph was recorded for this run, so there's nothing to draw. The
+        full step-by-step is in the timeline.
+      </p>
+      <button
+        type="button"
+        onClick={onTimeline}
+        className="rounded-md border border-border px-3 py-1.5 text-xs font-medium text-foreground hover:bg-secondary"
+      >
+        View timeline
+      </button>
+    </div>
   );
 }
 
@@ -336,8 +438,8 @@ function LiveBadge({ on }: { on: boolean }) {
     <span
       className={`inline-flex items-center gap-2 rounded-full border px-3 py-1 text-xs ${
         on
-          ? "border-emerald-500/40 bg-emerald-500/10 text-emerald-300"
-          : "border-border/40 bg-secondary/30 text-muted-foreground"
+          ? "border-foreground/30 bg-foreground/[0.06] text-foreground"
+          : "border-border bg-secondary text-muted-foreground"
       }`}
     >
       {on ? <Wifi className="size-3" /> : <WifiOff className="size-3" />}
@@ -434,7 +536,7 @@ function Actions({
         {parentBranch && (
           <LineageCard
             title="This run is a replay"
-            icon={<GitBranch className="size-3.5 text-sky-400" />}
+            icon={<GitBranch className="size-3.5 text-foreground" />}
           >
             <BranchRow
               branch={parentBranch}

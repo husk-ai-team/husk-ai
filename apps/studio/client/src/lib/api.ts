@@ -14,6 +14,7 @@ export interface Run {
   total_tokens_out: number;
   total_cost_usd: number;
   error_message: string | null;
+  models?: string[];
 }
 
 export interface Span {
@@ -175,6 +176,14 @@ export function fmtTokens(inT: number | null, outT: number | null): string {
   return total ? total.toLocaleString() : "—";
 }
 
+export function fmtCompact(n: number | null | undefined): string {
+  if (n == null) return "—";
+  if (n < 1000) return String(n);
+  if (n < 1_000_000) return `${(n / 1000).toFixed(1)}K`;
+  if (n < 1_000_000_000) return `${(n / 1_000_000).toFixed(1)}M`;
+  return `${(n / 1_000_000_000).toFixed(1)}B`;
+}
+
 export function fmtCost(usd: number | null): string {
   if (usd == null || usd === 0) return "—";
   if (usd < 0.01) return `$${usd.toFixed(4)}`;
@@ -207,9 +216,9 @@ export function spanKindColor(kind: string): string {
     case "llm":
       return "text-primary";
     case "tool":
-      return "text-sky-400";
+      return "text-foreground";
     case "chain":
-      return "text-emerald-400";
+      return "text-muted-foreground";
     default:
       return "text-muted-foreground";
   }
@@ -226,6 +235,7 @@ export interface DashboardSummary {
     tokens_out: number;
     cost_usd: number;
     errors: number;
+    avg_latency_ms: number;
   };
   last_24h: {
     runs: number;
@@ -252,11 +262,44 @@ export interface DashboardSummary {
 export const getDashboardSummary = () =>
   fetcher<DashboardSummary>("/api/dashboard/summary");
 
+// --- Per-run model breakdown (the multi-model "insight gigantesco") ---
+
+export interface RunModelBreakdown {
+  model: string;
+  provider: string | null;
+  calls: number;
+  tokens_in: number;
+  tokens_out: number;
+  cost_usd: number;
+  errors: number;
+  cost_share: number;
+}
+export interface RunBreakdown {
+  run_id: string;
+  total_cost_usd: number;
+  by_model: RunModelBreakdown[];
+}
+
+export const getRunBreakdown = (id: string) =>
+  fetcher<RunBreakdown>(`${BASE}/runs/${id}/breakdown`);
+
+export interface IntegrationState {
+  connected: boolean;
+  ever_connected: boolean;
+  last_event_at: number | null;
+}
+
+export interface AdapterStatus extends IntegrationState {
+  framework: string;
+}
+
 export interface AllIntegrationStatus {
   now_ms: number;
-  cursor: { connected: boolean; ever_connected: boolean; last_event_at: number | null };
-  langgraph: { connected: boolean; ever_connected: boolean; last_event_at: number | null };
-  otel: { connected: boolean; ever_connected: boolean; last_event_at: number | null };
+  cursor: IntegrationState;
+  // "Any traces arriving at all" — the framework-agnostic ingest path.
+  otel: IntegrationState;
+  // Per-framework breakdown; no framework is privileged (LangGraph is one row here).
+  adapters: AdapterStatus[];
 }
 
 export const getIntegrationsStatus = () =>
@@ -412,6 +455,9 @@ export async function saveDebuggerConfig(body: Partial<DebuggerConfig> & { api_k
   if (!r.ok) throw new Error(`${r.status}: ${await r.text()}`);
   return (await r.json()) as DebuggerConfig;
 }
+
+export const getDebuggerProviders = () =>
+  fetcher<{ providers: string[] }>("/api/debugger/providers");
 
 export const getDebuggerModels = (provider?: string) =>
   fetcher<{ provider: string; models: DebuggerModel[] }>(

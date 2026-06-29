@@ -205,7 +205,7 @@ def test_replay_runs_the_example_graph_e2e(_isolated_home: Path) -> None:
     assert example.is_file()  # repo cwd; under the allowed root
 
     result = replay_graph(
-        graph_module=f"{example}:graph",
+        graph_module=f"{example}:agent",
         state_override={"topic": "Rome"},
     )
     assert result.get("thread_id")

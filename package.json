@@ -1,6 +1,6 @@
 {
   "name": "husk-monorepo",
-  "version": "0.4.0",
+  "version": "0.7.0",
   "private": true,
   "description": "Husk monorepo — visual interactive debugger for AI agents",
   "license": "BUSL-1.1",

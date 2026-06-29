@@ -50,6 +50,7 @@ async def get_config() -> dict[str, Any]:
     return secrets.public_config()
 
 
+# Writing the BYOK key / debugger config: loopback-only (router-level guard).
 @router.put("/config")
 async def update_config(body: ConfigUpdate) -> dict[str, Any]:
     if body.provider is not None and body.provider not in providers.available_providers():
@@ -105,6 +106,7 @@ async def get_report(run_id: str) -> dict[str, Any]:
     return rep
 
 
+# Applying a fix writes to the agent's source file: loopback-only (router-level guard).
 @router.post("/runs/{run_id}/apply-fix")
 async def apply_fix(run_id: str, body: ApplyFixRequest) -> dict[str, Any]:
     if not body.confirm:

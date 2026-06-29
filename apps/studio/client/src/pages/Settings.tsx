@@ -8,13 +8,13 @@ import {
   fmtAgo,
   getDebuggerConfig,
   getDebuggerModels,
+  getDebuggerProviders,
   getIntegrationsStatus,
   saveDebuggerConfig,
   type AllIntegrationStatus,
   type DebuggerConfig,
   type DebuggerModel,
 } from "@/lib/api";
-import { useSession } from "@/lib/auth";
 import {
   ArrowLeft,
   Bug,
@@ -22,7 +22,6 @@ import {
   CircleDashed,
   Database,
   Save,
-  ShieldCheck,
 } from "lucide-react";
 
 const TABLES = [
@@ -72,11 +71,11 @@ const TABLES = [
   },
   {
     name: "debug_reports",
-    purpose: "Automatic-debugger analyses of failed runs (no API key stored here).",
+    purpose: "Plain-language explanations of failed runs (no API key stored here).",
     cols: [
       { name: "id, run_id", type: "string" },
       { name: "failure_node, failure_class", type: "string?", note: "where + what" },
-      { name: "report_json", type: "json", note: "full localized diagnosis + proposed fix" },
+      { name: "report_json", type: "json", note: "what happened + what to change" },
       { name: "provider, model, confidence", type: "string" },
       { name: "trigger, applied", type: "mixed", note: "manual|auto · fix applied?" },
     ],
@@ -103,7 +102,6 @@ const TABLES = [
 ];
 
 export default function Settings() {
-  const { session } = useSession();
   const [status, setStatus] = useState<AllIntegrationStatus | null>(null);
 
   useEffect(() => {
@@ -120,6 +118,17 @@ export default function Settings() {
     };
   }, []);
 
+  // Roll up the per-framework adapter rows into one "are any adapters live?" state.
+  const adapters = status?.adapters ?? [];
+  const adaptersState = status
+    ? {
+        connected: adapters.some((a) => a.connected),
+        ever_connected: adapters.some((a) => a.ever_connected),
+        last_event_at:
+          adapters.reduce((m, a) => Math.max(m, a.last_event_at ?? 0), 0) || null,
+      }
+    : undefined;
+
   return (
     <section className="husk-rise px-6 md:px-12 pt-12 pb-20 max-w-6xl mx-auto">
       <Link
@@ -127,7 +136,7 @@ export default function Settings() {
         className="inline-flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground transition-colors"
       >
         <ArrowLeft className="size-3.5" />
-        Dashboard
+        Overview
       </Link>
 
       <div className="mt-5 mb-10 border-b border-border/30 pb-6">
@@ -138,37 +147,11 @@ export default function Settings() {
           Settings
         </h1>
         <p className="mt-2 text-sm text-muted-foreground">
-          Account, integrations, and what Husk stores under the hood.
+          Connect the agent you're building, set up the automatic debugger, and see what Husk
+          keeps on this machine. Husk is a development tool — it runs on your machine while you
+          build, never in production.
         </p>
       </div>
-
-      {/* Account */}
-      <section className="mb-10">
-        <H2 icon={<ShieldCheck className="size-3.5" />}>Account</H2>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-3 md:gap-4">
-          <Tile label="Email">
-            <div className="text-base font-semibold break-all">
-              {session?.email || "—"}
-            </div>
-          </Tile>
-          <Tile label="Plan">
-            <div className="text-base font-semibold capitalize">
-              {session?.plan || "—"}
-            </div>
-            <div className="mt-1 text-xs text-muted-foreground">
-              Free while in beta
-            </div>
-          </Tile>
-          <Tile label="Session age">
-            <div className="text-base font-semibold">
-              {session?.saved_at ? fmtAgo(session.saved_at) : "—"}
-            </div>
-            <div className="mt-1 text-xs text-muted-foreground">
-              Auto-refreshes from cloud
-            </div>
-          </Tile>
-        </div>
-      </section>
 
       {/* Integrations */}
       <section className="mb-10">
@@ -185,9 +168,9 @@ export default function Settings() {
             s={status?.cursor}
           />
           <IntegrationCard
-            name="LangGraph"
-            hint="Time-travel replay"
-            s={status?.langgraph}
+            name="Framework adapters"
+            hint="OpenAI, Anthropic, LangGraph…"
+            s={adaptersState}
           />
         </div>
       </section>
@@ -255,15 +238,20 @@ export default function Settings() {
   );
 }
 
-const PROVIDERS = ["anthropic", "openai"];
+// Fallback if the providers endpoint can't be reached; Regolo is the default.
+const FALLBACK_PROVIDERS = ["regolo", "anthropic", "openai", "openrouter"];
 
 function DebuggerSettings() {
   const [cfg, setCfg] = useState<DebuggerConfig | null>(null);
+  const [providers, setProviders] = useState<string[]>(FALLBACK_PROVIDERS);
   const [models, setModels] = useState<DebuggerModel[]>([]);
   const [apiKey, setApiKey] = useState("");
   const [saving, setSaving] = useState(false);
 
   useEffect(() => {
+    getDebuggerProviders()
+      .then((p) => p.providers.length && setProviders(p.providers))
+      .catch(() => {});
     getDebuggerConfig()
       .then((c) => {
         setCfg(c);
@@ -299,7 +287,7 @@ function DebuggerSettings() {
       });
       setCfg(next);
       setApiKey("");
-      toast.success("Debugger settings saved (key stays on this machine)");
+      toast.success("Saved (key stays on this machine)");
     } catch (e) {
       toast.error(`Save failed: ${String(e)}`);
     } finally {
@@ -318,11 +306,13 @@ function DebuggerSettings() {
   return (
     <div className="rounded-xl border border-border/30 bg-secondary/10 p-5 md:p-6">
       <p className="mb-4 text-xs text-muted-foreground">
-        Bring your own key. It is stored locally in{" "}
+        When a run fails, Husk debugs it for you: one click (or automatically) and it
+        explains, in plain language, what went wrong and what to change. It uses a
+        model you bring a key for. The key is stored locally in{" "}
         <code className="rounded bg-secondary/40 px-1.5 py-0.5 font-mono text-[11px]">
           ~/.husk/secrets.json
         </code>{" "}
-        and sent only from this machine straight to the provider — never to a Husk
+        and sent only from this machine straight to the provider: never to a Husk
         server, never written into traces or exports.
       </p>
 
@@ -333,7 +323,7 @@ function DebuggerSettings() {
             onChange={(e) => onProviderChange(e.target.value)}
             className="w-full rounded-md border border-border/40 bg-background/40 px-3 py-2 text-sm focus:border-accent/60 focus:outline-none"
           >
-            {PROVIDERS.map((p) => (
+            {providers.map((p) => (
               <option key={p} value={p}>
                 {p}
               </option>
@@ -372,8 +362,8 @@ function DebuggerSettings() {
 
       <div className="mt-5 space-y-3">
         <ToggleRow
-          label="Auto-analyze failed runs"
-          hint="Run the debugger automatically when a run finishes in error."
+          label="Debug failed runs automatically"
+          hint="Husk debugs a run the moment it finishes in error — no click needed."
           checked={cfg.auto_analyze}
           onChange={(v) => patch({ auto_analyze: v })}
         />
@@ -454,14 +444,14 @@ function IntegrationCard({
   return (
     <div
       className={`rounded-xl border bg-secondary/10 p-4 transition-colors ${
-        live ? "border-emerald-500/40" : "border-border/30"
+        live ? "border-foreground/30" : "border-border/30"
       }`}
     >
       <div className="flex items-center gap-3">
         <span
           className={`flex size-9 items-center justify-center rounded-lg ${
             live
-              ? "bg-emerald-500/15 text-emerald-300"
+              ? "bg-secondary text-foreground"
               : "bg-secondary/40 text-muted-foreground"
           }`}
         >
@@ -479,10 +469,10 @@ function IntegrationCard({
       <div className="mt-3 flex items-center gap-1.5 text-xs">
         <span
           className={`inline-block size-1.5 rounded-full ${
-            live ? "bg-emerald-400 animate-pulse" : "bg-muted-foreground/40"
+            live ? "bg-accent animate-pulse" : "bg-muted-foreground/40"
           }`}
         />
-        <span className={live ? "text-emerald-300" : "text-muted-foreground"}>
+        <span className={live ? "text-foreground" : "text-muted-foreground"}>
           {live
             ? `live · ${fmtAgo(s?.last_event_at)}`
             : ever

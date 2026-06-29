@@ -1,3 +1,10 @@
+from husk_shared.adapters import (
+    instrument_anthropic,
+    instrument_langgraph,
+    instrument_llamaindex,
+    instrument_openai,
+)
+from husk_shared.agent import HuskAgent
 from husk_shared.enums import RunStatus, SpanKind, SpanStatus
 from husk_shared.recording import (
     RECORDING_FORMAT_VERSION,
@@ -10,6 +17,7 @@ from husk_shared.tracing import instrument, llm_span
 __all__ = [
     "RECORDING_FORMAT_VERSION",
     "Branch",
+    "HuskAgent",
     "RecordingFormatError",
     "Run",
     "RunStatus",
@@ -19,5 +27,9 @@ __all__ = [
     "SpanStatus",
     "check_format_version",
     "instrument",
+    "instrument_anthropic",
+    "instrument_langgraph",
+    "instrument_llamaindex",
+    "instrument_openai",
     "llm_span",
 ]

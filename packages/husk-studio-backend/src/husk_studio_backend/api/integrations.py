@@ -23,24 +23,21 @@ async def status() -> dict[str, Any]:
     cutoff = now_ms - LIVE_WINDOW_MS
 
     async with async_session() as s:
-        # OTel — any run whose framework starts with otel/ except otel/langgraph
-        # (which is broken out below).
+        # Generic ingest: have ANY traces arrived? (the framework-agnostic OTLP
+        # path). No framework is privileged here.
         otel_last = (
-            await s.execute(
-                select(func.max(RunRow.started_at)).where(
-                    RunRow.framework.like("otel/%"),
-                    ~RunRow.framework.like("%langgraph"),
-                )
-            )
+            await s.execute(select(func.max(RunRow.started_at)))
         ).scalar()
 
-        lg_last = (
+        # Per-framework breakdown so every adapter (openai, anthropic, langgraph,
+        # …) shows up uniformly — LangGraph is one row among many, not special.
+        adapter_rows = (
             await s.execute(
-                select(func.max(RunRow.started_at)).where(
-                    RunRow.framework.like("%langgraph%")
-                )
+                select(RunRow.framework, func.max(RunRow.started_at))
+                .group_by(RunRow.framework)
+                .order_by(func.max(RunRow.started_at).desc())
             )
-        ).scalar()
+        ).all()
 
         cursor_last = (
             await s.execute(select(func.max(CursorEventRow.created_at)))
@@ -56,6 +53,8 @@ async def status() -> dict[str, Any]:
     return {
         "now_ms": now_ms,
         "cursor": _build(cursor_last),
-        "langgraph": _build(lg_last),
         "otel": _build(otel_last),
+        "adapters": [
+            {"framework": fw or "unknown", **_build(last)} for fw, last in adapter_rows
+        ],
     }

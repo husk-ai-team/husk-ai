@@ -15,7 +15,8 @@ from __future__ import annotations
 
 #: Current on-disk recording format. v1 = the original runs/spans/snapshots/
 #: branches/http_cassettes/cursor_events schema with a ``user_version`` stamp.
-RECORDING_FORMAT_VERSION = 1
+#: v2 adds the nullable, indexed ``runs.project_id`` column (project scoping).
+RECORDING_FORMAT_VERSION = 2
 
 
 class RecordingFormatError(RuntimeError):

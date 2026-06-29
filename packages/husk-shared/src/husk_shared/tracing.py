@@ -37,13 +37,17 @@ def _otlp_traces_url(endpoint: str | None) -> str:
     return base if base.endswith("/v1/traces") else f"{base}/v1/traces"
 
 
-def instrument(service_name: str = "husk-agent", endpoint: str | None = None) -> Any:
+def instrument(
+    service_name: str = "husk-agent",
+    endpoint: str | None = None,
+) -> Any:
     """Configure OpenTelemetry to export GenAI spans to Husk; return a tracer.
 
     Idempotent: if a real TracerProvider is already installed (e.g. a second call,
     or the backend re-importing the agent during replay), it is reused rather than
     replaced. ``endpoint`` defaults to ``$OTEL_EXPORTER_OTLP_ENDPOINT`` then
-    ``http://localhost:7654``.
+    ``http://localhost:7654`` — Husk ingest is loopback-only, so the agent you're
+    debugging and the Studio run on the same machine while you build it.
     """
     try:
         from opentelemetry import trace
@@ -66,7 +70,9 @@ def instrument(service_name: str = "husk-agent", endpoint: str | None = None) ->
             resource=Resource.create({"service.name": service_name})
         )
         provider.add_span_processor(
-            BatchSpanProcessor(OTLPSpanExporter(endpoint=_otlp_traces_url(endpoint)))
+            BatchSpanProcessor(
+                OTLPSpanExporter(endpoint=_otlp_traces_url(endpoint))
+            )
         )
         trace.set_tracer_provider(provider)
     return trace.get_tracer("husk")

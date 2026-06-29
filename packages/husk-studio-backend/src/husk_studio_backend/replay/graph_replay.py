@@ -128,11 +128,26 @@ def replay_graph(
         path, symbol = graph_module, "graph"
     symbol = symbol or "graph"
     module = _load_module(path)
+    target = getattr(module, symbol, None)
+
+    def _resolve(name: str) -> Any:
+        # Older examples expose invoke/replay_from as module-level functions; a
+        # decorator-style HuskAgent exposes them as methods on the symbol object.
+        # The agent is marked (`_husk_agent`) so we never misread a LangGraph
+        # object's `.invoke(state, config=)` as the Husk `invoke(state, thread_id=)`.
+        fn = getattr(module, name, None)
+        if callable(fn):
+            return fn
+        if target is not None and getattr(target, "_husk_agent", False):
+            m = getattr(target, name, None)
+            if callable(m):
+                return m
+        return None
 
     # Preferred path: a true checkpoint resume that skips the upstream nodes.
     if parent_thread_id and fork_node:
-        replay_from = getattr(module, "replay_from", None)
-        if callable(replay_from):
+        replay_from = _resolve("replay_from")
+        if replay_from is not None:
             with _replay_lock:
                 resumed: dict[str, Any] = replay_from(
                     state_override=state_override,
@@ -141,15 +156,14 @@ def replay_graph(
                 )
                 return resumed
 
-    target = getattr(module, symbol, None)
     if target is None:
         raise AttributeError(f"{path} has no attribute {symbol!r}")
 
     tid = new_thread_id or str(uuid.uuid4())
 
-    # Preferred path: module exposes its own `invoke(state, thread_id=...)`.
-    fn = getattr(module, "invoke", None)
-    if callable(fn) and fn is not target:
+    # Preferred path: an `invoke(state, thread_id=...)` on the module or the agent.
+    fn = _resolve("invoke")
+    if fn is not None and fn is not target:
         invoked: dict[str, Any] = fn(state_override, thread_id=tid)
         return invoked
 

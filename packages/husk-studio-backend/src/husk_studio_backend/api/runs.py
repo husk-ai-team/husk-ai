@@ -3,12 +3,34 @@ from __future__ import annotations
 from typing import Any
 
 from fastapi import APIRouter, HTTPException
-from sqlalchemy import select
+from sqlalchemy import case, desc, func, select
 
 from husk_studio_backend.db.engine import async_session
-from husk_studio_backend.db.models import RunRow
+from husk_studio_backend.db.models import RunRow, SpanRow
 
 router = APIRouter(prefix="/api/v1/runs", tags=["runs"])
+
+
+async def _models_for_runs(s: Any, run_ids: list[str]) -> dict[str, list[str]]:
+    """Distinct model ids used by each run (from its spans) — so the runs list and
+    run header can show which model(s) a run touched without an N+1."""
+    if not run_ids:
+        return {}
+    rows = (
+        await s.execute(
+            select(SpanRow.run_id, SpanRow.model)
+            .where(SpanRow.run_id.in_(run_ids), SpanRow.model.is_not(None))
+            .distinct()
+        )
+    ).all()
+    out: dict[str, list[str]] = {}
+    for rid, m in rows:
+        out.setdefault(rid, [])
+        if m and m not in out[rid]:
+            out[rid].append(m)
+    for rid in out:
+        out[rid].sort()
+    return out
 
 
 @router.get("")
@@ -31,7 +53,8 @@ async def list_runs(
             like = f"%{q}%"
             query = query.where(RunRow.script_path.like(like) | RunRow.id.like(like))
         rows = (await s.execute(query.limit(limit).offset(offset))).scalars().all()
-        return [_serialize(r) for r in rows]
+        models = await _models_for_runs(s, [r.id for r in rows])
+        return [_serialize(r, models.get(r.id, [])) for r in rows]
 
 
 @router.get("/{run_id}")
@@ -40,10 +63,56 @@ async def get_run(run_id: str) -> dict[str, Any]:
         row = await s.get(RunRow, run_id)
         if row is None:
             raise HTTPException(status_code=404, detail="run not found")
-        return _serialize(row)
+        models = (await _models_for_runs(s, [run_id])).get(run_id, [])
+        return _serialize(row, models)
 
 
-def _serialize(r: RunRow) -> dict[str, Any]:
+@router.get("/{run_id}/breakdown")
+async def run_breakdown(run_id: str) -> dict[str, Any]:
+    """Per-run cost/usage broken down by (model, provider). This is the report's
+    "insight gigantesco": in a multi-model run, see exactly which model did what
+    and what each cost — and which models erred."""
+    async with async_session() as s:
+        run = await s.get(RunRow, run_id)
+        if run is None:
+            raise HTTPException(status_code=404, detail="run not found")
+        rows = (
+            await s.execute(
+                select(
+                    SpanRow.model,
+                    SpanRow.provider,
+                    func.count(SpanRow.id),
+                    func.coalesce(func.sum(SpanRow.tokens_in), 0),
+                    func.coalesce(func.sum(SpanRow.tokens_out), 0),
+                    func.coalesce(func.sum(SpanRow.cost_usd), 0.0),
+                    func.coalesce(
+                        func.sum(case((SpanRow.status == "error", 1), else_=0)), 0
+                    ),
+                )
+                .where(SpanRow.run_id == run_id, SpanRow.model.is_not(None))
+                .group_by(SpanRow.model, SpanRow.provider)
+                .order_by(desc(func.coalesce(func.sum(SpanRow.cost_usd), 0.0)))
+            )
+        ).all()
+    by_model = [
+        {
+            "model": m,
+            "provider": p,
+            "calls": int(calls or 0),
+            "tokens_in": int(ti or 0),
+            "tokens_out": int(to or 0),
+            "cost_usd": round(float(co or 0.0), 6),
+            "errors": int(errs or 0),
+        }
+        for m, p, calls, ti, to, co, errs in rows
+    ]
+    total_cost = round(sum(b["cost_usd"] for b in by_model), 6)
+    for b in by_model:
+        b["cost_share"] = round(b["cost_usd"] / total_cost, 4) if total_cost > 0 else 0.0
+    return {"run_id": run_id, "total_cost_usd": total_cost, "by_model": by_model}
+
+
+def _serialize(r: RunRow, models: list[str]) -> dict[str, Any]:
     return {
         "id": r.id,
         "parent_run_id": r.parent_run_id,
@@ -57,4 +126,5 @@ def _serialize(r: RunRow) -> dict[str, Any]:
         "total_tokens_out": r.total_tokens_out,
         "total_cost_usd": r.total_cost_usd,
         "error_message": r.error_message,
+        "models": models,
     }
