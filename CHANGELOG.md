@@ -2,6 +2,20 @@
 
 All notable changes, grouped by theme; newest first.
 
+## [0.8.1] — The documented `docker exec` actually works — 2026-08-09
+
+### Fixed
+- **`docker exec <container> husk-ai …` failed with `executable file not found in
+  $PATH`.** The binary lives in `/app/.venv/bin`, which was not on the image's PATH, so
+  the only working form was `uv run --no-sync husk-ai …` — documented in exactly one
+  place, a comment in the Dockerfile — while `docs/docker.md` and `AGENTS.md` both told
+  people to use the short one. The image now puts the venv on PATH.
+
+  Worth recording how this got out: CI builds the image and pushes it, but never starts
+  a container or execs into it, and no test covers the image either. It was found by
+  running the published artefact by hand. A CI job that boots the built image and runs
+  `husk-ai demo` inside it would close the gap.
+
 ## [0.8.0] — Correctness pass: replay, redaction, and the ingest path — 2026-08-09
 
 An audit of performance, bugs, and features, and the fixes for what it found. Four of the

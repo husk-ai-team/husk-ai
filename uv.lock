@@ -1027,7 +1027,7 @@ wheels = [
 
 [[package]]
 name = "husk-ai"
-version = "0.8.0"
+version = "0.8.1"
 source = { editable = "packages/husk-cli" }
 dependencies = [
     { name = "click" },
@@ -1054,7 +1054,7 @@ requires-dist = [
 
 [[package]]
 name = "husk-sandbox"
-version = "0.8.0"
+version = "0.8.1"
 source = { editable = "packages/husk-sandbox" }
 dependencies = [
     { name = "httpx" },
@@ -1065,7 +1065,7 @@ requires-dist = [{ name = "httpx", specifier = ">=0.27" }]
 
 [[package]]
 name = "husk-shared"
-version = "0.8.0"
+version = "0.8.1"
 source = { editable = "packages/husk-shared" }
 dependencies = [
     { name = "pydantic" },
@@ -1117,7 +1117,7 @@ provides-extras = ["otel", "openai", "anthropic", "langgraph", "llamaindex"]
 
 [[package]]
 name = "husk-studio-backend"
-version = "0.8.0"
+version = "0.8.1"
 source = { editable = "packages/husk-studio-backend" }
 dependencies = [
     { name = "aiosqlite" },
@@ -1163,7 +1163,7 @@ provides-extras = ["postgres"]
 
 [[package]]
 name = "husk-workspace"
-version = "0.8.0"
+version = "0.8.1"
 source = { virtual = "." }
 
 [package.dev-dependencies]
