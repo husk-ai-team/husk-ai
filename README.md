@@ -1,11 +1,7 @@
-<p align="center">
-  <img src="assets/husk-logo.png" alt="Husk" width="200" />
-</p>
-
-<h1 align="center">Husk — debug the AI agent you're building</h1>
+<h1 align="center">husk-ai Studio</h1>
 
 <p align="center">
-  <strong>Your agent does the wrong thing. Husk shows you why, in plain language, and lets you fix it before you ship.</strong><br />
+  <strong>Your agent does the wrong thing. husk-ai shows you why, in plain language, and lets you fix it before you ship.</strong><br />
   A local, visual debugger for the agent you're building: what it did, what it cost, which
   model handled each step, and where it went wrong. No traces to read.
 </p>
