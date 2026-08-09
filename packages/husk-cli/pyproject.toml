@@ -42,9 +42,9 @@ husk-ai = "husk.cli:main"
 husk = "husk.cli:main"
 
 [project.urls]
-Homepage = "https://github.com/husk-ai-team/husk-ai"
-Documentation = "https://github.com/husk-ai-team/husk-ai#readme"
-Repository = "https://github.com/husk-ai-team/husk-ai"
+Homepage = "https://github.com/husk-ai-lab/husk-ai"
+Documentation = "https://github.com/husk-ai-lab/husk-ai#readme"
+Repository = "https://github.com/husk-ai-lab/husk-ai"
 
 [build-system]
 requires = ["hatchling"]

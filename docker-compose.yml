@@ -11,7 +11,7 @@
 # GDPR, zero retention).
 services:
   husk:
-    image: ghcr.io/husk-ai-team/husk-ai:latest
+    image: ghcr.io/husk-ai-lab/husk-ai:latest
     # Or build locally instead of pulling:
     # build: .
     container_name: husk

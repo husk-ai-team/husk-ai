@@ -1,6 +1,6 @@
 # husk-cursor-hook
 
-Cursor bridge for [Husk](https://github.com/husk-ai-team/husk-ai) — the local-first,
+Cursor bridge for [Husk](https://github.com/husk-ai-lab/husk-ai) — the local-first,
 development-time debugger for the agent you're building.
 
 Streams Cursor's `afterFileEdit` and `stop` events into the Husk backend running
@@ -36,7 +36,7 @@ Then start Husk:
 
 ```bash
 # Install from source (PyPI release is on the roadmap)
-git clone https://github.com/husk-ai-team/husk-ai.git && cd husk-ai
+git clone https://github.com/husk-ai-lab/husk-ai.git && cd husk-ai
 uv sync --all-packages
 uv run husk-ai start
 ```

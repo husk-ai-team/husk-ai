@@ -59,6 +59,13 @@ backlog as a single `span.replay.batch` frame instead of one `span.replay` per s
 - **Background tabs kept polling** on Settings (3s) and Onboarding (2s); the
   pause-when-hidden rule had only been applied to Dashboard and Runs.
 
+### Changed
+- **The repository moved to the `husk-ai-lab` organisation.** Every link, clone URL, and
+  container reference now points there. The published image is
+  `ghcr.io/husk-ai-lab/husk-ai` — earlier entries in this file name the old
+  `husk-ai-team` path, which is what was correct at the time. GitHub redirects the old
+  URLs, but update any pinned `docker pull` or clone command.
+
 ### Added
 - **`husk-ai delete <run_id>`** and `DELETE /api/v1/runs/{run_id}` — remove a single
   run and everything attached to it. Previously the only option was `husk-ai clean`,

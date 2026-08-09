@@ -155,4 +155,4 @@ Husk's core API runs without it.
 ---
 
 Stuck on a term not covered here? Open an issue on
-[GitHub](https://github.com/husk-ai-team/husk-ai/issues).
+[GitHub](https://github.com/husk-ai-lab/husk-ai/issues).

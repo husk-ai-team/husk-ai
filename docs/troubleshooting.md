@@ -78,4 +78,4 @@ uv run husk-ai doctor              # version, home, DB path, health check
 uv run husk-ai export <run_id>     # portable, secret-redacted run bundle
 ```
 
-The `export` bundle (run, spans, and branches, already secret-redacted) is the single best attachment for a bug report: it captures the exact trajectory without leaking keys. If your symptom is not above, open an issue on [GitHub](https://github.com/husk-ai-team/husk-ai/issues). For the full command set, see the [CLI reference](./cli.md), and start from the [README](../README.md) for the big picture.
+The `export` bundle (run, spans, and branches, already secret-redacted) is the single best attachment for a bug report: it captures the exact trajectory without leaking keys. If your symptom is not above, open an issue on [GitHub](https://github.com/husk-ai-lab/husk-ai/issues). For the full command set, see the [CLI reference](./cli.md), and start from the [README](../README.md) for the big picture.

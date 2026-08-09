@@ -72,7 +72,7 @@ refused at the door. Husk is not, and cannot be, production monitoring.
 ## Quick start
 
 ```bash
-git clone https://github.com/husk-ai-team/husk-ai.git && cd husk-ai
+git clone https://github.com/husk-ai-lab/husk-ai.git && cd husk-ai
 uv sync --all-packages
 uv run husk-ai start        # Studio at http://localhost:7654
 uv run husk-ai demo         # seed a sample run to look at
@@ -96,7 +96,7 @@ failed, fixing it — happens in the Studio, in plain language. Full setup and f
 this into Codex, Claude Code, Cursor, or any chatbot:
 
 ```text
-Clone https://github.com/husk-ai-team/husk-ai and follow its AGENTS.md step by step.
+Clone https://github.com/husk-ai-lab/husk-ai and follow its AGENTS.md step by step.
 Give me one command at a time and wait for my output before moving on.
 ```
 

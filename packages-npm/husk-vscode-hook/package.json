@@ -7,10 +7,10 @@
   "publisher": "husk",
   "repository": {
     "type": "git",
-    "url": "https://github.com/husk-ai-team/husk-ai.git",
+    "url": "https://github.com/husk-ai-lab/husk-ai.git",
     "directory": "packages-npm/husk-vscode-hook"
   },
-  "homepage": "https://github.com/husk-ai-team/husk-ai",
+  "homepage": "https://github.com/husk-ai-lab/husk-ai",
   "engines": {
     "vscode": "^1.85.0",
     "node": ">=18"

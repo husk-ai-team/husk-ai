@@ -29,7 +29,7 @@ OS notes: Windows 10/11 (PowerShell, not the old Command Prompt), macOS 12+, and
 Three commands, one at a time. Run them from a terminal opened *after* installing uv.
 
 ```bash
-git clone https://github.com/husk-ai-team/husk-ai.git && cd husk-ai
+git clone https://github.com/husk-ai-lab/husk-ai.git && cd husk-ai
 uv sync --all-packages
 uv run husk-ai start
 ```

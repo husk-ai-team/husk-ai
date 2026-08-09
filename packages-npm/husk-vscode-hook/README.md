@@ -20,7 +20,7 @@ another host.
 
 1. Have Husk running locally:
    ```bash
-   git clone https://github.com/husk-ai-team/husk-ai.git && cd husk-ai
+   git clone https://github.com/husk-ai-lab/husk-ai.git && cd husk-ai
    uv sync --all-packages
    uv run husk-ai start
    ```
@@ -67,5 +67,5 @@ is no remote ingest to send them to.
 ## License
 
 Source-available under the Business Source License 1.1 (BUSL 1.1). See the
-[`LICENSE`](https://github.com/husk-ai-team/husk-ai/blob/main/LICENSE) at the
+[`LICENSE`](https://github.com/husk-ai-lab/husk-ai/blob/main/LICENSE) at the
 repository root.

@@ -68,7 +68,7 @@ export function StudioLayout({ children }: StudioLayoutProps) {
             </span>
           </div>
           <a
-            href="https://github.com/husk-ai-team/husk-ai"
+            href="https://github.com/husk-ai-lab/husk-ai"
             target="_blank"
             rel="noreferrer"
             className="inline-flex items-center gap-1 hover:text-foreground transition-colors"

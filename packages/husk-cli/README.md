@@ -10,7 +10,7 @@ can stream in, so Husk can't be pointed at production.
 ## Install from source (MVP today)
 
 ```bash
-git clone https://github.com/husk-ai-team/husk-ai.git
+git clone https://github.com/husk-ai-lab/husk-ai.git
 cd husk-ai
 uv sync --all-packages
 uv run husk-ai start
@@ -49,12 +49,12 @@ Replay executes your agent code and is off by default — enable it locally with
 `husk-ai mcp --enable-replay` (or `HUSK_MCP_ENABLE_REPLAY=1`). For remote clients
 (Lovable), use `husk-ai mcp --transport http` behind a tunnel.
 
-See the [project README](https://github.com/husk-ai-team/husk-ai) for full
+See the [project README](https://github.com/husk-ai-lab/husk-ai) for full
 docs, IDE integrations (Cursor, VS Code, Antigravity), and OTel instrumentation
 patterns Husk understands.
 
 ## License
 
 Source-available under the Business Source License 1.1 (BUSL 1.1). See the
-[`LICENSE`](https://github.com/husk-ai-team/husk-ai/blob/main/LICENSE) at the
+[`LICENSE`](https://github.com/husk-ai-lab/husk-ai/blob/main/LICENSE) at the
 repository root.

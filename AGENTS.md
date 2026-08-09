@@ -8,7 +8,7 @@ It is written so it works **even if you cannot run commands yourself**. You give
 the user runs it, they paste the output back, you check it against the expected result printed
 right there in this file. You never have to guess whether a step worked.
 
-Repository: <https://github.com/husk-ai-team/husk-ai>
+Repository: <https://github.com/husk-ai-lab/husk-ai>
 
 ---
 
@@ -104,7 +104,7 @@ The user does **not** install Python. uv reads `.python-version` in the repo and
 ## 3. Clone and sync
 
 ```bash
-git clone https://github.com/husk-ai-team/husk-ai.git
+git clone https://github.com/husk-ai-lab/husk-ai.git
 ```
 
 ```bash
@@ -395,7 +395,7 @@ and the CLI; they do **not** get the source, so they can't run the bundled examp
 their own edits.
 
 ```bash
-docker run -d --name husk -p 127.0.0.1:7654:7654 -v husk-data:/data ghcr.io/husk-ai-team/husk-ai
+docker run -d --name husk -p 127.0.0.1:7654:7654 -v husk-data:/data ghcr.io/husk-ai-lab/husk-ai
 ```
 
 Then <http://localhost:7654>. Seed a run with:
@@ -459,7 +459,7 @@ uv run husk-ai export <run_id>
 ```
 
 The export bundle is already secret-redacted, so it's safe to attach. Issues:
-<https://github.com/husk-ai-team/husk-ai/issues>. More symptoms:
+<https://github.com/husk-ai-lab/husk-ai/issues>. More symptoms:
 [docs/troubleshooting.md](docs/troubleshooting.md).
 
 ---

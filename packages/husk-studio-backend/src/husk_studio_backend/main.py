@@ -308,7 +308,7 @@ _LANDING_HTML = """<!doctype html>
         (b) auto-build tried and failed (check the terminal where you ran
         <code>husk-ai start</code> for the warning). Both options above need
         Node.js 20+ and <code>corepack</code> enabled. See the
-        <a href="https://github.com/husk-ai-team/husk-ai#build-the-studio--run-a-dev-server">full guide</a>.
+        <a href="https://github.com/husk-ai-lab/husk-ai#build-the-studio--run-a-dev-server">full guide</a>.
       </div>
 
       <p class="footer">
