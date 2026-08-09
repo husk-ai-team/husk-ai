@@ -1,5 +1,11 @@
-import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
+// PrismLight + one explicit language. Importing `Prism` from the package root
+// bundles every language Prism ships (~200) — and both call sites only ever render
+// JSON.
+import { PrismLight as SyntaxHighlighter } from "react-syntax-highlighter";
+import json from "react-syntax-highlighter/dist/esm/languages/prism/json";
 import { vscDarkPlus } from "react-syntax-highlighter/dist/esm/styles/prism";
+
+SyntaxHighlighter.registerLanguage("json", json);
 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { fmtCost, fmtDuration, fmtTokens, type Span } from "@/lib/api";

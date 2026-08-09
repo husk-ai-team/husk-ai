@@ -12,4 +12,3 @@ benchmark
 .pytest_cache
 .mypy_cache
 .ruff_cache
-HUSK-FEATURES.md

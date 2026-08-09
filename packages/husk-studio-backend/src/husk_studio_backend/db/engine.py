@@ -40,6 +40,14 @@ def async_engine() -> AsyncEngine:
     global _async_engine, _async_factory
     if _async_engine is None:
         _async_engine = create_async_engine(db_url(), echo=False, future=True)
+        if _async_engine.dialect.name == "sqlite":
+            # The pragmas have to be attached to the underlying sync Engine — an
+            # AsyncEngine proxies the connection pool but does not emit its own
+            # `connect` events. Missing this is silent and expensive: the whole app
+            # runs on THIS engine, so without it `foreign_keys` stays off (so
+            # ON DELETE CASCADE never fires and deleting a run orphans its spans)
+            # and `synchronous` stays FULL (an fsync on every ingest commit).
+            _apply_pragmas(_async_engine.sync_engine)
         _async_factory = async_sessionmaker(_async_engine, expire_on_commit=False)
     return _async_engine
 

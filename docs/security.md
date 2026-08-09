@@ -23,6 +23,8 @@ Non-browser clients (the OpenTelemetry exporter, the MCP server, curl) send no `
 
 This is why the read tools in the [MCP server](./mcp.md) and the [replay engine](./replay.md) are safe to leave running: a website cannot drive them.
 
+**What the guard does and does not cover, precisely.** It is applied to the three routers that ingest data, execute code, or hold your key: trace ingest (`/v1/traces`), replay (`/api/replay`), and the debugger (`/api/debugger/*`). The read-only routes (runs, spans, graph, branches, diff, dashboard, integrations), the IDE-events POST, and the trace WebSocket do not carry it — they are protected by the loopback bind itself and by CORS pinned to `localhost:5174`. That is a deliberate split: the guard's Origin check exists to stop a malicious web page from *writing* or *executing*, and the routes without it can do neither. It does mean that if you deliberately bind the backend to a routable interface, the read routes are the ones exposed first.
+
 ## Development-only by design
 
 Husk is a tool you use **while building** an agent, before it ships. That is enforced in code, not just claimed.
@@ -39,11 +41,9 @@ Everything Husk records lives under `~/.husk/` on your machine:
 - `cassettes/`: recorded provider HTTP responses for model-free [replay](./replay.md).
 - `secrets.json`: the automatic debugger's bring-your-own-key config (provider, model, and your provider API key).
 
-`~/.husk` sits outside the repository, so none of it is ever committed. On POSIX systems `secrets.json` is written with `0600` (owner read/write only). Treat `~/.husk` as sensitive: it contains your raw run data and your provider key in cleartext, by design, so that the data stays under your control and never round-trips through a Husk-operated server.
+`~/.husk` sits outside the repository, so none of it is ever committed. On POSIX systems `secrets.json` is written with `0600` (owner read/write only). **On Windows there is no equivalent** — `0600` is a POSIX mode and does not apply, so the file inherits the permissions of your user profile directory. Any process running as you can read it. Treat `~/.husk` as sensitive on every platform: it contains your raw run data and your provider key in cleartext, by design, so that the data stays under your control and never round-trips through a Husk-operated server. Nothing in `~/.husk` is encrypted at rest.
 
 There is no telemetry back to Husk and no cloud account. Deleting `~/.husk` removes all stored state.
-
-`traces.db` is local SQLite by default. You can point the backend at Postgres instead (set `HUSK_DB_URL` and `HUSK_DB_URL_SYNC`), which moves run and span storage to your database server. This changes only where the run data is stored. It does not change the loopback-only guards on ingest, replay, and the debugger, and it does not change the locality of your provider key: `secrets.json` (your bring-your-own-key config) stays on the host under `~/.husk`, never in the database.
 
 ## Secret-shape redaction on ingest
 
@@ -69,14 +69,14 @@ This layer is bring-your-own-key:
 
 - The default provider is **Regolo.ai**: EU-hosted, GDPR-compliant, with zero data retention. Your run data leaves only to an EU provider, and only for analysis.
 - **Anthropic**, **OpenAI**, and **OpenRouter** remain selectable in Settings if you prefer them.
-- Your key is stored locally in `~/.husk/secrets.json` and is never sent to any Husk server. An environment variable (`REGOLO_API_KEY`, `ANTHROPIC_API_KEY`, `OPENAI_API_KEY`) is honored as a fallback so a key already in your shell works without re-entry.
+- Your key is stored locally in `~/.husk/secrets.json` and is never sent to any Husk server. An environment variable (`REGOLO_API_KEY`, `ANTHROPIC_API_KEY`, `OPENAI_API_KEY`) is honored as a fallback so a key already in your shell works without re-entry. **OpenRouter has no environment-variable fallback** — set its key in Settings.
 - The key is never logged and never returned to the UI. The Studio only ever sees `has_key: true/false`, never the key itself.
 
 If you never run the debugger, no data leaves your machine at all. The bundled examples, multi-model attribution, and replay all work with no key.
 
 ## Replay executes code
 
-Replay re-imports and runs your agent's code, so it is treated as a sensitive operation. It stays loopback-only, and it will only import graph modules located under your project directory (or the directories you list in `$HUSK_ALLOWED_GRAPH_DIRS`). This prevents a crafted trace from pointing replay at an arbitrary file on disk. See [Replay](./replay.md) for the execution model and the model-free cassette mode that avoids real provider calls entirely.
+Replay re-imports and runs your agent's code, so it is treated as a sensitive operation. It stays loopback-only, and it will only import graph modules located under your project directory (or the directories you list in `$HUSK_ALLOWED_GRAPH_DIRS`). This prevents a crafted trace from pointing replay at an arbitrary file on disk. A replay request may also carry ephemeral environment overrides (so a run can be replayed with a provider key the backend didn't boot with), and those are restricted to a fixed allow-list of known provider API-key names — a request cannot inject an arbitrary variable into the process. Note the flip side: replay executes in the backend's own process, so the graph it re-imports sees the environment that process already has. See [Replay](./replay.md) for the execution model and the model-free cassette mode that avoids real provider calls entirely.
 
 ## Checklist for a safe setup
 

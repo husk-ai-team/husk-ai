@@ -12,6 +12,24 @@ from rich.table import Table
 from husk import __version__
 from husk.config import db_path, husk_home
 
+
+def _force_utf8_output() -> None:
+    """Make our output survive a non-UTF-8 stdout.
+
+    On Windows, a redirected or piped stdout falls back to the legacy ANSI code
+    page (cp1252), which cannot encode the arrows and middots this CLI prints.
+    `husk-ai export --out FILE | tail` then died with UnicodeEncodeError *after*
+    writing the file — data intact, but a non-zero exit that breaks any script or
+    CI step wrapping it. Degrade unencodable characters instead of crashing.
+    """
+    for stream in (sys.stdout, sys.stderr):
+        try:
+            stream.reconfigure(encoding="utf-8", errors="replace")  # type: ignore[union-attr]
+        except (AttributeError, ValueError):  # not a TextIOWrapper (e.g. captured in tests)
+            pass
+
+
+_force_utf8_output()
 console = Console()
 
 
@@ -185,7 +203,7 @@ def demo(url: str | None) -> None:
     console.print(
         "\n[dim]Next — let your coding agent debug runs for you:[/dim] "
         "[cyan]husk-ai mcp install --client claude-code[/cyan] "
-        "[dim](or cursor · windsurf), then paste[/dim] [cyan]AGENT_PROMPT.md[/cyan]"
+        "[dim](or cursor · windsurf); paste-in prompt in[/dim] [cyan]docs/mcp.md[/cyan]"
     )
 
 
@@ -453,6 +471,47 @@ def export(run_id: str, out_path: str | None) -> None:
         )
     else:
         click.echo(text)
+
+
+@main.command()
+@click.argument("run_id")
+@click.option("--yes", "-y", is_flag=True, help="Skip the confirmation prompt.")
+def delete(run_id: str, yes: bool) -> None:
+    """Delete a single run and everything attached to it.
+
+    The blunt alternative is `husk-ai clean`, which wipes every run you have. Use
+    this to drop one noisy run and keep the rest.
+
+    Replays forked from this run are kept; they just lose their parent pointer.
+    """
+    import shutil
+
+    from husk_studio_backend.config import runs_dir
+    from husk_studio_backend.db.engine import sync_engine, sync_session
+    from husk_studio_backend.db.models import Base, RunRow, SpanRow
+
+    Base.metadata.create_all(sync_engine())
+    with sync_session() as s:
+        run = s.get(RunRow, run_id)
+        if run is None:
+            console.print(f"[red]Run not found:[/red] {run_id}")
+            sys.exit(1)
+        n_spans = s.query(SpanRow).filter(SpanRow.run_id == run_id).count()
+        label = run.script_path or run.framework
+        if not yes:
+            click.confirm(
+                f"Delete run {run_id} ({label}, {n_spans} spans)? This is irreversible.",
+                abort=True,
+            )
+        # Keep the children, drop the dangling parent pointer.
+        for child in s.query(RunRow).filter(RunRow.parent_run_id == run_id).all():
+            child.parent_run_id = None
+            child.fork_span_id = None
+        s.delete(run)
+        s.commit()
+
+    shutil.rmtree(runs_dir() / run_id, ignore_errors=True)
+    console.print(f"[green]Deleted[/green] run {run_id} ({n_spans} spans)")
 
 
 @main.group(invoke_without_command=True)

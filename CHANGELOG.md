@@ -2,6 +2,103 @@
 
 All notable changes, grouped by theme; newest first.
 
+## [0.8.0] — Correctness pass: replay, redaction, and the ingest path — 2026-08-09
+
+An audit of performance, bugs, and features, and the fixes for what it found. Four of the
+defects below were reproduced before being fixed, and every one of them now has a regression
+test. Two behaviour changes to be aware of: a run stays `running` until its root span closes
+(it used to report `success` as soon as any span finished), and the run WebSocket sends its
+backlog as a single `span.replay.batch` frame instead of one `span.replay` per span.
+
+### Fixed — correctness
+- **Replay no longer re-runs your old code.** The replay module cache was keyed on
+  path alone despite a docstring claiming otherwise, pinning the first version of an
+  agent for the life of the backend process. The core loop — analyze, apply the
+  proposed fix to the source, replay to verify — silently re-executed the *pre-fix*
+  module. Now keyed on path + mtime.
+- **Secret redaction missed several key formats.** `sk-[A-Za-z0-9]{20,}` stopped at
+  the first hyphen, so OpenRouter (`sk-or-v1-…`) and OpenAI project (`sk-proj-…`)
+  keys passed through in the clear — OpenRouter being a provider Husk itself
+  supports. Groq (`gsk_…`) and GitHub (`github_pat_…`) formats were not covered at all.
+- **Span attributes bypassed redaction entirely.** Only prompts, completions, and
+  error payloads were scrubbed, yet `attrs` is persisted, served over the API and
+  WebSocket, and included in `husk-ai export` — the bundle the docs recommend
+  attaching to bug reports. Attributes are now redacted, except the `husk.` namespace
+  which Husk reads back operationally.
+- **`PRAGMA foreign_keys` / `WAL` / `synchronous` were never applied to the async
+  engine** — i.e. to the entire running application; only the sync engine got them.
+  `ON DELETE CASCADE` therefore never fired, and every ingest commit paid a full fsync.
+- **Runs reported `success` while still running.** Any finished span completed the
+  whole run, so a live agent showed as finished — which also made the Studio skip the
+  live WebSocket and freeze the timeline mid-flight. A run now completes when its
+  root span closes.
+- **Token counts arriving on a later export were dropped.** Streaming LLM spans often
+  end before their usage is known; the update path ignored it, so those runs
+  under-reported tokens and cost permanently. Updates now apply a delta, so
+  re-exports stay idempotent.
+- **The run WebSocket could lose spans.** History was read before subscribing,
+  leaving a window in which an arriving span reached nobody. It now subscribes first
+  and de-duplicates.
+- **Fire-and-forget auto-debug tasks could be garbage-collected mid-analysis** — no
+  strong reference was held. The one-shot guard set is also bounded now.
+- **`_replay_lock` covered only checkpoint resumes**, leaving the re-invoke paths to
+  race on the same cached module's globals. Its stated rationale was also wrong.
+
+### Fixed — performance
+- **Ingest was N+1**: one `SELECT` per span, and OTel exports up to 512 spans per
+  batch. Replaced with a single bulk id lookup.
+- **Studio JS bundle cut from 1,091 kB to 508 kB** (gzip 375 → 163) by importing
+  `PrismLight` with just the JSON grammar instead of all ~200 Prism languages.
+- **The span list and WebSocket backlog were unbounded** and each span carries full
+  prompt and completion text. Both are now capped, and the backlog ships as one frame
+  instead of one per span.
+- **Removed redundant indexes** on the span/run write path (`run_id` and `started_at`
+  were each covered by an existing composite index).
+- **The runs search box fired a request per keystroke**, each a `LIKE '%…%'` table
+  scan. Debounced.
+- **Background tabs kept polling** on Settings (3s) and Onboarding (2s); the
+  pause-when-hidden rule had only been applied to Dashboard and Runs.
+
+### Added
+- **`husk-ai delete <run_id>`** and `DELETE /api/v1/runs/{run_id}` — remove a single
+  run and everything attached to it. Previously the only option was `husk-ai clean`,
+  which wipes the entire database. Replays forked from the deleted run are kept and
+  lose only their parent pointer. Destructive, so the endpoint sits behind the
+  loopback guard that the read routes do not use.
+- **`AGENTS.md`** — a complete setup runbook written for an AI assistant to follow, so you can
+  point Codex / Claude Code / Cursor (or any chatbot) at the repo and be walked through install
+  one command at a time. Written to work even when the assistant has no shell of its own: every
+  step carries the literal output that means it worked, so it verifies your paste-back instead
+  of guessing. The README shows the prompt to paste.
+
+### Documentation
+- Fixed four links in `docs/replay.md` that all resolved to the README instead of the engine
+  source, the benchmark, and Getting started.
+- `docs/errors-and-insights.md` → **`docs/failed-runs.md`**, and linked from the docs index and
+  the README. It was orphaned, and "insights" named a feature 0.7.0 removed. `docs/ai-layer.md`
+  was also missing from the docs index.
+- Removed the Postgres paragraph from `docs/security.md` — that path left with the multi-tenant
+  layer in 0.7.0.
+- Documented three caveats that were previously written down nowhere in English: the loopback
+  guard covers ingest / replay / debugger but not the read routes, `0600` on `secrets.json` has
+  no Windows equivalent, and OpenRouter has no environment-variable key fallback.
+- `docs/mcp.md`: added the missing `dashboard_summary` tool, the `lovable` remote client, and
+  the `--transport http` path. `docs/cli.md`: dropped an unverifiable semconv version pin.
+- README now states that the benchmark's 100% replay success is 118/118 replays of the failed
+  runs in a 500-run workload, not 500/500.
+
+### Fixed
+- `husk-ai start` logged `Husk starting on…`; it now says `husk-ai starting on…`.
+- `husk-vscode-hook`'s `package` script hardcoded a `0.1.0` filename while the package was at
+  `0.2.0`. Dropped the `--out` flag so vsce derives the name and the drift cannot recur.
+
+### Removed
+- `benchmark/COST_MATRIX.md` — stale generated output from a superseded, smaller run that
+  contradicted the canonical `hero_metrics.json` on both the bypassed-token total and the
+  provider. Regenerate it any time with `benchmark/cost_matrix.py`.
+- A dead `husk = { workspace = true }` entry in the root `[tool.uv.sources]`; the distribution
+  is named `husk-ai` and nothing depends on it.
+
 ## [0.7.0] — Back to a single-user development debugger
 
 Husk is, again, an interactive debugger you use while building an AI agent, before production —

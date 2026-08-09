@@ -1,5 +1,9 @@
-import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
+// See Inspector.tsx: PrismLight + an explicit language, so we don't bundle all ~200.
+import { PrismLight as SyntaxHighlighter } from "react-syntax-highlighter";
+import json from "react-syntax-highlighter/dist/esm/languages/prism/json";
 import { vscDarkPlus } from "react-syntax-highlighter/dist/esm/styles/prism";
+
+SyntaxHighlighter.registerLanguage("json", json);
 
 import { StateDiffView } from "@/components/debugger/StateDiffView";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";

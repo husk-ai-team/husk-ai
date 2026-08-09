@@ -17,7 +17,7 @@
 </p>
 
 <p align="center">
-  <img src="assets/husk-dashboard.png" alt="The Husk Studio dashboard — what ran, and what broke" width="820" />
+  <img src="assets/husk-ai-studio-dashboard.png" alt="The husk-ai Studio dashboard — what ran, and what broke" width="820" />
 </p>
 
 ---
@@ -55,6 +55,20 @@ refused at the door. Husk is not, and cannot be, production monitoring.
 - **Modify and replay.** Re-run from the broken step with edited state, skipping the upstream
   token cost. See [docs/replay.md](docs/replay.md).
 
+### Inside the Studio
+
+<p align="center">
+  <img src="assets/husk-ai-studio-runs.png" alt="husk-ai Studio — the runs list, with the model, status, duration, tokens, and cost of every run" width="820" />
+</p>
+
+<p align="center">
+  <img src="assets/husk-ai-studio-run-detail.png" alt="husk-ai Studio — a single run as a node graph, with the per-node state diff and the replays forked from it" width="820" />
+</p>
+
+<p align="center">
+  <img src="assets/husk-ai-studio-replay.png" alt="husk-ai Studio — modify and replay: edit the state at any checkpoint and re-run from there" width="820" />
+</p>
+
 ## Quick start
 
 ```bash
@@ -76,12 +90,28 @@ That one line is the only code step. Everything after — understanding a run, f
 failed, fixing it — happens in the Studio, in plain language. Full setup and frameworks:
 [docs/getting-started.md](docs/getting-started.md) and [docs/instrumentation.md](docs/instrumentation.md).
 
+## Or let an AI agent set it up for you
+
+[AGENTS.md](AGENTS.md) is a complete setup runbook written for an AI assistant to follow. Paste
+this into Codex, Claude Code, Cursor, or any chatbot:
+
+```text
+Clone https://github.com/husk-ai-team/husk-ai and follow its AGENTS.md step by step.
+Give me one command at a time and wait for my output before moving on.
+```
+
+It works even with an assistant that has no terminal of its own — every step comes with the
+exact output that means it worked, so the assistant can check your paste-back instead of
+guessing. It covers prerequisites, install, connecting your own agent, MCP, Docker, and a
+failure table keyed on literal error messages.
+
 ## The numbers
 
 Husk's replay engine resumes a recorded run at the failing step and re-executes only that
 step and its successors, deterministically skipping the upstream work. On a committed
-500-run benchmark: **mean token bypass 42.1%**, **median 6.9× speed-up**, **100% replay
-success**. Reproduce them offline, no API key:
+500-run benchmark, replaying each of the 118 runs that failed: **mean token bypass 42.1%**,
+**median 6.9× speed-up**, **100% replay success (118/118)**. Reproduce them offline, no API
+key:
 
 ```bash
 uv run python benchmark/reproduce.py
@@ -92,10 +122,11 @@ Methodology: the [benchmark README](benchmark/README.md).
 ## Documentation
 
 - [Getting started](docs/getting-started.md) · [Instrumentation & frameworks](docs/instrumentation.md)
-- [Multi-model debugging](docs/multi-model.md) · [Automatic debugger](docs/ai-layer.md)
+- [Failed runs](docs/failed-runs.md) · [Multi-model debugging](docs/multi-model.md) · [Automatic debugger](docs/ai-layer.md)
 - [Modify & replay](docs/replay.md) · [MCP](docs/mcp.md) · [Docker](docs/docker.md)
 - [Security & data](docs/security.md) · [Architecture](docs/architecture.md)
 - [CLI](docs/cli.md) · [Troubleshooting](docs/troubleshooting.md) · [Glossary](docs/glossary.md)
+- [AGENTS.md](AGENTS.md) — the setup runbook an AI assistant can follow for you
 
 ## Security
 

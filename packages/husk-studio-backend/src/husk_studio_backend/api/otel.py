@@ -18,9 +18,11 @@ from __future__ import annotations
 
 import json
 import logging
+from collections.abc import Iterator, Sequence
 from typing import Any
 
 from fastapi import APIRouter, HTTPException, Request, Response
+from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from husk_shared.pricing import cost_usd
@@ -79,10 +81,22 @@ async def ingest_traces(request: Request) -> Response:
     project_id = getattr(request.state, "project_id", None)
 
     async with async_session() as session:
+        # One query for every span id in the batch, instead of a SELECT per span.
+        # OTel's BatchSpanProcessor exports up to 512 spans at a time, so the
+        # per-span `session.get` this replaces meant ~512 round trips per export
+        # on the hottest write path in the product.
+        all_ids = [s.id for s in spans]
+        existing_ids: set[str] = set()
+        for chunk in _chunks(all_ids, 500):  # stay under SQLite's variable limit
+            found = (
+                await session.execute(select(SpanRow.id).where(SpanRow.id.in_(chunk)))
+            ).scalars().all()
+            existing_ids.update(found)
+
         for run_id, run_spans in by_run.items():
             await _upsert_run(session, run_id, run_spans, project_id)
             for s in run_spans:
-                added = await _upsert_span(session, s)
+                added = await _upsert_span(session, s, known_existing=s.id in existing_ids)
                 if added:
                     persisted_for_broadcast.append((s.run_id, _serialize(s)))
         await session.commit()
@@ -131,18 +145,39 @@ async def _upsert_run(
         row.project_id = project_id
 
     # Roll forward finish time + status.
+    #
+    # A run is only complete when its ROOT span closes. Treating "any span finished"
+    # as "run finished" reports success while the agent is still working: OTLP
+    # arrives in batches, and the first batch normally carries finished child spans
+    # under a root that is still open. That premature `success` also makes the
+    # Studio skip the live WebSocket for the run, freezing the timeline mid-flight.
+    #
+    # This works with OTel's export order rather than against it: a span is exported
+    # when it ends, so the root ends last and its arrival IS the completion signal.
+    # While the agent is mid-flight the root simply hasn't been exported yet.
+    root_finish = max(
+        (s.finished_at_ms or 0 for s in spans if s.parent_span_id is None),
+        default=0,
+    )
+
     latest_finish = max((s.finished_at_ms or 0) for s in spans)
     if latest_finish and (row.finished_at is None or latest_finish > row.finished_at):
         row.finished_at = latest_finish
     if any(s.status == "error" for s in spans):
         row.status = "error"
-    elif latest_finish and row.status == "running":
+    elif root_finish and row.status == "running":
         row.status = "success"
 
 
-async def _upsert_span(session: AsyncSession, s: ParsedSpan) -> bool:
-    """Insert a new span or update terminal fields. Returns True if newly inserted."""
-    existing = await session.get(SpanRow, s.id)
+async def _upsert_span(
+    session: AsyncSession, s: ParsedSpan, *, known_existing: bool | None = None
+) -> bool:
+    """Insert a new span or update terminal fields. Returns True if newly inserted.
+
+    ``known_existing`` comes from the caller's single bulk id lookup; when it is
+    False we skip the per-span SELECT entirely.
+    """
+    existing = None if known_existing is False else await session.get(SpanRow, s.id)
     cost = cost_usd(s.model, s.tokens_in, s.tokens_out)
 
     if existing is None:
@@ -184,7 +219,34 @@ async def _upsert_span(session: AsyncSession, s: ParsedSpan) -> bool:
         existing.status = s.status
     if existing.output_inline is None and s.output_inline:
         existing.output_inline = s.output_inline
+
+    # Usage often lands on a later export of the same span (streaming LLM spans
+    # end before their token counts are known). Without this the counts are
+    # dropped for good and every run under-reports its tokens and cost. Apply the
+    # delta to the run totals so re-exports stay idempotent rather than double-counting.
+    run = None
+    for field, incoming in (("tokens_in", s.tokens_in), ("tokens_out", s.tokens_out)):
+        if incoming is None or incoming == (getattr(existing, field) or 0):
+            continue
+        delta = incoming - (getattr(existing, field) or 0)
+        setattr(existing, field, incoming)
+        run = run or await session.get(RunRow, s.run_id)
+        if run is not None:
+            total = f"total_{field}"
+            setattr(run, total, max(0, (getattr(run, total) or 0) + delta))
+
+    if cost is not None and cost != (existing.cost_usd or 0.0):
+        cost_delta = cost - (existing.cost_usd or 0.0)
+        existing.cost_usd = cost
+        run = run or await session.get(RunRow, s.run_id)
+        if run is not None:
+            run.total_cost_usd = max(0.0, (run.total_cost_usd or 0.0) + cost_delta)
     return False
+
+
+def _chunks(items: Sequence[str], size: int) -> Iterator[Sequence[str]]:
+    for i in range(0, len(items), size):
+        yield items[i : i + size]
 
 
 def _serialize(s: ParsedSpan) -> dict[str, Any]:

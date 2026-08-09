@@ -3,7 +3,9 @@
 from __future__ import annotations
 
 import json
+import os
 import subprocess
+import sys
 from pathlib import Path
 
 import pytest
@@ -127,3 +129,110 @@ def test_export_unknown_run_errors() -> None:
     res = CliRunner().invoke(cli.main, ["export", "does-not-exist"])
     assert res.exit_code == 1
     assert "not found" in res.output.lower()
+
+
+def _seed_run(run_id: str, *, parent: str | None = None) -> None:
+    """Insert a run (plus one span) straight into the local DB."""
+    from husk_studio_backend.db.engine import sync_engine, sync_session
+    from husk_studio_backend.db.models import Base, RunRow, SpanRow
+
+    Base.metadata.create_all(sync_engine())
+    with sync_session() as s:
+        s.add(
+            RunRow(
+                id=run_id,
+                script_path="agent.py",
+                framework="otel/test",
+                status="success",
+                started_at=1,
+                parent_run_id=parent,
+            )
+        )
+        s.add(
+            SpanRow(
+                id=f"span-{run_id}", run_id=run_id, kind="llm", name="call", started_at=1
+            )
+        )
+        s.commit()
+
+
+def test_delete_removes_the_run_and_its_spans(isolated_home: Path) -> None:
+    """Before this command the only way to drop a run was `husk-ai clean`, which
+    wipes the whole database."""
+    import husk.cli as cli
+    from husk_studio_backend.db.engine import sync_session
+    from husk_studio_backend.db.models import RunRow, SpanRow
+
+    _seed_run("run-a")
+    res = CliRunner().invoke(cli.main, ["delete", "run-a", "--yes"])
+    assert res.exit_code == 0, res.output
+
+    with sync_session() as s:
+        assert s.get(RunRow, "run-a") is None
+        assert s.query(SpanRow).filter(SpanRow.run_id == "run-a").count() == 0
+
+
+def test_delete_keeps_replays_forked_from_the_deleted_run(isolated_home: Path) -> None:
+    import husk.cli as cli
+    from husk_studio_backend.db.engine import sync_session
+    from husk_studio_backend.db.models import RunRow
+
+    _seed_run("parent-1")
+    _seed_run("child-1", parent="parent-1")
+
+    res = CliRunner().invoke(cli.main, ["delete", "parent-1", "--yes"])
+    assert res.exit_code == 0, res.output
+
+    with sync_session() as s:
+        child = s.get(RunRow, "child-1")
+        assert child is not None, "deleting a parent must not destroy its replays"
+        assert child.parent_run_id is None
+
+
+def test_delete_aborts_without_confirmation(isolated_home: Path) -> None:
+    import husk.cli as cli
+    from husk_studio_backend.db.engine import sync_session
+    from husk_studio_backend.db.models import RunRow
+
+    _seed_run("run-b")
+    res = CliRunner().invoke(cli.main, ["delete", "run-b"], input="n\n")
+    assert res.exit_code != 0
+    with sync_session() as s:
+        assert s.get(RunRow, "run-b") is not None
+
+
+def test_delete_unknown_run_exits_nonzero(isolated_home: Path) -> None:
+    import husk.cli as cli
+
+    res = CliRunner().invoke(cli.main, ["delete", "nope", "--yes"])
+    assert res.exit_code == 1
+    assert "not found" in res.output.lower()
+
+
+def test_export_survives_a_non_utf8_stdout(isolated_home: Path, tmp_path: Path) -> None:
+    """`husk-ai export --out FILE` wrote the file and then died with
+    UnicodeEncodeError on the success message, because a redirected stdout on
+    Windows falls back to cp1252 and the message contains an arrow. The file was
+    fine but the non-zero exit broke any script wrapping the command."""
+    # The sync engine is cached module-wide, so it may still point at a previous
+    # test's HUSK_HOME. Reset it so the seed lands in the home the subprocess reads.
+    from husk_studio_backend.db import engine as _engine
+
+    _engine._sync_engine = None
+    _engine._sync_factory = None
+
+    _seed_run("run-utf8")
+    out = tmp_path / "bundle.json"
+    env = {
+        **os.environ,
+        "HUSK_HOME": str(isolated_home),
+        "PYTHONIOENCODING": "cp1252",  # reproduce the legacy Windows console
+    }
+    proc = subprocess.run(
+        [sys.executable, "-m", "husk", "export", "run-utf8", "--out", str(out)],
+        capture_output=True,
+        env=env,
+    )
+    assert proc.returncode == 0, proc.stderr.decode("utf-8", "replace")
+    assert out.exists()
+    assert json.loads(out.read_text(encoding="utf-8"))["run"]["id"] == "run-utf8"

@@ -38,7 +38,8 @@ export interface Span {
 }
 
 export type RunEvent =
-  | { type: "span.replay"; span: Span }
+  // The backlog a late-joining client receives, as one frame rather than one per span.
+  | { type: "span.replay.batch"; spans: Span[] }
   | { type: "span.created"; run_id: string; span: Span }
   | { type: "ping" };
 

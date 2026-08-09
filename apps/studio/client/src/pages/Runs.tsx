@@ -16,6 +16,7 @@ import { ArrowLeft, ArrowRight, ListIcon, Search } from "lucide-react";
 const STATUS_FILTERS = ["", "success", "error", "running"] as const;
 
 const POLL_MS = 3000;
+const SEARCH_DEBOUNCE_MS = 250;
 
 export default function Runs() {
   const [, setLocation] = useLocation();
@@ -23,14 +24,22 @@ export default function Runs() {
   const [runs, setRuns] = useState<Run[] | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [q, setQ] = useState("");
+  const [debouncedQ, setDebouncedQ] = useState("");
   const [statusFilter, setStatusFilter] = useState<string>(
     () => new URLSearchParams(search).get("status") ?? "",
   );
 
+  // The query hits a LIKE '%…%' scan server-side, so firing it per keystroke means
+  // a full table scan for every character typed. Settle first, then search.
+  useEffect(() => {
+    const t = setTimeout(() => setDebouncedQ(q), SEARCH_DEBOUNCE_MS);
+    return () => clearTimeout(t);
+  }, [q]);
+
   useEffect(() => {
     let alive = true;
     const load = () => {
-      getRuns({ q: q || undefined, status: statusFilter || undefined })
+      getRuns({ q: debouncedQ || undefined, status: statusFilter || undefined })
         .then((r) => alive && setRuns(r))
         .catch((e) => alive && setError(String(e)));
     };
@@ -42,7 +51,7 @@ export default function Runs() {
       alive = false;
       clearInterval(t);
     };
-  }, [q, statusFilter]);
+  }, [debouncedQ, statusFilter]);
 
   return (
     <section className="husk-rise px-6 md:px-12 pt-12 md:pt-16 pb-20 max-w-6xl mx-auto">

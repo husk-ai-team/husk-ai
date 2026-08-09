@@ -111,7 +111,10 @@ export default function Settings() {
         .then((s) => alive && setStatus(s))
         .catch(() => {});
     tick();
-    const t = setInterval(tick, 3000);
+    // Pause the recurring poll in a background tab (same rule as Dashboard/Runs).
+    const t = setInterval(() => {
+      if (!document.hidden) tick();
+    }, 3000);
     return () => {
       alive = false;
       clearInterval(t);

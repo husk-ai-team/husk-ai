@@ -27,11 +27,16 @@ log = logging.getLogger(__name__)
 # user PII.
 _REDACTED = "***REDACTED***"
 _TOKEN_PATTERNS = [
-    re.compile(r"sk-ant-[A-Za-z0-9_-]{20,}"),  # Anthropic
-    re.compile(r"sk-[A-Za-z0-9]{20,}"),  # OpenAI-style
+    # One `sk-` rule for every provider that uses the prefix. The character class
+    # MUST include `-` and `_`: OpenRouter keys are `sk-or-v1-…` and OpenAI project
+    # keys are `sk-proj-…`, so an alphanumeric-only class stops at the first hyphen
+    # and leaves the key in the clear. This also subsumes Anthropic's `sk-ant-…`.
+    re.compile(r"sk-[A-Za-z0-9_-]{20,}"),
+    re.compile(r"gsk_[A-Za-z0-9]{20,}"),  # Groq
     re.compile(r"AKIA[0-9A-Z]{16}"),  # AWS access key id
     re.compile(r"AIza[0-9A-Za-z_-]{35}"),  # Google API key
-    re.compile(r"ghp_[A-Za-z0-9]{36}"),  # GitHub PAT
+    re.compile(r"github_pat_[A-Za-z0-9_]{20,}"),  # GitHub fine-grained PAT
+    re.compile(r"gh[pousr]_[A-Za-z0-9]{36}"),  # GitHub classic PAT / OAuth / refresh
     re.compile(r"xox[baprs]-[A-Za-z0-9-]{10,}"),  # Slack
     re.compile(r"(?i)bearer\s+[A-Za-z0-9._\-]{12,}"),  # Authorization: Bearer ...
 ]
@@ -57,10 +62,29 @@ def _redact(obj: Any) -> Any:
     return obj
 
 
+def _redaction_disabled() -> bool:
+    return os.environ.get("HUSK_NO_REDACT", "").strip().lower() in {"1", "true", "yes", "on"}
+
+
 def _maybe_redact(obj: Any) -> Any:
-    if os.environ.get("HUSK_NO_REDACT", "").strip().lower() in {"1", "true", "yes", "on"}:
+    if _redaction_disabled():
         return obj
     return _redact(obj)
+
+
+def _redact_attrs(attrs: dict[str, Any]) -> dict[str, Any]:
+    """Redact span attributes, leaving Husk's own control attributes verbatim.
+
+    Attributes are persisted, served over the API and WebSocket, and included in
+    `husk-ai export` — the bundle we tell people to attach to bug reports — so they
+    need the same scrub as prompts and completions. The `husk.` namespace is exempt
+    because Husk sets those values itself and reads them back operationally
+    (`husk.graph_module` is a filesystem path that replay must import); scrubbing a
+    path that happened to contain e.g. `secret=` would silently break replay.
+    """
+    if _redaction_disabled():
+        return attrs
+    return {k: (v if k.startswith("husk.") else _redact(v)) for k, v in attrs.items()}
 
 
 def decode_attr_value(v: dict[str, Any]) -> Any:
@@ -261,7 +285,7 @@ def parse_otlp_traces(body: dict[str, Any]) -> list[ParsedSpan]:
                             span_attrs.get("gen_ai.response.model")
                             or span_attrs.get("gen_ai.request.model")
                         ),
-                        attrs={**span_attrs, "_resource": resource_attrs},
+                        attrs={**_redact_attrs(span_attrs), "_resource": resource_attrs},
                         error_payload=_maybe_redact(err_payload),
                         service_name=service_name,
                         gen_ai_system=span_attrs.get("gen_ai.system"),

@@ -150,7 +150,11 @@ export default function RunDetail() {
     let alive = true;
     const ws = subscribeRun(runId, (ev: RunEvent) => {
       if (!alive) return;
-      if (ev.type === "span.replay" || ev.type === "span.created") {
+      if (ev.type === "span.replay.batch") {
+        if (!ev.spans.length) return;
+        setSpans((prev) => mergeSpans(prev, ev.spans));
+        setSelectedId((sel) => sel ?? ev.spans[0].id);
+      } else if (ev.type === "span.created") {
         setSpans((prev) => mergeSpan(prev, ev.span));
         setSelectedId((sel) => sel ?? ev.span.id);
       }
@@ -382,15 +386,26 @@ function ObservabilityOnly({ onTimeline }: { onTimeline: () => void }) {
 }
 
 function mergeSpan(prev: Span[], incoming: Span): Span[] {
-  const idx = prev.findIndex((s) => s.id === incoming.id);
-  if (idx === -1) {
-    const next = [...prev, incoming];
-    next.sort((a, b) => a.started_at - b.started_at);
-    return next;
+  return mergeSpans(prev, [incoming]);
+}
+
+// One pass over the incoming batch instead of a findIndex + sort per span, which
+// is O(n²) on the backlog a late-joining client receives for a long run.
+function mergeSpans(prev: Span[], incoming: Span[]): Span[] {
+  if (!incoming.length) return prev;
+  const byId = new Map(prev.map((s) => [s.id, s]));
+  let added = false;
+  for (const span of incoming) {
+    const existing = byId.get(span.id);
+    if (existing) byId.set(span.id, { ...existing, ...span });
+    else {
+      byId.set(span.id, span);
+      added = true;
+    }
   }
-  const copy = prev.slice();
-  copy[idx] = { ...copy[idx], ...incoming };
-  return copy;
+  const next = Array.from(byId.values());
+  if (added) next.sort((a, b) => a.started_at - b.started_at);
+  return next;
 }
 
 function Panel({

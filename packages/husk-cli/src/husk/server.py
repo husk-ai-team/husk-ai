@@ -63,7 +63,7 @@ def start_server(
         url = f"http://localhost:{port}"
         threading.Timer(1.2, lambda: open_browser_at(url)).start()
 
-    log.info("Husk starting on http://%s:%d", host, port)
+    log.info("husk-ai starting on http://%s:%d", host, port)
     config = uvicorn.Config(
         "husk_studio_backend.main:app",
         host=host,

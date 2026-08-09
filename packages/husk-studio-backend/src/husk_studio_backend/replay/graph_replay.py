@@ -25,7 +25,9 @@ from typing import Any
 log = logging.getLogger(__name__)
 
 _import_lock = threading.Lock()
-_module_cache: dict[str, Any] = {}
+# path -> (mtime_ns, module). The mtime is part of the value, not just the key, so a
+# re-import evicts the previous module instead of growing the dict forever.
+_module_cache: dict[str, tuple[int, Any]] = {}
 
 
 class GraphModuleNotAllowed(PermissionError):
@@ -63,24 +65,32 @@ def _check_allowed(p: Path) -> None:
         f"(cwd or $HUSK_ALLOWED_GRAPH_DIRS); refusing to import"
     )
 
-# Serialises checkpoint-resume replays. The cached graph module shares a single
-# snapshot-store connection, so concurrent resumes on the same thread (possible
-# via the HTTP endpoint's asyncio.to_thread) could interleave snapshot reads and
-# writes and corrupt the resume. The benchmark CLI is sequential.
-_replay_lock = threading.Lock()
+# Serialises ALL replays, not just checkpoint resumes. Every replay re-enters the
+# same cached module object, so two concurrent replays share that module's globals
+# (the HuskAgent instance, its snapshot store, any module-level state the user's
+# graph keeps). Interleaving them corrupts both runs. This covers the re-invoke
+# paths too — they mutate exactly the same module state as a resume does.
+_replay_lock = threading.RLock()
 
 
 def _load_module(path: str) -> Any:
-    """Import a Python file by absolute path; cache by mtime."""
+    """Import a Python file by absolute path, re-importing when the file changes.
+
+    The cache is keyed by path AND mtime. Caching on path alone would pin the first
+    version of the agent for the life of the backend process, so the core debugging
+    loop — analyze, apply the proposed fix to the source, replay to check it — would
+    re-execute the *pre-fix* code and silently report the old behaviour.
+    """
     p = Path(path)
     _check_allowed(p)  # refuse to import code from outside the allowed roots
     if not p.exists():
         raise FileNotFoundError(f"Graph file not found: {path}")
     key = str(p.resolve())
+    mtime = p.stat().st_mtime_ns
     with _import_lock:
         cached = _module_cache.get(key)
-        if cached is not None:
-            return cached
+        if cached is not None and cached[0] == mtime:
+            return cached[1]
         spec = importlib.util.spec_from_file_location(
             f"husk_graph_{p.stem}_{uuid.uuid4().hex[:8]}", str(p)
         )
@@ -96,7 +106,7 @@ def _load_module(path: str) -> Any:
                 sys.path.remove(str(p.parent.parent))
             except ValueError:
                 pass
-        _module_cache[key] = module
+        _module_cache[key] = (mtime, module)
         return module
 
 
@@ -144,11 +154,11 @@ def replay_graph(
                 return m
         return None
 
-    # Preferred path: a true checkpoint resume that skips the upstream nodes.
-    if parent_thread_id and fork_node:
-        replay_from = _resolve("replay_from")
-        if replay_from is not None:
-            with _replay_lock:
+    with _replay_lock:
+        # Preferred path: a true checkpoint resume that skips the upstream nodes.
+        if parent_thread_id and fork_node:
+            replay_from = _resolve("replay_from")
+            if replay_from is not None:
                 resumed: dict[str, Any] = replay_from(
                     state_override=state_override,
                     parent_thread_id=parent_thread_id,
@@ -156,26 +166,30 @@ def replay_graph(
                 )
                 return resumed
 
-    if target is None:
-        raise AttributeError(f"{path} has no attribute {symbol!r}")
+        if target is None:
+            raise AttributeError(f"{path} has no attribute {symbol!r}")
 
-    tid = new_thread_id or str(uuid.uuid4())
+        tid = new_thread_id or str(uuid.uuid4())
 
-    # Preferred path: an `invoke(state, thread_id=...)` on the module or the agent.
-    fn = _resolve("invoke")
-    if fn is not None and fn is not target:
-        invoked: dict[str, Any] = fn(state_override, thread_id=tid)
-        return invoked
+        # Preferred path: an `invoke(state, thread_id=...)` on the module or the agent.
+        fn = _resolve("invoke")
+        if fn is not None and fn is not target:
+            invoked: dict[str, Any] = fn(state_override, thread_id=tid)
+            return invoked
 
-    # Otherwise treat the symbol as a graph object exposing `.invoke`.
-    if hasattr(target, "invoke"):
-        config = {"configurable": {"thread_id": tid}}
-        result = target.invoke(state_override, config=config)
-        return {"thread_id": tid, "state": dict(result) if hasattr(result, "items") else result}
+        # Otherwise treat the symbol as a graph object exposing `.invoke`.
+        if hasattr(target, "invoke"):
+            config = {"configurable": {"thread_id": tid}}
+            result = target.invoke(state_override, config=config)
+            return {
+                "thread_id": tid,
+                "state": dict(result) if hasattr(result, "items") else result,
+            }
 
-    if callable(target):
-        return {"thread_id": tid, "state": target(state_override)}
+        if callable(target):
+            return {"thread_id": tid, "state": target(state_override)}
 
-    raise TypeError(
-        f"{symbol!r} is not invokable: expected a graph or callable, got {type(target).__name__}"
-    )
+        raise TypeError(
+            f"{symbol!r} is not invokable: expected a graph or callable, "
+            f"got {type(target).__name__}"
+        )

@@ -90,7 +90,10 @@ export default function Onboarding() {
     const tick = () =>
       getIntegrationsStatus().then((s) => alive && setStatus(s)).catch(() => {});
     tick();
-    const t = setInterval(tick, POLL_MS);
+    // Pause the recurring poll in a background tab (same rule as Dashboard/Runs).
+    const t = setInterval(() => {
+      if (!document.hidden) tick();
+    }, POLL_MS);
     return () => {
       alive = false;
       clearInterval(t);

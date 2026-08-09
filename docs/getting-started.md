@@ -109,5 +109,7 @@ All runtime data lives under `~/.husk/` on your machine: the SQLite trace databa
 ## Next steps
 
 - Stuck on install or a blank timeline? [Troubleshooting](./troubleshooting.md).
-- The full command list, OS-by-OS setup, and the Cursor IDE bridge live in the [README](../README.md).
+- Every `husk-ai` command and flag: the [CLI reference](./cli.md).
+- Streaming your editor's activity in too: the [Cursor bridge](../packages-npm/husk-cursor-hook/README.md) and the [VS Code bridge](../packages-npm/husk-vscode-hook/README.md).
+- Want an AI assistant to walk you through all of this instead? Hand it [AGENTS.md](../AGENTS.md).
 - New here? `uv run husk-ai doctor` prints your version, paths, and a health check when something feels off.

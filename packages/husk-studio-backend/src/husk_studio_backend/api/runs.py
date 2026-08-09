@@ -1,10 +1,13 @@
 from __future__ import annotations
 
+import shutil
 from typing import Any
 
-from fastapi import APIRouter, HTTPException
-from sqlalchemy import case, desc, func, select
+from fastapi import APIRouter, Depends, HTTPException
+from sqlalchemy import case, desc, func, select, update
 
+from husk_studio_backend.api._guard import local_only
+from husk_studio_backend.config import runs_dir
 from husk_studio_backend.db.engine import async_session
 from husk_studio_backend.db.models import RunRow, SpanRow
 
@@ -65,6 +68,40 @@ async def get_run(run_id: str) -> dict[str, Any]:
             raise HTTPException(status_code=404, detail="run not found")
         models = (await _models_for_runs(s, [run_id])).get(run_id, [])
         return _serialize(row, models)
+
+
+@router.delete("/{run_id}", dependencies=[Depends(local_only)], status_code=204)
+async def delete_run(run_id: str) -> None:
+    """Delete one run and everything attached to it.
+
+    Until this existed the only way to remove a run was `husk-ai clean`, which wipes
+    the entire database — too blunt when one noisy run is in the way. Deleting is
+    destructive, so unlike the read routes this one sits behind the loopback guard.
+
+    Spans, snapshots, branches, cassettes, and debug reports go with it via
+    ``ON DELETE CASCADE`` (``PRAGMA foreign_keys=ON`` is set per connection).
+    Replays forked *from* this run are kept and simply lose their parent pointer —
+    silently destroying a user's replays because they deleted the original would be
+    a nasty surprise.
+    """
+    async with async_session() as s:
+        row = await s.get(RunRow, run_id)
+        if row is None:
+            raise HTTPException(status_code=404, detail="run not found")
+        await s.execute(
+            update(RunRow)
+            .where(RunRow.parent_run_id == run_id)
+            .values(parent_run_id=None, fork_span_id=None)
+        )
+        await s.delete(row)
+        await s.commit()
+
+    # Best-effort: the on-disk payloads (inputs/outputs/snapshots/cassettes).
+    # The DB row is already gone, so a filesystem error must not fail the request.
+    try:
+        shutil.rmtree(runs_dir() / run_id, ignore_errors=True)
+    except OSError:  # pragma: no cover - defensive
+        pass
 
 
 @router.get("/{run_id}/breakdown")

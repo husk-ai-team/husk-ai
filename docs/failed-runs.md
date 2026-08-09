@@ -69,6 +69,6 @@ Everything here is computed from runs in your own database on your own machine. 
 
 ## Where to go next
 
-- Connecting an agent so its runs show up here is a one-line SDK / OpenTelemetry setup step: [README](../README.md).
+- Connecting an agent so its runs show up here is a one-line SDK / OpenTelemetry setup step: [Instrumentation](./instrumentation.md).
 - Which model ran each step, and what each cost: [multi-model](./multi-model.md).
 - Re-run a failed run from the broken step with an edited state: [modify & replay](./replay.md).

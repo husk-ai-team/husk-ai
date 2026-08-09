@@ -10,7 +10,7 @@ Not every run can be re-executed. Whether a recorded run can actually run again 
 
 | Tier | Applies to | What happens |
 |---|---|---|
-| **TRUE replay** | Runs on Husk's own engine ([`husk_shared.engine`](../README.md), see `examples/husk_thread.py`) | Husk re-executes the agent from a checkpoint with your edited state. New spans, new completions, a real new run. |
+| **TRUE replay** | Runs on Husk's own engine ([`husk_shared.engine`](../packages/husk-shared/src/husk_shared/engine.py), see `examples/husk_thread.py`) | Husk re-executes the agent from a checkpoint with your edited state. New spans, new completions, a real new run. |
 | **VISUAL step-through** | Observability-only runs ingested over OpenTelemetry (no graph module) | Husk replays the recorded timeline so you can scrub through it. It cannot re-execute, because there is no code to call. |
 
 The rule is simple: Husk can re-execute a run only when it owns (or can re-import) the code that produced it. A run that arrived as pure OTel telemetry is a recording, not a program, so the most Husk can do is let you step through what already happened.
@@ -47,7 +47,7 @@ To replay it:
 
 A new run appears with the Tokyo answer. Husk resumes from the snapshot before `answerer`, so only `answerer` re-runs, the upstream `planner` is skipped, and the original run is preserved.
 
-This checkpoint-resume path is the one the [benchmark](../README.md) measures: re-executing only the failing node and its successors bypasses a mean **42.1%** of token cost (token-weighted 55.0%) with **100%** replay success across 118 replays.
+This checkpoint-resume path is the one the [benchmark](../benchmark/README.md) measures: across a 500-run workload, each of the 118 runs that failed was replayed from its failing node. Re-executing only that node and its successors bypasses a mean **42.1%** of token cost (token-weighted 55.0%) with **100%** replay success (118/118).
 
 ### Re-invoke: the default for runs with a graph module
 
@@ -61,7 +61,7 @@ Most agents reach Husk as OpenTelemetry telemetry. You point the agent's OTel ex
 
 For them, replay means stepping through the recording: walk the timeline node by node, inspect each prompt, completion, tool call, token count, and cost, and read the per-step state. You see exactly what the agent did, but you cannot fork a new path, because the code that produced it is not available to Husk.
 
-This is the honest ceiling of observability-only ingestion. To unlock TRUE replay for an agent, give it a graph module (set `husk.graph_module` on the root span) or run it on Husk's own engine. See [Getting started](../README.md) for the one-line wiring.
+This is the honest ceiling of observability-only ingestion. To unlock TRUE replay for an agent, give it a graph module (set `husk.graph_module` on the root span) or run it on Husk's own engine. See [Getting started](./getting-started.md) for the one-line wiring.
 
 ## Branching
 
@@ -118,4 +118,6 @@ Replay executes code, so it is gated for safety: the Studio will only import gra
 
 ## See also
 
-- [README](../README.md) — install Husk, wire an agent, and the full benchmark methodology.
+- [Getting started](./getting-started.md) — install Husk and wire an agent.
+- [Benchmark](../benchmark/README.md) — the full methodology behind the numbers above.
+- [Security & data](./security.md) — why replay is gated, and what it is allowed to import.

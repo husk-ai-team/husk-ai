@@ -117,3 +117,13 @@ my-video/
 # kept locally for a future private edition, never committed to the public repo.
 /enterprise/
 
+# Marketing material (overview copy, the Remotion ad project). Local-only: the ad
+# carries its own node_modules with a bundled headless-Chrome binary and rendered
+# .mp4 output, none of which belongs in the product repo.
+/marketing/
+
+# Vendored Remotion/mediabunny agent skills pulled for the marketing video above
+# (101 files, ~half of them byte-duplicates). Nothing here relates to Husk itself.
+/.agents/
+/skills-lock.json
+

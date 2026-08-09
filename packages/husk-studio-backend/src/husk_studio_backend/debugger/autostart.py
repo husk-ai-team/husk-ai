@@ -17,6 +17,11 @@ from husk_studio_backend.db.models import RunRow
 log = logging.getLogger(__name__)
 
 _triggered: set[str] = set()
+# asyncio only holds a weak reference to a running task, so a fire-and-forget task
+# can be garbage-collected mid-analysis. Keep a strong reference until it finishes.
+_tasks: set[asyncio.Task[None]] = set()
+# Bound the one-shot guard so a long-lived backend doesn't accumulate run ids forever.
+_MAX_TRIGGERED = 5000
 
 
 async def maybe_autostart(run_id: str) -> None:
@@ -34,11 +39,19 @@ async def maybe_autostart(run_id: str) -> None:
     if run is None or run.status != "error":
         return
     if await report.latest_report(run_id) is not None:
-        _triggered.add(run_id)
+        _mark_triggered(run_id)
         return
 
+    _mark_triggered(run_id)
+    task = asyncio.create_task(_run(run_id))
+    _tasks.add(task)
+    task.add_done_callback(_tasks.discard)
+
+
+def _mark_triggered(run_id: str) -> None:
+    if len(_triggered) >= _MAX_TRIGGERED:
+        _triggered.clear()
     _triggered.add(run_id)
-    asyncio.create_task(_run(run_id))
 
 
 async def _run(run_id: str) -> None:

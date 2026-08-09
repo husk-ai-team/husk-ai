@@ -108,9 +108,11 @@ curl 'http://localhost:7654/api/debugger/models?provider=regolo'   # models for 
 ```
 
 **Bring your own key, stored locally.** Your key lives in `~/.husk/secrets.json` on your
-machine (chmod 0600 on POSIX), outside the repo, never committed and never logged. An
-environment variable (`REGOLO_API_KEY`, `ANTHROPIC_API_KEY`, `OPENAI_API_KEY`) is honored as
-a fallback so a key already in your shell works without re-entry. The config endpoint reports
+machine (chmod 0600 on POSIX; Windows has no equivalent, so the file inherits your profile
+directory's permissions), outside the repo, never committed and never logged. An environment
+variable (`REGOLO_API_KEY`, `ANTHROPIC_API_KEY`, `OPENAI_API_KEY`) is honored as a fallback so a
+key already in your shell works without re-entry. **OpenRouter is the exception — it has no
+environment-variable fallback, so its key must be set in Settings.** The config endpoint reports
 `has_key: true/false` and never returns the key itself:
 
 ```bash

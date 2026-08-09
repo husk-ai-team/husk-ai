@@ -33,7 +33,9 @@ class RunRow(Base):
     script_argv: Mapped[list[str]] = mapped_column(JSON, default=list)
     framework: Mapped[str] = mapped_column(String(32), default="unknown")
     status: Mapped[str] = mapped_column(String(16), default="pending", index=True)
-    started_at: Mapped[int] = mapped_column(BigInteger, index=True)
+    # No index=True here: idx_runs_started below already covers this column, and a
+    # duplicate index costs a second B-tree write on every run insert/update.
+    started_at: Mapped[int] = mapped_column(BigInteger)
     finished_at: Mapped[int | None] = mapped_column(BigInteger, nullable=True)
     total_tokens_in: Mapped[int] = mapped_column(Integer, default=0)
     total_tokens_out: Mapped[int] = mapped_column(Integer, default=0)
@@ -56,13 +58,16 @@ class SpanRow(Base):
     __tablename__ = "spans"
 
     id: Mapped[str] = mapped_column(String(26), primary_key=True)
-    run_id: Mapped[str] = mapped_column(
-        String(26), ForeignKey("runs.id", ondelete="CASCADE"), index=True
-    )
+    # Spans are the hot write path (one insert per step of every run), so the
+    # indexes here are deliberately minimal. `run_id` needs no index of its own:
+    # it is the leftmost column of idx_spans_run_started, which already serves
+    # lookups by run_id alone. Same for `started_at`, which is only ever ordered
+    # within a run.
+    run_id: Mapped[str] = mapped_column(String(26), ForeignKey("runs.id", ondelete="CASCADE"))
     parent_span_id: Mapped[str | None] = mapped_column(String(26), nullable=True)
     kind: Mapped[str] = mapped_column(String(32), index=True)
     name: Mapped[str] = mapped_column(Text)
-    started_at: Mapped[int] = mapped_column(BigInteger, index=True)
+    started_at: Mapped[int] = mapped_column(BigInteger)
     finished_at: Mapped[int | None] = mapped_column(BigInteger, nullable=True)
     status: Mapped[str] = mapped_column(String(16), default="running")
     input_ref: Mapped[str | None] = mapped_column(Text, nullable=True)

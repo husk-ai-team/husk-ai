@@ -19,9 +19,12 @@ is not, and cannot be, production monitoring.
 
 ## Using Husk
 
+- [Failed runs](./failed-runs.md) — filter to failures, and let the automatic debugger read one for you.
+- [Automatic debugger](./ai-layer.md) — the report format, apply-fix, and the BYOK providers.
 - [Multi-model attribution](./multi-model.md) — which model ran each step, and what each cost.
 - [Modify & replay](./replay.md) — re-run from a checkpoint with edited state; the two honest tiers.
 - [MCP](./mcp.md) — connect Husk to your AI coding tools.
+- [Cursor bridge](../packages-npm/husk-cursor-hook/README.md) · [VS Code bridge](../packages-npm/husk-vscode-hook/README.md) — stream editor activity alongside your runs.
 
 ## Operate
 
@@ -35,4 +38,6 @@ is not, and cannot be, production monitoring.
 - [Troubleshooting](./troubleshooting.md)
 - [Glossary](./glossary.md)
 
-Setting Husk up on your machine? Hand an AI assistant [AGENT.md](../AGENT.md).
+Setting Husk up? Hand [AGENTS.md](../AGENTS.md) to an AI assistant — it's a step-by-step runbook it can walk you through, one command at a time.
+
+Want a coding assistant to use Husk over MCP while you debug? See [MCP](./mcp.md) — it includes a ready-to-paste prompt.

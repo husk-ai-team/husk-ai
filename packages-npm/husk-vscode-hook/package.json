@@ -68,7 +68,7 @@
     "build": "node ./scripts/build.mjs",
     "dev": "node ./scripts/build.mjs --watch",
     "check": "tsc --noEmit",
-    "package": "node ./scripts/build.mjs && vsce package --no-dependencies --out husk-vscode-hook-0.1.0.vsix"
+    "package": "node ./scripts/build.mjs && vsce package --no-dependencies"
   },
   "files": [
     "dist",

@@ -122,7 +122,7 @@ def _ensure_studio_built() -> None:
 async def lifespan(_: FastAPI) -> AsyncIterator[None]:
     await init_db()
     log.info(
-        "Husk is a local development debugger. It observes only the agent you run on this "
+        "husk-ai is a local development debugger. It observes only the agent you run on this "
         "machine (ingest is loopback-only) — never a production deployment elsewhere."
     )
     yield
@@ -343,9 +343,20 @@ if _studio_dist is not None:
     studio_dist = _studio_dist  # narrowed to Path for the closures below
     log.info("Serving studio bundle from %s", studio_dist)
 
+    # The SPA shell must always be revalidated. Without this the browser
+    # caches it heuristically and, after a rebuild, boots the previous
+    # bundle — which then calls endpoints this backend no longer serves.
+    # The ETag keeps the revalidation a cheap 304; hashed assets under
+    # /assets are immutable by name, so they don't need it.
+    def _shell() -> FileResponse:
+        return FileResponse(
+            studio_dist / "index.html",
+            headers={"Cache-Control": "no-cache, must-revalidate"},
+        )
+
     @app.get("/", include_in_schema=False)
     async def _spa_root() -> FileResponse:
-        return FileResponse(studio_dist / "index.html")
+        return _shell()
 
     # SPA fallback: any unknown route under / that isn't an API/WS/asset
     # request returns index.html so wouter / react-router can handle it.
@@ -361,7 +372,7 @@ if _studio_dist is not None:
         asset = studio_dist / full_path
         if asset.is_file():
             return FileResponse(asset)
-        return FileResponse(studio_dist / "index.html")
+        return _shell()
 
     # The Vite build emits hashed assets under /assets/*.
     app.mount(
